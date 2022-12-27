@@ -1,7 +1,7 @@
 use crate::node::{Node, NodeType};
 
 /// The neural network
-struct Network {
+pub struct Network {
     net_id: u32,
     inputs: Vec<Node>,
     outputs: Vec<Node>,
@@ -21,7 +21,7 @@ impl Network {
     }
 
     /// Activate the neural network
-    fn activate(&mut self) -> bool {
+    pub fn activate(&mut self) -> bool {
         let mut first_time = true;
         let mut abort_count = 0;
 
@@ -50,7 +50,7 @@ impl Network {
             for node in &mut self.all_nodes {
                 if node.is_neuron() {
                     if node.activated {
-                        node.add_active_sum(node.active_sum);
+                        node.archive_active_sum(node.active_sum);
                     }
 
                     // TODO: Add the sigmoid activation function
