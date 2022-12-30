@@ -1,4 +1,4 @@
-use crate::node::{Node, NodeType};
+use crate::node::Node;
 
 /// The neural network
 pub struct Network {

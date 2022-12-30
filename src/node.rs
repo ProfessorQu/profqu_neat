@@ -1,7 +1,7 @@
 use crate::link::Link;
 
 #[derive(PartialEq)]
-pub enum NodeType {
+enum NodeType {
     Sensor, Neuron,
 }
 
@@ -9,7 +9,7 @@ enum NodePlace {
     Hidden, Input, Output, Bias
 }
 
-
+/// The nodes in the network
 pub struct Node {
     node_id: u32,
     node_type: NodeType,
@@ -54,16 +54,38 @@ impl Node {
         self.node_type == NodeType::Neuron
     }
 
-    /// Set the node's type to `node_type`
-    pub fn set_type(&mut self, node_type: NodeType) {
-        self.node_type = node_type;
-    }
-
     /// Archive an active sum to the history
     pub fn archive_active_sum(&mut self, sum: f32) {
         self.prev_active_sums.insert(0, sum);
         if self.prev_active_sums.len() > 2 {
             self.prev_active_sums.pop();
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_node_type() {
+        let mut node = Node::new();
+        assert!(node.is_neuron());
+        assert!(!node.is_sensor());
+        node.node_type = NodeType::Sensor;
+        assert!(!node.is_neuron());
+        assert!(node.is_sensor());
+    }
+    
+    #[test]
+    fn test_node_history() {
+        let mut node = Node::new();
+        assert_eq!(node.prev_active_sums.len(), 0);
+        node.archive_active_sum(1.0);
+        assert_eq!(node.prev_active_sums.len(), 1);
+        node.archive_active_sum(17.0);
+        assert_eq!(node.prev_active_sums.len(), 2);
+        node.archive_active_sum(7.0);
+        assert_eq!(node.prev_active_sums.len(), 2);
     }
 }
