@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crate::node::Node;
 
 /// The neural network
@@ -14,21 +16,22 @@ impl Network {
     /// Check if the outputs are all off
     fn outputsoff(&self) -> bool {
         for output in &self.outputs {
-            if output.num_activations == 0 { return true }
+            // There is some activation, so they aren't all off
+            if output.num_activations != 0 { return false }
         }
 
-        false
+        true
     }
 
     /// Activate the neural network
-    pub fn activate(&mut self) -> bool {
+    pub fn activate(&mut self) -> Result<(), String> {
         let mut first_time = true;
         let mut abort_count = 0;
 
         while self.outputsoff() || first_time {
             abort_count += 1;
             if abort_count >= 20 {
-                return false;
+                return Err("Failed to activate network after {abort_count}".to_string())
             }
 
             for node in &mut self.all_nodes {
@@ -63,6 +66,45 @@ impl Network {
             first_time = false;
         }
 
-        true
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::{borrow::BorrowMut, rc::Rc};
+
+    use crate::Link;
+
+    use super::*;
+
+    #[test]
+    fn test_activate() {
+        use crate::node::NodeType;
+
+        let mut net = Network {
+            net_id: 0,
+            inputs: Vec::new(),
+            outputs: Vec::new(),
+            all_nodes: Vec::new(),
+            num_nodes: 0,
+            num_links: 0,
+        };
+
+        let mut input = Node::new(
+            0,
+            NodeType::Input,
+        );
+
+        let mut output = Node::new(
+            0,
+            NodeType::Output,
+        );
+
+        let mut link = Link {
+            in_node: Box::new(input),
+            out_node: Box::new(output),
+            weight: 1.0,
+        };
     }
 }

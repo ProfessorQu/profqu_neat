@@ -1,11 +1,7 @@
 use crate::link::Link;
 
-#[derive(PartialEq)]
-enum NodeType {
-    Sensor, Neuron,
-}
-
-enum NodePlace {
+#[derive(PartialEq, Clone)]
+pub enum NodeType {
     Hidden, Input, Output, Bias
 }
 
@@ -18,21 +14,21 @@ pub struct Node {
     pub prev_active_sums: Vec<f32>,
     pub num_activations: u32,
     pub incoming: Vec<Link>,
-    pub outcoming: Vec<Link>,
+    pub outgoing: Vec<Link>,
 }
 
 impl Node {
-    /// Create a new neuron
-    pub fn new() -> Self {
+    /// Create a new node
+    pub fn new(node_id: u32, node_type: NodeType) -> Self {
         Self {
-            node_id: 0,
-            node_type: NodeType::Neuron,
+            node_id,
+            node_type,
             activated: false,
             active_sum: 0.0,
             prev_active_sums: Vec::new(),
             num_activations: 0,
             incoming: Vec::new(),
-            outcoming: Vec::new(),
+            outgoing: Vec::new(),
         }
     }
 
@@ -44,14 +40,25 @@ impl Node {
         }
     }
 
+    /// Add an incoming connection
+    pub fn add_incoming(&mut self, feed_node: &Node, weight: f32) {
+        // let link = Link {
+        //     in_node: feed_node,
+        //     out_node: self,
+        //     weight
+        // };
+
+        // self.incoming.push(link);
+    }
+
     /// Check if the node's type is a sensor
     pub fn is_sensor(&self) -> bool {
-        self.node_type == NodeType::Sensor
+        self.node_type == NodeType::Input || self.node_type == NodeType::Output
     }
 
     /// Check if the node's type is a neuron
     pub fn is_neuron(&self) -> bool {
-        self.node_type == NodeType::Neuron
+        !self.is_sensor()
     }
 
     /// Archive an active sum to the history
@@ -69,17 +76,37 @@ mod test {
 
     #[test]
     fn test_node_type() {
-        let mut node = Node::new();
+        let mut node = Node {
+            node_id: 0,
+            node_type: NodeType::Hidden,
+            activated: false,
+            active_sum: 0.0,
+            prev_active_sums: Vec::new(),
+            num_activations: 0,
+            incoming: Vec::new(),
+            outgoing: Vec::new(),
+        };
+        
         assert!(node.is_neuron());
         assert!(!node.is_sensor());
-        node.node_type = NodeType::Sensor;
+        node.node_type = NodeType::Input;
         assert!(!node.is_neuron());
         assert!(node.is_sensor());
     }
     
     #[test]
     fn test_node_history() {
-        let mut node = Node::new();
+        let mut node = Node {
+            node_id: 0,
+            node_type: NodeType::Hidden,
+            activated: false,
+            active_sum: 0.0,
+            prev_active_sums: Vec::new(),
+            num_activations: 0,
+            incoming: Vec::new(),
+            outgoing: Vec::new(),
+        };
+
         assert_eq!(node.prev_active_sums.len(), 0);
         node.archive_active_sum(1.0);
         assert_eq!(node.prev_active_sums.len(), 1);
