@@ -36,3 +36,22 @@ impl ConnectionGene {
         from.innovation_number * neat::MAX_NODES + to.innovation_number
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_hash_code() {
+        for _ in 0..10 {
+            let from_innov: u32 = rand::random();
+            let to_innov: u32 = rand::random();
+
+            let from = NodeGene::new(from_innov);
+            let to = NodeGene::new(to_innov);
+    
+            let connection = ConnectionGene::new(from, to);
+    
+            assert_eq!(connection.hash_code(), from_innov * neat::MAX_NODES + to_innov);
+        }
+    }
+}

@@ -74,7 +74,7 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn test_new() {
+    fn test_new() {
         let neat = Neat::new(3, 3, 2);
         assert_eq!(neat.all_nodes.len(), 6);
 
@@ -84,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    pub fn test_inputs() {
+    fn test_inputs() {
         let neat = Neat::new(3, 3, 2);
 
         let x: f32 = neat.all_nodes[0].x.clone().into();
@@ -104,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    pub fn test_outputs() {
+    fn test_outputs() {
         let neat = Neat::new(3, 3, 2);
 
         let x: f32 = neat.all_nodes[3].x.clone().into();
