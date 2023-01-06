@@ -194,7 +194,7 @@ mod tests {
         let mut set = RandomHashSet::<NodeGene>::new();
 
         // ----- Add first node -----
-        let node = NodeGene::new(2);
+        let node = NodeGene::new(3);
         set.add_sorted(node.clone());
 
         assert_eq!(set.get(0), Some(&node));
@@ -205,5 +205,45 @@ mod tests {
 
         assert_eq!(set.get(0), Some(&node2));
         assert_eq!(set.get(1), Some(&node));
+
+        let node3 = NodeGene::new(2);
+        set.add_sorted(node3.clone());
+        
+        assert_eq!(set.get(0), Some(&node2));
+        assert_eq!(set.get(1), Some(&node3));
+        assert_eq!(set.get(2), Some(&node));
+    }
+
+    #[test]
+    fn random_element() {
+        let mut set = RandomHashSet::<NodeGene>::new();
+
+        // ----- Add first node -----
+        let node = &NodeGene::new(3);
+        set.add_sorted(node.clone());
+        
+        // ----- Add second node -----
+        let node2 = &NodeGene::new(1);
+        set.add_sorted(node2.clone());
+
+        let node3 = &NodeGene::new(2);
+        set.add_sorted(node3.clone());
+
+        let mut choices = Vec::new();
+
+        for i in 0..50 {
+            let element = set.random_element().expect("No elements in set");
+            assert!(
+                (element.innovation_number == node.innovation_number)
+                ^ (element.innovation_number == node2.innovation_number)
+                ^ (element.innovation_number == node3.innovation_number)
+            );
+
+            choices.push(element);
+        }
+
+        assert!(choices.contains(&node));
+        assert!(choices.contains(&node2));
+        assert!(choices.contains(&node3));
     }
 }
