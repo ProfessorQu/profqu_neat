@@ -233,6 +233,7 @@ mod tests {
 
         for i in 0..50 {
             let element = set.random_element().expect("No elements in set");
+            // Use ^ (exclusive or) to test that only one has the same innovation number
             assert!(
                 (element.innovation_number == node.innovation_number)
                 ^ (element.innovation_number == node2.innovation_number)
