@@ -1,34 +1,34 @@
 /// A really stupid workaround for float not implementing 'Eq'
-#[derive(PartialEq, Eq, Hash, Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct PseudoFloat {
-    float: String
+    float: u32
 }
 
 impl PseudoFloat {
     /// Create a new PseudoFloat
     pub fn new(float: f32) -> Self {
         Self {
-            float: float.to_string()
+            float: float.to_bits()
         }
     }
 
     /// Parse into a string
     pub fn parse(&self) -> f32 {
-        self.float.parse().expect("String stored in PseudoFloat is not a f32")
+        f32::from_bits(self.float)
     }
 }
 
 impl From<f32> for PseudoFloat {
     fn from(item: f32) -> Self {
         Self {
-            float: item.to_string()
+            float: item.to_bits()
         }
     }
 }
 
 impl Into<f32> for PseudoFloat {
     fn into(self) -> f32 {
-        self.float.parse().expect("String stored in PseudoFloat is not a f32")
+        f32::from_bits(self.float)
     }
 }
 

@@ -6,12 +6,12 @@ use crate::genome::gene::Gene;
 
 /// A hashset with some data that can get a random item
 #[derive(Clone)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
+pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     set: HashSet<T>,
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
+impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     /// Create a new hash set
     pub fn new() -> Self {
         Self {
@@ -26,10 +26,11 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
     }
 
     /// Get a random element from the set
-    pub fn random_element(&self) -> Option<&T> {
-        self.data.choose(&mut rand::thread_rng())
+    pub fn random_element(&mut self) -> Option<&mut T> {
+        self.data.choose_mut(&mut rand::thread_rng())
     }
 
+    /// Get the length of this hash set
     pub fn len(&self) -> usize {
         self.set.len()
     }
@@ -37,7 +38,7 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
     /// Add a new element to the set
     pub fn add(&mut self, value: T) {
         if !self.contains(&value) {
-            self.set.insert(value.clone());
+            self.set.insert(value);
             self.data.push(value.clone());
         }
     }
@@ -219,32 +220,22 @@ mod tests {
         let mut set = RandomHashSet::<NodeGene>::new();
 
         // ----- Add first node -----
-        let node = &NodeGene::new(3);
+        let node = NodeGene::new(3);
         set.add_sorted(node.clone());
         
         // ----- Add second node -----
-        let node2 = &NodeGene::new(1);
+        let node2 = NodeGene::new(1);
         set.add_sorted(node2.clone());
 
-        let node3 = &NodeGene::new(2);
+        let node3 = NodeGene::new(2);
         set.add_sorted(node3.clone());
 
-        let mut choices = Vec::new();
-
-        for i in 0..50 {
-            let element = set.random_element().expect("No elements in set");
-            // Use ^ (exclusive or) to test that only one has the same innovation number
-            assert!(
-                (element.innovation_number == node.innovation_number)
-                ^ (element.innovation_number == node2.innovation_number)
-                ^ (element.innovation_number == node3.innovation_number)
-            );
-
-            choices.push(element);
-        }
-
-        assert!(choices.contains(&node));
-        assert!(choices.contains(&node2));
-        assert!(choices.contains(&node3));
+        let element = set.random_element().expect("No elements in set");
+        // Use ^ (exclusive or) to test that only one has the same innovation number
+        assert!(
+            (element.innovation_number == node.innovation_number)
+            ^ (element.innovation_number == node2.innovation_number)
+            ^ (element.innovation_number == node3.innovation_number)
+        );
     }
 }

@@ -1,8 +1,11 @@
 use std::cmp::{Ordering, max};
 
+use rand::{thread_rng, Rng};
+
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
+use crate::data_structures::pseudo_float::PseudoFloat;
 use crate::data_structures::random_hash_set::RandomHashSet;
-use crate::neat::Neat; 
+use crate::neat::{Neat, self}; 
 use crate::neat::{DISJOINT_MULT, WEIGHT_DIFF_MULT, EXCESS_MULT};
 
 /// Teh genome with the connections and nodes
@@ -32,8 +35,8 @@ impl Genome {
     pub fn add_connection(&mut self, neat: &mut Neat, index1: usize, index2: usize) {
         self.connections.add(
             neat.get_connection(
-                self.nodes.get(index1).expect("Failed to find node in genome with index1").clone(),
-                self.nodes.get(index2).expect("Failed to find node in genome with index2").clone()
+                *self.nodes.get(index1).expect("Failed to find node in genome with index1"),
+                *self.nodes.get(index2).expect("Failed to find node in genome with index2")
             )
         );
     }
@@ -131,10 +134,10 @@ impl Genome {
             match in1.cmp(&in2) {
                 Ordering::Equal => {    // Same gene
                     if rand::random() {
-                        result_genome.connections.add(connection1.clone());
+                        result_genome.connections.add(*connection1);
                     }
                     else {
-                        result_genome.connections.add(connection2.clone());
+                        result_genome.connections.add(*connection2);
                     }
 
                     index1 += 1;
@@ -144,7 +147,7 @@ impl Genome {
                     index2 += 1;
                 },
                 Ordering::Less => {     // Disjoint gene of genome 2
-                    result_genome.connections.add(connection1.clone());
+                    result_genome.connections.add(*connection1);
 
                     index1 += 1;
                 },
@@ -155,7 +158,7 @@ impl Genome {
         while index1 < genome1.connections.len() {
             let connection1 = genome1.get_connection(index1);
             
-            result_genome.connections.add(connection1.clone());
+            result_genome.connections.add(*connection1);
 
             index1 += 1;
         }
@@ -171,6 +174,86 @@ impl Genome {
     /// Mutate this genome
     pub fn mutate(&mut self) {
 
+    }
+
+    /// Mutate a new link
+    pub fn mutate_link(&mut self, neat: &mut Neat) {
+        if self.nodes.len() <= 1 {
+            return
+        }
+
+        for _ in 0..100 {
+            let node1 = self.nodes.random_element().expect("Nodes array is empty").clone();
+            let node2 = self.nodes.random_element().expect("Nodes array is empty").clone();
+
+            if node1.x == node2.x {
+                continue;
+            }
+
+            let connection: ConnectionGene;
+
+            if node1.x.parse() < node2.x.parse() {
+                connection = ConnectionGene::new(node1, node2);
+            }
+            else {
+                connection = ConnectionGene::new(node2, node1);
+            }
+
+            if self.connections.contains(&connection) {
+                continue;
+            }
+
+            let mut connection = neat.get_connection(connection.from, connection.to);
+            let result = Genome::get_random_weight(neat::WEIGHT_SHIFT_STRENGTH);
+            connection.weight = PseudoFloat::new(result);
+
+            self.connections.add_sorted(connection);
+        }
+    }
+
+    /// Mutate a new node
+    pub fn mutate_node(&mut self, neat: &mut Neat) {
+        if let Some(connection) = self.connections.random_element() {
+            let from = connection.from.clone();
+            let to = connection.to.clone();
+
+            let x = (from.x.parse() + to.x.parse()) / 2.0;
+            let y = (from.y.parse() + to.y.parse()) / 2.0;
+
+            let middle = neat.create_node(x, y);
+
+            let connection1 = neat.get_connection(from.clone(), middle);
+            let connection1 = neat.get_connection(middle, to.clone());
+
+
+        }
+    }
+
+    fn get_random_weight(constant: f32) -> f32 {
+        thread_rng().gen_range(-constant..=constant)
+    }
+
+    /// Mutate weight shift
+    pub fn mutate_weight_shift(&mut self) {
+        if let Some(connection) = self.connections.random_element() {
+            let result = connection.weight.parse() + Genome::get_random_weight(neat::WEIGHT_SHIFT_STRENGTH);
+            connection.weight = PseudoFloat::new(result);
+        }
+    }
+
+    /// Mutate a weight and assign a new value to it
+    pub fn mutate_weight_random(&mut self) {
+        if let Some(connection) = self.connections.random_element() {
+            let result = Genome::get_random_weight(neat::WEIGHT_RANDOM_STRENGTH);
+            connection.weight = PseudoFloat::new(result);
+        }
+    }
+
+    /// Toggle the enabled status of a link
+    pub fn mutate_link_toggle(&mut self) {
+        if let Some(connection) = self.connections.random_element() {
+            connection.enabled = !connection.enabled;
+        }
     }
 }
 

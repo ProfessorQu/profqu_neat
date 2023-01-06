@@ -3,7 +3,7 @@ use super::{node_gene::NodeGene, gene::Gene};
 use crate::data_structures::pseudo_float::PseudoFloat;
 
 /// The connection gene
-#[derive(PartialEq, Eq, Hash, Clone, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct ConnectionGene {
     pub innovation_number: u32,
     pub from: NodeGene,
