@@ -1,7 +1,7 @@
 use crate::data_structures::pseudo_float::PseudoFloat;
 
 /// The node gene
-#[derive(PartialEq, Eq, Hash, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct NodeGene {
     pub innovation_number: u32,
     pub x: PseudoFloat,

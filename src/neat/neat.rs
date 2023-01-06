@@ -1,6 +1,5 @@
-use std::{collections::HashMap, borrow::BorrowMut, ops::Deref};
-
-use crate::{genome::{*, connection_gene::ConnectionGene, node_gene::NodeGene}, data_structures::random_hash_set::RandomHashSet};
+use std::collections::HashMap;
+use crate::genome::*;
 
 pub const MAX_NODES: u32 = 2^20;
 
@@ -28,7 +27,18 @@ impl Neat {
         neat
     }
 
-    /// Reset this neat struct
+    /// Create an empty genome with no hidden nodes or connections
+    pub fn empty_genome(&mut self) -> Genome {
+        let mut genome = Genome::new();
+
+        for index in 0..self.input_size as usize + self.output_size as usize {
+            genome.nodes.add(self.get_node(index));
+        }
+
+        genome
+    }
+
+    /// Reset this neat struct with new values
     pub fn reset(&mut self, input_size: u32, output_size: u32, population_size: u32) {
         self.input_size = input_size;
         self.output_size = output_size;
@@ -57,15 +67,31 @@ impl Neat {
     }
 
     /// Get a new node
-    pub fn get_node(&mut self, index: usize) -> &mut NodeGene {
+    pub fn get_node(&mut self, index: usize) -> NodeGene {
         let len = self.all_nodes.len();
         if index <= len {
-            &mut self.all_nodes[index - 1]
+            self.all_nodes[index].clone()
         }
         else {
             self.create_node(0.0, 0.0);
-            &mut self.all_nodes[len - 1]
+            self.all_nodes[len - 1].clone()
         }
+    }
+
+    pub fn get_connection(&mut self, node1: NodeGene, node2: NodeGene) -> ConnectionGene {
+        let mut connection_gene = ConnectionGene::new(node1, node2);
+
+        if self.all_connections.contains_key(&connection_gene) {
+            connection_gene.innovation_number = self.all_connections.get(&connection_gene)
+                                                    .expect("all_connections doesn't contain connection_gene")
+                                                    .innovation_number;
+        }
+        else {
+            connection_gene.innovation_number = self.all_connections.len() as u32 + 1;
+            self.all_connections.insert(connection_gene.clone(), connection_gene.clone());
+        }
+
+        connection_gene
     }
 }
 
@@ -74,18 +100,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new() {
-        let neat = Neat::new(3, 3, 2);
+    fn new() {
+        let neat = Neat::new(3, 3, 15);
         assert_eq!(neat.all_nodes.len(), 6);
 
         assert_eq!(neat.input_size, 3);
         assert_eq!(neat.output_size, 3);
-        assert_eq!(neat.population_size, 2);
+        assert_eq!(neat.population_size, 15);
     }
 
     #[test]
-    fn test_inputs() {
-        let neat = Neat::new(3, 3, 2);
+    fn inputs() {
+        let neat = Neat::new(3, 3, 200);
 
         let x: f32 = neat.all_nodes[0].x.clone().into();
         let y: f32 = neat.all_nodes[0].y.clone().into();
@@ -104,8 +130,8 @@ mod tests {
     }
 
     #[test]
-    fn test_outputs() {
-        let neat = Neat::new(3, 3, 2);
+    fn outputs() {
+        let neat = Neat::new(3, 3, 40);
 
         let x: f32 = neat.all_nodes[3].x.clone().into();
         let y: f32 = neat.all_nodes[3].y.clone().into();
@@ -121,5 +147,30 @@ mod tests {
         let y: f32 = neat.all_nodes[5].y.clone().into();
         assert_eq!(x, 0.9);
         assert_eq!(y, 0.75);
+    }
+
+    #[test]
+    fn empty_genome() {
+        let mut neat = Neat::new(3, 3, 100);
+
+        let genome = neat.empty_genome();
+
+        for node in neat.all_nodes {
+            assert!(genome.nodes.contains(&node));
+        }
+    }
+
+    #[test]
+    fn get_connection() {
+        let mut neat = Neat::new(3, 3, 100);
+
+        for i in 0..10 {
+            let node1 = NodeGene::new(rand::random());
+            let node2 = NodeGene::new(rand::random());
+    
+            let connection = neat.get_connection(node1, node2);
+    
+            assert_eq!(connection.innovation_number, i + 1);
+        }
     }
 }

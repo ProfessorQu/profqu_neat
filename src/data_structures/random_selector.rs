@@ -1,4 +1,4 @@
-use rand::{Rng, seq::SliceRandom, distributions::WeightedError};
+use rand::{seq::SliceRandom, distributions::WeightedError};
 
 /// A random selector with weights (A.K.A. scores)
 pub struct RandomSelector<T> {

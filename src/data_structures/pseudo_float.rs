@@ -1,5 +1,3 @@
-const FRACT_MULT: f32 = 1e6;
-
 /// A really stupid workaround for float not implementing 'Eq'
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct PseudoFloat {

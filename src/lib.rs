@@ -5,3 +5,4 @@ mod neat;
 mod genome;
 
 pub use neat::Neat;
+pub use genome::Genome;

@@ -1,5 +1,6 @@
-use std::{collections::HashSet, hash::Hash, fmt::Display};
-use rand::{self, seq::SliceRandom};
+use std::collections::HashSet;
+use std::hash::Hash;
+use rand::seq::SliceRandom;
 
 /// A hashset with some data that can get a random item
 pub struct RandomHashSet<T> where T: Eq + Hash + Clone {
@@ -66,7 +67,10 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {
         match self.set.remove(value) {
             true => {
                 self.data.remove(
-                    self.data.iter().position(|v| v == value).expect("Failed to find value in self.data")
+                    self.data
+                            .iter()
+                            .position(|v| v == value)
+                            .expect("Failed to find value in self.data")
                 );
                 true
             },

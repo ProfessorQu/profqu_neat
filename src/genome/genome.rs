@@ -1,20 +1,19 @@
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
-use crate::{data_structures::random_hash_set::RandomHashSet, neat::Neat};
+use crate::data_structures::random_hash_set::RandomHashSet;
+use crate::neat::Neat;
 
 /// Teh genome with the connections and nodes
-struct Genome<'a> {
-    connections: RandomHashSet<ConnectionGene>,
-    nodes: RandomHashSet<NodeGene>,
-    neat: &'a Neat
+pub struct Genome {
+    pub connections: RandomHashSet<ConnectionGene>,
+    pub nodes: RandomHashSet<NodeGene>
 }
 
-impl<'a> Genome<'a> {
+impl Genome {
     /// Create a new genome
-    pub fn new(neat: &'a Neat) -> Self {
+    pub fn new() -> Self {
         Self {
             connections: RandomHashSet::new(),
-            nodes: RandomHashSet::new(),
-            neat
+            nodes: RandomHashSet::new()
         }
     }
 
@@ -24,8 +23,9 @@ impl<'a> Genome<'a> {
     }
 
     /// Crossover two genomes
-    pub fn crossover(g1: Genome<'a>, g2: Genome) -> Self {
-        Self::new(g1.neat)
+    pub fn crossover(g1: Self, g2: Self) -> Self {
+        // Self::new(g1.neat)
+        g1
     }
 
     /// Mutate this genome
