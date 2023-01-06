@@ -1,5 +1,5 @@
 use crate::neat;
-use super::node_gene::NodeGene;
+use super::{node_gene::NodeGene, gene::Gene};
 use crate::data_structures::pseudo_float::PseudoFloat;
 
 /// The connection gene
@@ -30,14 +30,27 @@ impl ConnectionGene {
     }
 }
 
+impl Gene for ConnectionGene {
+    fn get_innovation_number(&self) -> u32 {
+        self.innovation_number
+    }
+
+    fn set_innovation_number(&mut self, new: u32) {
+        self.innovation_number = new
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use rand::Rng;
+
     use super::*;
 
+    #[test]
     fn test_hash_code() {
         for _ in 0..10 {
-            let from_innov: u32 = rand::random();
-            let to_innov: u32 = rand::random();
+            let from_innov: u32 = rand::thread_rng().gen_range(0..100);
+            let to_innov: u32 = rand::thread_rng().gen_range(0..100);
 
             let from = NodeGene::new(from_innov);
             let to = NodeGene::new(to_innov);

@@ -2,14 +2,16 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use rand::seq::SliceRandom;
 
+use crate::genome::gene::Gene;
+
 /// A hashset with some data that can get a random item
 #[derive(Clone)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone {
+pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
     set: HashSet<T>,
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {
+impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene {
     /// Create a new hash set
     pub fn new() -> Self {
         Self {
@@ -38,6 +40,17 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {
             self.set.insert(value.clone());
             self.data.push(value.clone());
         }
+    }
+
+    /// Add something to the hash set in the correct position
+    pub fn add_sorted(&mut self, value: T) {
+        let pos = self.data.binary_search_by(
+            |probe| probe.get_innovation_number()
+                            .cmp(&value.get_innovation_number())
+        ).unwrap_or_else(|e| e);
+
+        self.data.insert(pos, value.clone());
+        self.set.insert(value);
     }
 
     /// Clear the entire set
@@ -77,5 +90,120 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {
             },
             false => false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::genome::{NodeGene, ConnectionGene};
+
+    use super::*;
+
+    #[test]
+    fn new() {
+        let set = RandomHashSet::<NodeGene>::new();
+        
+        assert_eq!(set.data.len(), 0);
+        assert_eq!(set.set.len(), 0);
+
+        let set = RandomHashSet::<ConnectionGene>::new();
+        
+        assert_eq!(set.data.len(), 0);
+        assert_eq!(set.set.len(), 0);
+    }
+
+    #[test]
+    fn add_remove() {
+        let mut set = RandomHashSet::<NodeGene>::new();
+
+        // ----- Add first node -----
+        let node = NodeGene::new(0);
+
+        set.add(node.clone());
+
+        assert_eq!(set.data.len(), 1);
+        assert_eq!(set.set.len(), 1);
+        assert_eq!(set.len(), set.data.len());
+
+        assert!(set.contains(&node));
+
+        // ----- Add second node -----
+        let node2 = NodeGene::new(1);
+
+        set.add(node2.clone());
+
+        assert_eq!(set.data.len(), 2);
+        assert_eq!(set.set.len(), 2);
+        assert_eq!(set.len(), set.data.len());
+
+        assert!(set.contains(&node));
+        assert!(set.contains(&node2));
+
+        // ----- Remove by index -----
+        set.remove_index(0);
+        
+        assert_eq!(set.data.len(), 1);
+        assert_eq!(set.set.len(), 1);
+        assert_eq!(set.len(), set.data.len());
+
+        assert!(!set.contains(&node));
+        assert!(set.contains(&node2));
+
+        // Add the node back in
+        set.add(node.clone());
+
+        // ----- Remove by value -----
+        set.remove_value(&node2);
+
+        assert_eq!(set.data.len(), 1);
+        assert_eq!(set.set.len(), 1);
+        assert_eq!(set.len(), set.data.len());
+
+        assert!(set.contains(&node));
+        assert!(!set.contains(&node2));
+
+        // Add the node back in
+        set.add(node2.clone());
+
+        // ----- Clear -----
+        set.clear();
+
+        assert_eq!(set.len(), 0);
+    }
+
+    #[test]
+    fn get() {
+        let mut set = RandomHashSet::<NodeGene>::new();
+
+        // ----- Add first node -----
+        let node = NodeGene::new(0);
+        set.add(node.clone());
+
+        assert_eq!(set.get(0), Some(&node));
+        
+        // ----- Add second node -----
+        let node2 = NodeGene::new(1);
+        set.add(node2.clone());
+
+        assert_eq!(set.get(0), Some(&node));
+        assert_eq!(set.get(1), Some(&node2));
+    }
+
+    #[test]
+    fn add_sorted() {
+        let mut set = RandomHashSet::<NodeGene>::new();
+
+        // ----- Add first node -----
+        let node = NodeGene::new(2);
+        set.add_sorted(node.clone());
+
+        assert_eq!(set.get(0), Some(&node));
+        
+        // ----- Add second node -----
+        let node2 = NodeGene::new(1);
+        set.add_sorted(node2.clone());
+
+        assert_eq!(set.get(0), Some(&node2));
+        assert_eq!(set.get(1), Some(&node));
     }
 }

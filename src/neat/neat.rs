@@ -53,12 +53,12 @@ impl Neat {
 
         for input_index in 0..input_size as usize {
             let y = (input_index + 1) as f32 / (input_size + 1) as f32;
-            let mut node = self.create_node(0.1, y);
+            self.create_node(0.1, y);
         }
 
         for output_index in 0..output_size as usize {
             let y = (output_index + 1) as f32 / (output_size + 1) as f32;
-            let mut node = self.create_node(0.9, y);
+            self.create_node(0.9, y);
         }
     }
 

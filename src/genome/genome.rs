@@ -1,4 +1,3 @@
-use core::panic;
 use std::cmp::{Ordering, max};
 
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
@@ -64,7 +63,6 @@ impl Genome {
         let mut index2 = 0;
 
         let mut num_disjoint = 0usize;
-        let mut num_excess = 0;
         let mut total_weight_diff = 0.0;
         let mut num_weight_similar = 0usize;
 
@@ -99,7 +97,7 @@ impl Genome {
             _ => total_weight_diff / num_weight_similar as f32
         };
 
-        num_excess = genome1.connections.len() - index1;
+        let num_excess = genome1.connections.len() - index1;
 
         let mut total_genes = max(genome1.connections.len(), genome2.connections.len()) as f32;
         if total_genes < 20.0 {
@@ -171,7 +169,7 @@ impl Genome {
     }
 
     /// Mutate this genome
-    pub fn mutate(&self) {
+    pub fn mutate(&mut self) {
 
     }
 }
