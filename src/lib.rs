@@ -1,7 +1,7 @@
 #![allow(unused)]
 
-mod data_structures;
-mod neat;
-mod genome;
+pub mod data_structures;
+pub mod neat;
+pub mod genome;
 
 pub use neat::Neat;

@@ -5,13 +5,19 @@ use crate::genome::*;
 #[path ="neat_test.rs"]
 mod neat_test;
 
+/// The maximum number of nodes in a network
 pub const MAX_NODES: u32 = 2^20;
 
+/// The multiplier for the disjoint genes in the `distance` function
 pub const DISJOINT_MULT: f32 = 1.0;
+/// The multiplier for the excess genes in the `distance` function
 pub const EXCESS_MULT: f32 = 1.0;
+/// The multiplier for the weight difference in the `distance` function
 pub const WEIGHT_DIFF_MULT: f32 = 1.0;
 
+/// The weight shifting strength when mutating
 pub const WEIGHT_SHIFT_STRENGTH: f32 = 0.3;
+/// The weight randomness strength when mutating
 pub const WEIGHT_RANDOM_STRENGTH: f32 = 1.0;
 
 /// The struct that controls the entire library
@@ -25,6 +31,11 @@ pub struct Neat {
 
 impl Neat {
     /// Create a new neat struct
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let neat = Neat::new(3, 3, 15);
+    /// ```
     pub fn new(input_size: u32, output_size: u32, population_size: u32) -> Self {
         let mut neat = Self {
             all_connections: HashMap::new(),
@@ -39,6 +50,16 @@ impl Neat {
     }
 
     /// Create an empty genome with no hidden nodes or connections
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let mut neat = Neat::new(3, 3, 100);
+    ///
+    /// let genome = neat.empty_genome();
+    ///
+    /// assert_eq!(genome.connections.len(), 0);
+    /// assert_eq!(genome.nodes.len(), 6);
+    /// ```
     pub fn empty_genome(&mut self) -> Genome {
         let mut genome = Genome::new();
 
@@ -50,6 +71,18 @@ impl Neat {
     }
 
     /// Reset this neat struct with new values
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let mut neat = Neat::new(3, 3, 15);
+    /// let genome = neat.empty_genome();
+    /// assert_eq!(genome.nodes.len(), 6);
+    /// 
+    /// neat.reset(3, 5, 4);
+    /// 
+    /// let genome = neat.empty_genome();
+    /// assert_eq!(genome.nodes.len(), 8);
+    /// ```
     pub fn reset(&mut self, input_size: u32, output_size: u32, population_size: u32) {
         self.input_size = input_size;
         self.output_size = output_size;
@@ -82,7 +115,7 @@ impl Neat {
         self.all_nodes[len - 1]
     }
 
-    /// Get a new node
+    /// Get a new node if it's out of bounds
     pub fn get_node(&mut self, index: usize) -> NodeGene {
         let len = self.all_nodes.len();
         if index <= len {
@@ -93,6 +126,7 @@ impl Neat {
         }
     }
 
+    /// Create a new connection from node1 to node2
     pub fn get_connection(&mut self, node1: NodeGene, node2: NodeGene) -> ConnectionGene {
         let mut connection_gene = ConnectionGene::new(node1, node2);
 

@@ -1,4 +1,4 @@
-use crate::data_structures::pseudo_float::PseudoFloat;
+use crate::data_structures::PseudoFloat;
 
 use super::gene::Gene;
 

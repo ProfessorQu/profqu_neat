@@ -1,8 +1,9 @@
-pub mod node_gene;
-pub mod connection_gene;
-pub mod genome;
-pub mod gene;
+mod node_gene;
+mod connection_gene;
+mod genome;
+mod gene;
 
-pub use node_gene::*;
-pub use connection_gene::*;
-pub use genome::*;
+pub use node_gene::NodeGene;
+pub use connection_gene::ConnectionGene;
+pub use genome::Genome;
+pub use gene::Gene;

@@ -1,6 +1,6 @@
 use crate::neat;
 use super::{node_gene::NodeGene, gene::Gene};
-use crate::data_structures::pseudo_float::PseudoFloat;
+use crate::data_structures::PseudoFloat;
 
 /// The connection gene
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
@@ -24,7 +24,7 @@ impl ConnectionGene {
         }
     }
 
-    /// Get the hash code of the connection gene
+    /// Get the hash code of this connection gene
     pub fn hash_code(&self) -> u32 {
         self.from.innovation_number * neat::MAX_NODES + self.to.innovation_number
     }

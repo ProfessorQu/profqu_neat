@@ -1,18 +1,34 @@
-/// A really stupid workaround for float not implementing 'Eq'
+/// A workaround for float not implementing `Eq`
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct PseudoFloat {
     float: u32
 }
 
 impl PseudoFloat {
-    /// Create a new PseudoFloat
+    /// Create a new PseudoFloat from a float
+    /// ```rust
+    /// use profqu_neat::data_structures::PseudoFloat;
+    /// 
+    /// let float = 3.1415;
+    /// let pseudo = PseudoFloat::new(float);
+    /// 
+    /// assert_eq!(float, pseudo.into());
+    /// ```
     pub fn new(float: f32) -> Self {
         Self {
             float: float.to_bits()
         }
     }
 
-    /// Parse into a string
+    /// Parse into a float from the bits
+    /// ```rust
+    /// use profqu_neat::data_structures::PseudoFloat;
+    /// 
+    /// let float = 3.1415;
+    /// let pseudo = PseudoFloat::new(float);
+    /// 
+    /// assert_eq!(float, pseudo.parse());
+    /// ```
     pub fn parse(&self) -> f32 {
         f32::from_bits(self.float)
     }

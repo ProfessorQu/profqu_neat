@@ -62,6 +62,23 @@ fn empty_genome() {
 }
 
 #[test]
+fn create_node() {
+    let mut neat = Neat::new(4, 5, 25);
+
+    let node = neat.create_node(0.0, 1.0);
+
+    assert_eq!(node.x.parse(), 0.0);
+    assert_eq!(node.y.parse(), 1.0);
+    assert_eq!(node.innovation_number, 10);
+    
+    let node = neat.create_node(0.5, 3.4);
+
+    assert_eq!(node.x.parse(), 0.5);
+    assert_eq!(node.y.parse(), 3.4);
+    assert_eq!(node.innovation_number, 11);
+}
+
+#[test]
 fn get_connection() {
     let mut neat = Neat::new(3, 3, 100);
 

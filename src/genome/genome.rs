@@ -3,8 +3,8 @@ use std::cmp::{Ordering, max};
 use rand::{thread_rng, Rng};
 
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
-use crate::data_structures::pseudo_float::PseudoFloat;
-use crate::data_structures::random_hash_set::RandomHashSet;
+use crate::data_structures::PseudoFloat;
+use crate::data_structures::RandomHashSet;
 use crate::neat::{Neat, self}; 
 use crate::neat::{DISJOINT_MULT, WEIGHT_DIFF_MULT, EXCESS_MULT};
 
@@ -36,6 +36,7 @@ impl Genome {
         }
     }
 
+    /// Add a new connection to this genome
     pub fn add_connection(&mut self, neat: &mut Neat, index1: usize, index2: usize) {
         self.connections.add(
             neat.get_connection(
@@ -45,6 +46,7 @@ impl Genome {
         );
     }
     
+    /// Order two genomes according to their innovation number
     fn order_genomes(input_genome1: Genome, input_genome2: Genome) -> (Genome, Genome) {
         match input_genome1.highest_innov_num().cmp(&input_genome2.highest_innov_num()) {
             Ordering::Less =>   (input_genome2, input_genome1),
@@ -52,11 +54,29 @@ impl Genome {
         }
     }
 
+    /// Get a connection by index
     fn get_connection(&self, index: usize) -> &ConnectionGene {
         self.connections.get(index).expect("Index out of range")
     }
 
     /// Calculate the distance between this and another genome
+    /// ```rust
+    /// use profqu_neat::{Neat, genome::Genome};
+    /// 
+    /// let mut neat = Neat::new(2, 2, 3);
+    /// 
+    /// let mut genome1 = neat.empty_genome();
+    /// let mut genome2 = neat.empty_genome();
+    /// 
+    /// assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
+    /// assert_eq!(Genome::distance(&genome2, &genome2), 0.0);
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
+    /// 
+    /// genome1.add_connection(&mut neat, 0, 2);
+    /// 
+    /// assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    ///```
     pub fn distance(input_genome1: &Genome, input_genome2: &Genome) -> f32 {
         // If both genomes have no connections, their distance is 0
         if input_genome1.connections.len() == 0 && input_genome2.connections.len() == 0 {
@@ -117,6 +137,25 @@ impl Genome {
     }
 
     /// Crossover two genomes
+    /// ```rust
+    /// use profqu_neat::{Neat, genome::Genome};
+    /// let mut neat = Neat::new(3, 4, 10);
+    /// 
+    /// let mut genome1 = neat.empty_genome();
+    /// let genome2 = neat.empty_genome();
+    /// 
+    /// let baby = Genome::crossover(&mut neat, &genome1, &genome2);
+    /// 
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
+    /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
+    ///
+    /// genome1.add_connection(&mut neat, 0, 2);
+    /// 
+    /// let baby = Genome::crossover(&mut neat, &genome1, &genome2);
+    /// 
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
+    /// ```
     pub fn crossover(neat: &mut Neat, input_genome1: &Genome, input_genome2: &Genome) -> Self {
         // Set the highest genome to be genome1
         let (genome1, genome2) = Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
