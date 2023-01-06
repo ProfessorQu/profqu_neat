@@ -8,6 +8,10 @@ use crate::data_structures::random_hash_set::RandomHashSet;
 use crate::neat::{Neat, self}; 
 use crate::neat::{DISJOINT_MULT, WEIGHT_DIFF_MULT, EXCESS_MULT};
 
+#[cfg(test)]
+#[path = "genome_test.rs"]
+mod genome_test;
+
 /// Teh genome with the connections and nodes
 #[derive(Clone)]
 pub struct Genome {
@@ -204,7 +208,7 @@ impl Genome {
             }
 
             let mut connection = neat.get_connection(connection.from, connection.to);
-            let result = Genome::get_random_weight(neat::WEIGHT_SHIFT_STRENGTH);
+            let result = Genome::get_random_range(neat::WEIGHT_SHIFT_STRENGTH);
             connection.weight = PseudoFloat::new(result);
 
             self.connections.add_sorted(connection);
@@ -213,30 +217,38 @@ impl Genome {
 
     /// Mutate a new node
     pub fn mutate_node(&mut self, neat: &mut Neat) {
-        if let Some(connection) = self.connections.random_element() {
+        if let Some(connection) = self.connections.clone().random_element() {
             let from = connection.from.clone();
             let to = connection.to.clone();
 
             let x = (from.x.parse() + to.x.parse()) / 2.0;
-            let y = (from.y.parse() + to.y.parse()) / 2.0;
+            let y = (from.y.parse() + to.y.parse()) / 2.0 + Genome::get_random_range(0.05);
 
             let middle = neat.create_node(x, y);
 
-            let connection1 = neat.get_connection(from.clone(), middle);
-            let connection1 = neat.get_connection(middle, to.clone());
+            let mut connection1 = neat.get_connection(from.clone(), middle);
+            let mut connection2= neat.get_connection(middle, to.clone());
 
+            connection1.weight = PseudoFloat::new(1.0);
+            connection2.weight = connection.weight;
 
+            self.connections.remove_value(connection);
+            self.connections.add(connection1);
+            self.connections.add(connection2);
+
+            self.nodes.add(middle);
         }
     }
 
-    fn get_random_weight(constant: f32) -> f32 {
+    /// Get a random range from -constant to constant inclusive
+    fn get_random_range(constant: f32) -> f32 {
         thread_rng().gen_range(-constant..=constant)
     }
 
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = connection.weight.parse() + Genome::get_random_weight(neat::WEIGHT_SHIFT_STRENGTH);
+            let result = connection.weight.parse() + Genome::get_random_range(neat::WEIGHT_SHIFT_STRENGTH);
             connection.weight = PseudoFloat::new(result);
         }
     }
@@ -244,7 +256,7 @@ impl Genome {
     /// Mutate a weight and assign a new value to it
     pub fn mutate_weight_random(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = Genome::get_random_weight(neat::WEIGHT_RANDOM_STRENGTH);
+            let result = Genome::get_random_range(neat::WEIGHT_RANDOM_STRENGTH);
             connection.weight = PseudoFloat::new(result);
         }
     }
@@ -254,79 +266,5 @@ impl Genome {
         if let Some(connection) = self.connections.random_element() {
             connection.enabled = !connection.enabled;
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn distance() {
-        let mut neat = Neat::new(2, 2, 3);
-        
-        let mut genome1 = neat.empty_genome();
-        let mut genome2 = neat.empty_genome();
-        
-        // Test that the distances are all zero for empty genomes
-        assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
-        assert_eq!(Genome::distance(&genome2, &genome2), 0.0);
-        assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
-
-        // Create and add a new connection to genome1
-        genome1.add_connection(&mut neat, 0, 2);
-
-        // Now test the distances again
-        assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
-        assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-        
-        // Create and add a new connection to genome2 which is identical to genome1
-        genome2.add_connection(&mut neat, 0, 2);
-        
-        // Now test the distances again
-        assert_eq!(Genome::distance(&genome2, &genome2), 0.0);
-        assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
-    }
-
-    #[test]
-    fn crossover() {
-        let mut neat = Neat::new(2, 2, 3);
-
-        let mut genome1 = neat.empty_genome();
-        let mut genome2 = neat.empty_genome();
-
-        // Crossover
-        let baby = Genome::crossover(&mut neat, &genome1, &genome2);
-
-        // Test distance
-        assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
-        assert_eq!(Genome::distance(&genome1, &baby), 0.0);
-
-        // Add connection
-        genome1.add_connection(&mut neat, 0, 2);
-        
-        // Test distance with connection
-        assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-        assert_eq!(Genome::distance(&genome1, &baby), 1.0);
-        
-        // Create a new crossover
-        let baby = Genome::crossover(&mut neat, &genome1, &genome2);
-        
-        // Distances have shifted
-        assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-        assert_eq!(Genome::distance(&genome1, &baby), 0.0);
-        
-        // Add a connection to genome2
-        genome2.add_connection(&mut neat, 3, 2);
-        
-        assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-        assert_eq!(Genome::distance(&genome2, &baby), 2.0);
-        
-        // Crossover again to get closer to both
-        let baby = Genome::crossover(&mut neat, &genome1, &genome2);
-
-        // Now test the distance again
-        assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-        assert_eq!(Genome::distance(&genome2, &baby), 2.0);
     }
 }
