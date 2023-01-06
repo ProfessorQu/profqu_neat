@@ -3,12 +3,12 @@ use super::node_gene::NodeGene;
 use crate::data_structures::pseudo_float::PseudoFloat;
 
 /// The connection gene
-#[derive(PartialEq, Eq, Hash, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct ConnectionGene {
     pub innovation_number: u32,
     from: NodeGene,
     to: NodeGene,
-    weight: PseudoFloat,
+    pub weight: PseudoFloat,
     enabled: bool,
 }
 

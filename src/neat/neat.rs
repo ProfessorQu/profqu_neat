@@ -3,9 +3,13 @@ use crate::genome::*;
 
 pub const MAX_NODES: u32 = 2^20;
 
+pub const DISJOINT_MULT: f32 = 1.0;
+pub const EXCESS_MULT: f32 = 1.0;
+pub const WEIGHT_DIFF_MULT: f32 = 1.0;
+
 /// The struct that controls the entire library
 pub struct Neat {
-    all_connections: HashMap<ConnectionGene, ConnectionGene>,
+    all_connections: HashMap<u32, ConnectionGene>,
     all_nodes: Vec<NodeGene>,
     input_size: u32,
     output_size: u32,
@@ -81,14 +85,14 @@ impl Neat {
     pub fn get_connection(&mut self, node1: NodeGene, node2: NodeGene) -> ConnectionGene {
         let mut connection_gene = ConnectionGene::new(node1, node2);
 
-        if self.all_connections.contains_key(&connection_gene) {
-            connection_gene.innovation_number = self.all_connections.get(&connection_gene)
+        if self.all_connections.contains_key(&connection_gene.hash_code()) {
+            connection_gene.innovation_number = self.all_connections.get(&connection_gene.hash_code())
                                                     .expect("all_connections doesn't contain connection_gene")
                                                     .innovation_number;
         }
         else {
             connection_gene.innovation_number = self.all_connections.len() as u32 + 1;
-            self.all_connections.insert(connection_gene.clone(), connection_gene.clone());
+            self.all_connections.insert(connection_gene.hash_code().clone(), connection_gene.clone());
         }
 
         connection_gene
@@ -165,12 +169,29 @@ mod tests {
         let mut neat = Neat::new(3, 3, 100);
 
         for i in 0..10 {
-            let node1 = NodeGene::new(rand::random());
-            let node2 = NodeGene::new(rand::random());
+            let node1 = NodeGene::new(i * 2);
+            let node2 = NodeGene::new(1 + i * 2);
     
-            let connection = neat.get_connection(node1, node2);
-    
-            assert_eq!(connection.innovation_number, i + 1);
+            let connection = neat.get_connection(node1.clone(), node2.clone());
+            let connection2 = neat.get_connection(node1.clone(), node2.clone());
+
+            let connection3 = neat.get_connection(node2.clone(), node1.clone());
+
+            // Test innovation numbers of same connections
+            assert_eq!(connection.innovation_number, i * 2 + 1);
+            assert_eq!(connection.innovation_number, connection2.innovation_number);
+
+            // Test innovation numbers of different connections
+            assert_eq!(connection3.innovation_number, i * 2 + 2);
+            assert_ne!(connection.innovation_number, connection3.innovation_number);
+
+            // Test equality of same and different connections
+            assert_eq!(connection, connection2);
+            assert_ne!(connection, connection3);
+
+            // Test equality of hash codes of same and different connections
+            assert_eq!(connection.hash_code(), connection2.hash_code());
+            assert_ne!(connection2.hash_code(), connection3.hash_code());
         }
     }
 }

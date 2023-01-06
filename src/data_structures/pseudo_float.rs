@@ -11,6 +11,11 @@ impl PseudoFloat {
             float: float.to_string()
         }
     }
+
+    /// Parse into a string
+    pub fn parse(&self) -> f32 {
+        self.float.parse().expect("String stored in PseudoFloat is not a f32")
+    }
 }
 
 impl From<f32> for PseudoFloat {

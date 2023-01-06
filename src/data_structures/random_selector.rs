@@ -23,7 +23,10 @@ impl<T> RandomSelector<T> {
 
     /// Choose a random element according to the scores
     pub fn random_element(&self) -> Result<&(T, f32), WeightedError> {
-        self.objects.choose_weighted(&mut rand::thread_rng(), |item| item.1)
+        self.objects.choose_weighted(
+            &mut rand::thread_rng(),
+            |item| item.1
+        )
     }
 
     /// Reset the selector

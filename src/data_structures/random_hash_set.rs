@@ -3,6 +3,7 @@ use std::hash::Hash;
 use rand::seq::SliceRandom;
 
 /// A hashset with some data that can get a random item
+#[derive(Clone)]
 pub struct RandomHashSet<T> where T: Eq + Hash + Clone {
     set: HashSet<T>,
     data: Vec<T>,
@@ -27,7 +28,7 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {
         self.data.choose(&mut rand::thread_rng())
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.set.len()
     }
 
