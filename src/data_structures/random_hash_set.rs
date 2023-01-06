@@ -6,7 +6,7 @@ use rand::seq::SliceRandom;
 #[derive(Clone)]
 pub struct RandomHashSet<T> where T: Eq + Hash + Clone {
     set: HashSet<T>,
-    data: Vec<T>,
+    pub data: Vec<T>,
 }
 
 impl<T> RandomHashSet<T> where T: Eq + Hash + Clone {

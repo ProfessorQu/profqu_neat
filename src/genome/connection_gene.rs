@@ -6,10 +6,10 @@ use crate::data_structures::pseudo_float::PseudoFloat;
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct ConnectionGene {
     pub innovation_number: u32,
-    from: NodeGene,
-    to: NodeGene,
+    pub from: NodeGene,
+    pub to: NodeGene,
     pub weight: PseudoFloat,
-    enabled: bool,
+    pub enabled: bool,
 }
 
 impl ConnectionGene {
