@@ -9,7 +9,7 @@ use crate::genome::Gene;
 mod random_hash_set_test;
 
 /// A hashset with some data that can get a random item
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     set: HashSet<T>,
     pub data: Vec<T>,

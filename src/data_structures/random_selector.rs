@@ -93,6 +93,26 @@ impl<T> RandomSelector<T> {
         self.objects.len()
     }
 
+
+    /// Test if this dataset is empty
+    /// ```rust
+    /// use profqu_neat::genome::NodeGene;
+    /// use profqu_neat::data_structures::RandomSelector;
+    /// 
+    /// let mut selector: RandomSelector<NodeGene> = RandomSelector::new();
+    /// 
+    /// assert!(selector.is_empty());
+    /// 
+    /// let score = 42.0;
+    /// let node = NodeGene::new(2);
+    /// selector.add(node, score);
+    /// 
+    /// assert!(!selector.is_empty());
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.objects.is_empty()
+    }
+
     /// Reset the selector and all data in it
     pub fn clear(&mut self) {
         self.objects.clear();

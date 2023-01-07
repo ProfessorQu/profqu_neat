@@ -73,6 +73,39 @@ fn crossover() {
 }
 
 #[test]
+fn mutate() {
+    let mut neat = Neat::new(5, 4, 90);
+
+    let mut genome1 = neat.empty_genome();
+    let mut genome2 = genome1.clone();
+
+    assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
+
+    for _ in 0..10 {
+        genome1.mutate(&mut neat);
+        genome2.mutate(&mut neat);
+    }
+
+    let mut previous1 = genome1.clone();
+    let mut previous2 = genome2.clone();
+
+    for _ in 0..100 {
+        for _ in 0..10 {
+            genome1.mutate(&mut neat);
+            genome2.mutate(&mut neat);
+        }
+
+        assert_ne!(genome1, previous1);
+        assert_ne!(genome2, previous2);
+
+        assert_ne!(genome1, genome2);
+
+        previous1 = genome1.clone();
+        previous2 = genome2.clone();
+    }
+}
+
+#[test]
 fn mutate_link() {
     let mut neat = Neat::new(5, 4, 90);
 
@@ -187,7 +220,7 @@ fn mutate_weight_random() {
     let mut previous = genome.get_connection(0).weight.parse();
 
     for _ in 0..10 {
-        genome.mutate_weight_shift();
+        genome.mutate_weight_random();
     
         let current = genome.get_connection(0).weight.parse();
         assert_ne!(current, previous);
@@ -207,7 +240,7 @@ fn mutate_link_toggle() {
     let mut previous1 = genome.get_connection(0).enabled;
     let mut previous2 = genome.get_connection(1).enabled;
 
-    for _ in 0..10 {
+    for _ in 0..50 {
         genome.mutate_link_toggle();
 
         let current1 = genome.get_connection(0).enabled;

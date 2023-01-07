@@ -1,3 +1,4 @@
+use core::panic;
 use std::cmp::{Ordering, max};
 
 use rand::{thread_rng, Rng};
@@ -6,14 +7,14 @@ use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
 use crate::data_structures::PseudoFloat;
 use crate::data_structures::RandomHashSet;
 use crate::neat::{Neat, self}; 
-use crate::neat::{DISJOINT_MULT, WEIGHT_DIFF_MULT, EXCESS_MULT};
+use crate::neat::{MULT_DISJOINT, MULT_WEIGHT_DIFF, MULT_EXCESS};
 
 #[cfg(test)]
 #[path = "genome_test.rs"]
 mod genome_test;
 
 /// Teh genome with the connections and nodes
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Genome {
     pub connections: RandomHashSet<ConnectionGene>,
     pub nodes: RandomHashSet<NodeGene>
@@ -82,6 +83,9 @@ impl Genome {
         if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
             return 0.0
         }
+        else if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
+            panic!("Can't compare an empty genome to a non-empty genome");
+        }
 
         // Set the highest genome to be genome1
         let (genome1, genome2) = Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
@@ -131,9 +135,9 @@ impl Genome {
             total_genes = 1.0;
         }
 
-        DISJOINT_MULT * num_disjoint as f32 / total_genes +
-        EXCESS_MULT * num_excess as f32 / total_genes +
-        WEIGHT_DIFF_MULT * average_weight_diff
+        MULT_DISJOINT * num_disjoint as f32 / total_genes +
+        MULT_EXCESS * num_excess as f32 / total_genes +
+        MULT_WEIGHT_DIFF * average_weight_diff
     }
 
     /// Crossover two genomes
@@ -214,9 +218,28 @@ impl Genome {
         result_genome
     }
 
-    /// Mutate this genome
-    pub fn mutate(&mut self) {
-
+    /// Mutate this genome with one of the following with a certain probabily
+    ///  - Mutate a [new link](Self::mutate_link) with [`PROB_MUTATE_LINK`](crate::neat::PROB_MUTATE_LINK)
+    ///  - Mutate a [new node](Self::mutate_node) with [`PROB_MUTATE_NODE`](crate::neat::PROB_MUTATE_NODE)
+    ///  - Mutate a [weight shift](Self::mutate_weight_shift) with [`PROB_MUTATE_WEIGHT_SHIFT`](crate::neat::PROB_MUTATE_WEIGHT_SHIFT)
+    ///  - Mutate a [new random weight](Self::mutate_weight_random) with [`PROB_MUTATE_WEIGHT_RANDOM`](crate::neat::PROB_MUTATE_WEIGHT_RANDOM)
+    ///  - Mutate a [toggle in a link](Self::mutate_link_toggle) with [`PROB_MUTATE_TOGGLE_LINK`](crate::neat::PROB_MUTATE_TOGGLE_LINK)
+    pub fn mutate(&mut self, neat: &mut Neat) {
+        if neat::PROB_MUTATE_LINK > rand::random() {
+            self.mutate_link(neat);
+        }
+        if neat::PROB_MUTATE_NODE > rand::random() {
+            self.mutate_node(neat);
+        }
+        if neat::PROB_MUTATE_WEIGHT_SHIFT > rand::random() {
+            self.mutate_weight_shift();
+        }
+        if neat::PROB_MUTATE_WEIGHT_RANDOM > rand::random() {
+            self.mutate_weight_random();
+        }
+        if neat::PROB_MUTATE_TOGGLE_LINK > rand::random() {
+            self.mutate_link_toggle();
+        }
     }
 
     /// Mutate a new link
