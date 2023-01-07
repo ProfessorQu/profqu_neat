@@ -6,7 +6,7 @@ use crate::genome::*;
 mod neat_test;
 
 /// The maximum number of nodes in a network
-pub const MAX_NODES: u32 = 2^20;
+pub const MAX_NODES: u32 = 2u32.pow(20);
 
 /// The multiplier for the disjoint genes in the `distance` function
 pub const MULT_DISJOINT: f32 = 1.0;
