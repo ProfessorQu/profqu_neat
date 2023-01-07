@@ -42,9 +42,9 @@ impl From<f32> for PseudoFloat {
     }
 }
 
-impl Into<f32> for PseudoFloat {
-    fn into(self) -> f32 {
-        f32::from_bits(self.float)
+impl From<PseudoFloat> for f32 {
+    fn from(val: PseudoFloat) -> Self {
+        f32::from_bits(val.float)
     }
 }
 
@@ -67,7 +67,7 @@ mod tests {
     fn test_into() {
         for _ in 0..10 {
             let pseudo = PseudoFloat::new(rand::random());
-            let float: f32 = pseudo.clone().into();
+            let float: f32 = pseudo.into();
             let pseudo2 = float.into();
 
             assert_eq!(pseudo, pseudo2);

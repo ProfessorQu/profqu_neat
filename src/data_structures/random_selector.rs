@@ -35,3 +35,9 @@ impl<T> RandomSelector<T> {
         self.total_score = 0.0;
     }
 }
+
+impl<T> Default for RandomSelector<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

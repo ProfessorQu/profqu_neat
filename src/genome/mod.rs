@@ -1,5 +1,6 @@
 mod node_gene;
 mod connection_gene;
+#[allow(clippy::module_inception)]
 mod genome;
 mod gene;
 

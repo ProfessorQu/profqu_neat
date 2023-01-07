@@ -113,6 +113,22 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     pub fn len(&self) -> usize {
         self.set.len()
     }
+    /// Get the length of this hash set
+    /// ```rust
+    /// use profqu_neat::genome::NodeGene;
+    /// use profqu_neat::data_structures::RandomHashSet;
+    /// 
+    /// let mut set = RandomHashSet::<NodeGene>::new();
+    /// assert!(set.is_empty());
+    /// 
+    /// let mut node1 = NodeGene::new(0);
+    /// set.add(node1);
+    /// 
+    /// assert!(!set.is_empty());
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.set.is_empty()
+    }
 
     /// Add a new element to the set
     /// ```rust
@@ -129,7 +145,7 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     pub fn add(&mut self, value: T) {
         if !self.contains(&value) {
             self.set.insert(value);
-            self.data.push(value.clone());
+            self.data.push(value);
         }
     }
 
@@ -158,7 +174,7 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
                             .cmp(&value.get_innovation_number())
         ).unwrap_or_else(|e| e);
 
-        self.data.insert(pos, value.clone());
+        self.data.insert(pos, value);
         self.set.insert(value);
     }
 
@@ -261,5 +277,11 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
             },
             false => false
         }
+    }
+}
+
+impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
+    fn default() -> Self {
+        Self::new()
     }
 }

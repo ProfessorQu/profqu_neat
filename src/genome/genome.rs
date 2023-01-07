@@ -79,7 +79,7 @@ impl Genome {
     ///```
     pub fn distance(input_genome1: &Genome, input_genome2: &Genome) -> f32 {
         // If both genomes have no connections, their distance is 0
-        if input_genome1.connections.len() == 0 && input_genome2.connections.len() == 0 {
+        if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
             return 0.0
         }
 
@@ -226,21 +226,19 @@ impl Genome {
         }
 
         for _ in 0..100 {
-            let node1 = self.nodes.random_element().expect("Nodes array is empty").clone();
-            let node2 = self.nodes.random_element().expect("Nodes array is empty").clone();
+            let node1 = *self.nodes.random_element().expect("Nodes array is empty");
+            let node2 = *self.nodes.random_element().expect("Nodes array is empty");
 
             if node1.x == node2.x {
                 continue;
             }
 
-            let connection: ConnectionGene;
-
-            if node1.x.parse() < node2.x.parse() {
-                connection = ConnectionGene::new(node1, node2);
+            let connection = if node1.x.parse() < node2.x.parse() {
+                ConnectionGene::new(node1, node2)
             }
             else {
-                connection = ConnectionGene::new(node2, node1);
-            }
+                ConnectionGene::new(node2, node1)
+            };
 
             if self.connections.contains(&connection) {
                 continue;
@@ -251,22 +249,23 @@ impl Genome {
             connection.weight = PseudoFloat::new(result);
 
             self.connections.add_sorted(connection);
+            return;
         }
     }
 
     /// Mutate a new node
     pub fn mutate_node(&mut self, neat: &mut Neat) {
         if let Some(connection) = self.connections.clone().random_element() {
-            let from = connection.from.clone();
-            let to = connection.to.clone();
+            let from = connection.from;
+            let to = connection.to;
 
             let x = (from.x.parse() + to.x.parse()) / 2.0;
             let y = (from.y.parse() + to.y.parse()) / 2.0 + Genome::get_random_range(0.05);
 
             let middle = neat.create_node(x, y);
 
-            let mut connection1 = neat.get_connection(from.clone(), middle);
-            let mut connection2= neat.get_connection(middle, to.clone());
+            let mut connection1 = neat.get_connection(from, middle);
+            let mut connection2= neat.get_connection(middle, to);
 
             connection1.weight = PseudoFloat::new(1.0);
             connection2.weight = connection.weight;
@@ -305,5 +304,11 @@ impl Genome {
         if let Some(connection) = self.connections.random_element() {
             connection.enabled = !connection.enabled;
         }
+    }
+}
+
+impl Default for Genome {
+    fn default() -> Self {
+        Self::new()
     }
 }

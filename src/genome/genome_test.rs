@@ -71,3 +71,116 @@ fn crossover() {
     assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
     assert_eq!(Genome::distance(&genome2, &baby), 2.0);
 }
+
+#[test]
+fn mutate_link() {
+    let mut neat = Neat::new(5, 4, 90);
+
+    let mut genome = neat.empty_genome();
+
+    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.connections.len(), 0);
+
+    genome.mutate_link(&mut neat);
+
+    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.connections.len(), 1);
+    
+    genome.mutate_link(&mut neat);
+    
+    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.connections.len(), 2);
+
+    genome.mutate_link(&mut neat);
+    
+    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.connections.len(), 3);
+}
+
+#[test]
+fn mutate_node() {
+    let mut neat = Neat::new(2, 3, 90);
+
+    let mut genome = neat.empty_genome();
+
+    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.connections.len(), 0);
+
+    genome.mutate_link(&mut neat);
+
+    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.connections.len(), 1);
+    
+    genome.mutate_node(&mut neat);
+    
+    assert_eq!(genome.nodes.len(), 6);
+    assert_eq!(genome.connections.len(), 2);
+
+    genome.mutate_node(&mut neat);
+    
+    assert_eq!(genome.nodes.len(), 7);
+    assert_eq!(genome.connections.len(), 3);
+}
+
+#[test]
+fn mutate_weight_shift() {
+    let mut neat = Neat::new(2, 3, 90);
+
+    let mut genome = neat.empty_genome();
+
+    genome.add_connection(&mut neat, 0, 2);
+    assert_eq!(genome.get_connection(0).weight.parse(), 1.0);
+
+    for _ in 0..10 {
+        let weight = genome.get_connection(0).weight.parse();
+        genome.mutate_weight_shift();
+        let new_weight = genome.get_connection(0).weight.parse();
+        let difference = (new_weight - weight).abs();
+        assert!((0.0..neat::WEIGHT_SHIFT_STRENGTH).contains(&difference));
+    }
+}
+
+#[test]
+fn mutate_weight_random() {
+    let mut neat = Neat::new(2, 3, 90);
+
+    let mut genome = neat.empty_genome();
+
+    genome.add_connection(&mut neat, 0, 2);
+    assert_eq!(genome.get_connection(0).weight.parse(), 1.0);
+    
+    let mut previous = genome.get_connection(0).weight.parse();
+
+    for _ in 0..10 {
+        genome.mutate_weight_shift();
+    
+        let current = genome.get_connection(0).weight.parse();
+        assert_ne!(current, previous);
+        previous = current;
+    }
+}
+
+#[test]
+fn mutate_link_toggle() {
+    let mut neat = Neat::new(2, 3, 90);
+
+    let mut genome = neat.empty_genome();
+
+    genome.add_connection(&mut neat, 0, 2);
+    genome.add_connection(&mut neat, 1, 2);
+    
+    let mut previous1 = genome.get_connection(0).enabled;
+    let mut previous2 = genome.get_connection(1).enabled;
+
+    for i in 0..10 {
+        genome.mutate_link_toggle();
+
+        let current1 = genome.get_connection(0).enabled;
+        let current2 = genome.get_connection(1).enabled;
+
+        assert!(current1 != previous1 || current2 != previous2);
+        
+        previous1 = current1;
+        previous2 = current2;
+    }
+}
