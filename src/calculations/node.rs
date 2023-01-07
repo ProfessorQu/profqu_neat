@@ -20,17 +20,17 @@ impl Node {
         }
     }
 
-    /// Calculate the output using all the connections
+    /// Calculate a the output value
     pub fn calculate(&mut self) {
         let mut sum = 0.0;
 
         for connection in &self.connections {
-            if (connection.enabled) {
-                sum += connection.from.output.parse() * connection.weight.parse();
+            if connection.enabled {
+                sum += connection.weight.parse() * connection.from.borrow_mut().output.parse();
             }
         }
 
-        self.output = Node::activation(sum).into();
+        self.output = Self::activation(sum).into();
     }
 
     /// The activation function
