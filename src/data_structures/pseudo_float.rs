@@ -1,5 +1,7 @@
+use std::fmt;
+
 /// A workaround for float not implementing `Eq`
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct PseudoFloat {
     float: u32
 }
@@ -45,6 +47,12 @@ impl From<f32> for PseudoFloat {
 impl From<PseudoFloat> for f32 {
     fn from(val: PseudoFloat) -> Self {
         f32::from_bits(val.float)
+    }
+}
+
+impl fmt::Debug for PseudoFloat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", f32::from_bits(self.float))
     }
 }
 

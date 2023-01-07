@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::genome::Genome;
 
-use super::{Node, Connection};
+use super::{Node, Connection, node};
 
 /// The struct to calculate the output of a genome
 #[derive(Clone, PartialEq, Debug)]
@@ -26,27 +26,17 @@ impl Calculator {
 
         for node_gene in nodes.data {
             let node = Node::new(node_gene.x.parse());
-            node_hash_map.insert(node_gene.innovation_number, node.clone());
-
-            if node_gene.x.parse() <= 0.1 {
-                input_nodes.push(node);
-            }
-            else if node_gene.x.parse() >= 0.9 {
-                output_nodes.push(node);
-            }
-            else {
-                hidden_nodes.push(node);
-            }
+            node_hash_map.insert(node_gene.innovation_number, node);
         }
-
-        hidden_nodes.sort();
 
         for connection in connections.data {
             let from = connection.from;
             let to = connection.to;
 
-            let node_from = node_hash_map.get(&from.innovation_number)
-                                    .expect("Node in connection but not in hashmap").clone();
+            let clone = node_hash_map.clone();
+
+            let node_from = clone.get(&from.innovation_number)
+                                    .expect("Node in connection but not in hashmap");
             let mut node_to = node_hash_map.get_mut(&to.innovation_number)
                                     .expect("Node in connection but not in hashmap");
 
@@ -56,6 +46,20 @@ impl Calculator {
 
             node_to.connections.push(new_connection);
         }
+
+        for (innov, node) in node_hash_map {
+            if node.x.parse() <= 0.1 {
+                input_nodes.push(node);
+            }
+            else if node.x.parse() >= 0.9 {
+                output_nodes.push(node);
+            }
+            else {
+                hidden_nodes.push(node);
+            }
+        }
+
+        hidden_nodes.sort();
 
         Self { input_nodes, output_nodes, hidden_nodes }
     }
@@ -74,7 +78,7 @@ impl Calculator {
             hidden_node.calculate();
         }
 
-        let mut output = Vec::new();
+        let mut output = vec![0.0; self.output_nodes.len()];
 
         for i in 0..self.output_nodes.len() {
             self.output_nodes[i].calculate();
@@ -120,5 +124,23 @@ mod tests {
 
         assert_eq!(calc.hidden_nodes.len(), 2);
         assert_eq!(calc.hidden_nodes.get(0).unwrap().x.parse(), 0.3);
+    }
+
+    #[test]
+    fn calculate() {
+        let mut neat = Neat::new(3, 3, 10);
+
+        let mut genome = neat.empty_genome();
+        
+        genome.generate_calculator();
+        let result = genome.calculate(vec![0.0, 0.0, 0.0]).unwrap();
+        assert_eq!(result, vec![0.5, 0.5, 0.5]);
+
+        for _ in 0..100 {
+            genome.mutate(&mut neat);
+        }
+
+        genome.generate_calculator();
+        assert_ne!(genome.calculate(vec![6.9, 4.2, 40.9]).unwrap(), result);
     }
 }

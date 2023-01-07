@@ -24,9 +24,9 @@ impl Node {
     pub fn calculate(&mut self) {
         let mut sum = 0.0;
 
-        for connection in self.connections.clone() {
+        for connection in &self.connections {
             if (connection.enabled) {
-                sum += connection.weight.parse() * connection.from.output.parse();
+                sum += connection.from.output.parse() * connection.weight.parse();
             }
         }
 
