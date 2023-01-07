@@ -112,9 +112,44 @@ fn mutate_node() {
     assert_eq!(genome.connections.len(), 1);
     
     genome.mutate_node(&mut neat);
-    
+
     assert_eq!(genome.nodes.len(), 6);
     assert_eq!(genome.connections.len(), 2);
+
+    genome.mutate_node(&mut neat);
+    
+    assert_eq!(genome.nodes.len(), 7);
+    assert_eq!(genome.connections.len(), 3);
+}
+
+#[test]
+fn mutate_node_with_disabled_link() {
+    let mut neat = Neat::new(2, 3, 90);
+
+    let mut genome = neat.empty_genome();
+
+    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.connections.len(), 0);
+
+    let node1 = neat.create_node(0.1, 0.5);
+    let node2 = neat.create_node(0.9, 0.5);
+
+    let mut connection = ConnectionGene::new(node1, node2);
+    connection.enabled = false;
+
+    genome.connections.add(connection);
+
+    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.connections.len(), 1);
+    assert!(!genome.get_connection(0).enabled);
+    
+    genome.mutate_node(&mut neat);
+
+    assert_eq!(genome.nodes.len(), 6);
+    assert_eq!(genome.connections.len(), 2);
+    
+    assert!(genome.get_connection(0).enabled);
+    assert!(!genome.get_connection(1).enabled);
 
     genome.mutate_node(&mut neat);
     
@@ -172,7 +207,7 @@ fn mutate_link_toggle() {
     let mut previous1 = genome.get_connection(0).enabled;
     let mut previous2 = genome.get_connection(1).enabled;
 
-    for i in 0..10 {
+    for _ in 0..10 {
         genome.mutate_link_toggle();
 
         let current1 = genome.get_connection(0).enabled;

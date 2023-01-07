@@ -269,6 +269,7 @@ impl Genome {
 
             connection1.weight = PseudoFloat::new(1.0);
             connection2.weight = connection.weight;
+            connection2.enabled = connection.enabled;
 
             self.connections.remove_value(connection);
             self.connections.add(connection1);
