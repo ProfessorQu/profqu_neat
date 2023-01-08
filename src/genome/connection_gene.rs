@@ -1,9 +1,11 @@
+use std::fmt::Debug;
+
 use crate::neat;
 use super::{node_gene::NodeGene, gene::Gene};
 use crate::data_structures::PseudoFloat;
 
 /// The connection gene
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct ConnectionGene {
     pub innovation_number: u32,
     pub from: NodeGene,
@@ -37,6 +39,12 @@ impl Gene for ConnectionGene {
 
     fn set_innovation_number(&mut self, new: u32) {
         self.innovation_number = new
+    }
+}
+
+impl Debug for ConnectionGene {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Connection({:?})", self.innovation_number)
     }
 }
 

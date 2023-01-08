@@ -1,6 +1,8 @@
 use std::collections::HashSet;
+use std::fmt::{self, write};
 use std::hash::Hash;
 use rand::seq::SliceRandom;
+use core::fmt::Debug;
 
 use crate::genome::Gene;
 
@@ -9,13 +11,13 @@ use crate::genome::Gene;
 mod random_hash_set_test;
 
 /// A hashset with some data that can get a random item
-#[derive(Clone, Debug, PartialEq)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
+#[derive(Clone, PartialEq)]
+pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
     set: HashSet<T>,
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
+impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
     /// Create a new hash set
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
@@ -280,8 +282,14 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
     }
 }
 
-impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy {
+impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl<T> fmt::Debug for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.data)
     }
 }

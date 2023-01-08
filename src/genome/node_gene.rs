@@ -1,9 +1,11 @@
+use std::fmt::Debug;
+
 use crate::data_structures::PseudoFloat;
 
 use super::gene::Gene;
 
 /// The node gene
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct NodeGene {
     pub innovation_number: u32,
     pub x: PseudoFloat,
@@ -33,5 +35,11 @@ impl Gene for NodeGene {
 
     fn set_innovation_number(&mut self, new: u32) {
         self.innovation_number = new
+    }
+}
+
+impl Debug for NodeGene {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Node({:?})", self.innovation_number)
     }
 }

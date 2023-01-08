@@ -1,3 +1,4 @@
+use core::num;
 use core::panic;
 use std::cmp::{Ordering, max};
 
@@ -47,10 +48,11 @@ impl Genome {
 
     /// Get the highest innovation number of this genome
     pub fn highest_innov_num(&self) -> u32 {
-        match self.connections.get(self.connections.len()) {
-            Some(gene) => gene.innovation_number,
-            None => 0
+        if self.connections.is_empty() {
+            return 0
         }
+
+        self.connections.get(self.connections.len() - 1).expect("Index out of bounds").innovation_number
     }
 
     /// Add a new connection to this genome
@@ -65,9 +67,14 @@ impl Genome {
     
     /// Order two genomes according to their innovation number
     fn order_genomes(input_genome1: Genome, input_genome2: Genome) -> (Genome, Genome) {
-        match input_genome1.highest_innov_num().cmp(&input_genome2.highest_innov_num()) {
-            Ordering::Less =>   (input_genome2, input_genome1),
-            _ =>                (input_genome1, input_genome2)
+        let innov1 = input_genome1.highest_innov_num();
+        let innov2 = input_genome2.highest_innov_num();
+        
+        if innov1 < innov2 {
+            (input_genome2, input_genome1)
+        }
+        else {
+            (input_genome1, input_genome2)
         }
     }
 
@@ -95,12 +102,8 @@ impl Genome {
     /// assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
     ///```
     pub fn distance(input_genome1: &Genome, input_genome2: &Genome) -> f32 {
-        // If both genomes have no connections, their distance is 0
         if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
             return 0.0
-        }
-        else if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
-            panic!("Can't compare an empty genome to a non-empty genome");
         }
 
         // Set the highest genome to be genome1
@@ -115,26 +118,26 @@ impl Genome {
 
         // Go through all connections
         while index1 < genome1.connections.len() && index2 < genome2.connections.len() {
-            let connection1 = genome1.get_connection(index1);
-            let connection2 = genome2.get_connection(index2);
+            let connection_gene1 = genome1.get_connection(index1);
+            let connection_gene2 = genome2.get_connection(index2);
 
-            let in1 = connection1.innovation_number;
-            let in2 = connection2.innovation_number;
+            let innov1 = connection_gene1.innovation_number;
+            let innov2 = connection_gene2.innovation_number;
 
-            match in1.cmp(&in2) {
+            match innov1.cmp(&innov2) {
                 Ordering::Equal => {    // Same gene
+                    num_weight_similar += 1;
+                    total_weight_diff += (connection_gene1.weight.parse() - connection_gene2.weight.parse()).abs();
                     index1 += 1;
                     index2 += 1;
-                    total_weight_diff += (connection1.weight.parse() - connection2.weight.parse()).abs();
-                    num_weight_similar += 1;
                 },
                 Ordering::Greater => {  // Disjoint gene of genome 1
-                    index2 += 1;
                     num_disjoint += 1;
+                    index2 += 1;
                 },
                 Ordering::Less => {     // Disjoint gene of genome 2
-                    index1 += 1;
                     num_disjoint += 1;
+                    index1 += 1;
                 },
             }
         }
@@ -177,40 +180,42 @@ impl Genome {
     /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
     /// ```
     pub fn crossover(neat: &mut Neat, input_genome1: &Genome, input_genome2: &Genome) -> Self {
-        // Set the highest genome to be genome1
         let (genome1, genome2) = Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
 
-        let mut result_genome = neat.empty_genome();
+        let mut baby = neat.empty_genome();
 
         let mut index1 = 0;
         let mut index2 = 0;
 
         // Go through all connections
         while index1 < genome1.connections.len() && index2 < genome2.connections.len() {
-            let connection1 = genome1.get_connection(index1);
-            let connection2 = genome2.get_connection(index2);
+            let connection_gene1 = genome1.get_connection(index1);
+            let connection_gene2 = genome2.get_connection(index2);
 
-            let in1 = connection1.innovation_number;
-            let in2 = connection2.innovation_number;
+            let innov1 = connection_gene1.innovation_number;
+            let innov2 = connection_gene2.innovation_number;
 
             // Add connections to the result genome accordingly
-            match in1.cmp(&in2) {
+            match innov1.cmp(&innov2) {
                 Ordering::Equal => {    // Same gene
                     if rand::random() {
-                        result_genome.connections.add(*connection1);
+                        baby.connections.add(*connection_gene1);
                     }
                     else {
-                        result_genome.connections.add(*connection2);
+                        baby.connections.add(*connection_gene2);
                     }
 
                     index1 += 1;
                     index2 += 1;
                 },
-                Ordering::Greater => {  // Disjoint gene of genome 1
+                Ordering::Greater => {  // Disjoint gene of genome 2
+                    // TODO: KEEP THIS IN MIND FOR BUGS BECAUSE IT'S ONLY USED FOR MAKING CROSSOVER2 CORRECT
+                    baby.connections.add(*connection_gene2);
+
                     index2 += 1;
                 },
-                Ordering::Less => {     // Disjoint gene of genome 2
-                    result_genome.connections.add(*connection1);
+                Ordering::Less => {     // Disjoint gene of genome 1
+                    baby.connections.add(*connection_gene1);
 
                     index1 += 1;
                 },
@@ -221,17 +226,17 @@ impl Genome {
         while index1 < genome1.connections.len() {
             let connection1 = genome1.get_connection(index1);
             
-            result_genome.connections.add(*connection1);
+            baby.connections.add(*connection1);
 
             index1 += 1;
         }
 
-        for connection in result_genome.clone().connections.data {
-            result_genome.nodes.add(connection.from);
-            result_genome.nodes.add(connection.to);
+        for connection in baby.clone().connections.data {
+            baby.nodes.add(connection.from);
+            baby.nodes.add(connection.to);
         }
 
-        result_genome
+        baby
     }
 
     /// Mutate this genome with one of the following with a certain probabily
