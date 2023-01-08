@@ -1,11 +1,11 @@
-use std::{collections::HashMap, cell::RefCell, rc::Rc};
+use std::{collections::HashMap, cell::RefCell, rc::Rc, hash::Hash};
 
 use crate::genome::Genome;
 
 use super::{Node, Connection};
 
 /// The struct to calculate the output of a genome
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Calculator {
     input_nodes: Vec<Rc<RefCell<Node>>>,
     hidden_nodes: Vec<Rc<RefCell<Node>>>,

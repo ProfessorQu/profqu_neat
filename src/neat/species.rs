@@ -4,6 +4,6 @@ use super::Client;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Species {
-    // clients: RandomHashSet<Client>,
+    clients: Vec<Client>,
 }
 

@@ -1,14 +1,13 @@
-use crate::{genome::Genome, calculations::Calculator, data_structures::RandomHashSet};
+use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::{RandomHashSet, PseudoFloat}};
 
 use super::Species;
 
 /// The client that controls the genome and the fitness
-// #[derive(PartialEq, Eq, Hash, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Client {
     genome: Genome,
     calculator: Option<Calculator>,
-    pub fitness: f32,
-    species: Species
+    pub fitness: PseudoFloat
 }
 
 impl Client {
@@ -16,8 +15,7 @@ impl Client {
         Self {
             genome,
             calculator: None,
-            fitness: 0.0,
-            species: Species { }
+            fitness: PseudoFloat::new(0.0)
         }
     }
 
@@ -34,4 +32,9 @@ impl Client {
 
         self.calculator.as_mut().expect("Failed to generate calculator").calculate(inputs)
     }
+}
+
+impl Gene for Client {
+    fn get_innovation_number(&self) -> u32 { 0 }
+    fn set_innovation_number(&mut self, new: u32) { }
 }

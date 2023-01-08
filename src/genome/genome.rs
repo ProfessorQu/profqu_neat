@@ -12,7 +12,7 @@ use crate::neat::{MULT_DISJOINT, MULT_WEIGHT_DIFF, MULT_EXCESS};
 #[path = "genome_test.rs"]
 mod genome_test;
 
-/// Teh genome with the connections and nodes
+/// The genome with the connections and nodes
 #[derive(Clone, PartialEq, Debug)]
 pub struct Genome {
     pub connections: RandomHashSet<ConnectionGene>,

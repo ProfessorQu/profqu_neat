@@ -11,13 +11,13 @@ use crate::genome::Gene;
 mod random_hash_set_test;
 
 /// A hashset with some data that can get a random item
-#[derive(Clone, PartialEq)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+#[derive(Clone, PartialEq, Eq)]
+pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
     set: HashSet<T>,
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
     /// Create a new hash set
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
@@ -293,3 +293,9 @@ impl<T> fmt::Debug for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy
         write!(f, "{:?}", self.data)
     }
 }
+
+// impl<T> Hash for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+//         self.data.hash(state);
+//     }
+// }
