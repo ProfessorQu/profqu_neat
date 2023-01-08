@@ -81,7 +81,7 @@ impl Genome {
     /// genome1.add_connection(&mut neat, 0, 2);
     /// 
     /// assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
-    /// assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     ///```
     pub fn distance(input_genome1: &Genome, input_genome2: &Genome) -> f32 {
         if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
@@ -141,7 +141,7 @@ impl Genome {
         MULT_WEIGHT_DIFF * average_weight_diff
     }
 
-    /// Crossover two genomes
+    /// Crossover two genomes, the first element should have the highest fitness
     /// ```rust
     /// use profqu_neat::{Neat, genome::Genome};
     /// let mut neat = Neat::new(3, 4, 10);
@@ -158,12 +158,10 @@ impl Genome {
     /// 
     /// let baby = Genome::crossover(&mut neat, &genome1, &genome2);
     /// 
-    /// assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    /// assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
     /// ```
-    pub fn crossover(neat: &mut Neat, input_genome1: &Genome, input_genome2: &Genome) -> Self {
-        let (genome1, genome2) = Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
-
+    pub fn crossover(neat: &mut Neat, genome1: &Genome, genome2: &Genome) -> Self {
         let mut baby = neat.empty_genome();
 
         let mut index1 = 0;
@@ -192,7 +190,6 @@ impl Genome {
                 },
                 Ordering::Greater => {  // Disjoint gene of genome 2
                     // TODO: KEEP THIS IN MIND FOR BUGS BECAUSE IT'S ONLY USED FOR MAKING CROSSOVER2 CORRECT
-                    baby.connections.add(*connection_gene2);
 
                     index2 += 1;
                 },

@@ -9,11 +9,11 @@ mod neat_test;
 pub const MAX_NODES: u32 = 2u32.pow(20);
 
 /// The multiplier for the disjoint genes in the `distance` function
-pub const MULT_DISJOINT: f32 = 1.0;
+pub const MULT_DISJOINT: f32 = 3.0;
 /// The multiplier for the excess genes in the `distance` function
-pub const MULT_EXCESS: f32 = 1.0;
+pub const MULT_EXCESS: f32 = 2.0;
 /// The multiplier for the weight difference in the `distance` function
-pub const MULT_WEIGHT_DIFF: f32 = 1.0;
+pub const MULT_WEIGHT_DIFF: f32 = 4.0;
 
 /// The weight shifting strength when mutating
 pub const WEIGHT_SHIFT_STRENGTH: f32 = 0.3;
@@ -30,6 +30,9 @@ pub const PROB_MUTATE_WEIGHT_SHIFT: f32 = 0.4;
 pub const PROB_MUTATE_WEIGHT_RANDOM: f32 = 0.4;
 /// The probability of mutating and toggling a link
 pub const PROB_MUTATE_TOGGLE_LINK: f32 = 0.4;
+
+/// The threshold for creating a new species
+pub const SPECIES_THRESHOLD: f32 = 4.0;
 
 /// The struct that controls the entire library
 pub struct Neat {

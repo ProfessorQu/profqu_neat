@@ -20,7 +20,7 @@ fn distance() {
 
     // Now test the distances again
     assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
-    assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     
     // Create and add a new connection to genome2 which is identical to genome1
     genome2.add_connection(&mut neat, 0, 2);
@@ -48,29 +48,29 @@ fn crossover() {
     genome1.add_connection(&mut neat, 0, 2);
     
     // Test distance with connection
-    assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
-    assert_eq!(Genome::distance(&genome1, &baby), 1.0);
+    assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
+    assert_eq!(Genome::distance(&genome1, &baby), 2.0);
     
     // Create a new crossover
     let baby = Genome::crossover(&mut neat, &genome1, &genome2);
     
     // Distances have shifted
-    assert_eq!(Genome::distance(&genome1, &genome2), 1.0);
+    assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     assert_eq!(Genome::distance(&genome1, &baby), 0.0);
     
     // Add a connection to genome2
     genome2.add_connection(&mut neat, 3, 2);
     
-    assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
-    assert_eq!(Genome::distance(&genome2, &baby), 2.0);
+    assert_eq!(Genome::distance(&genome1, &genome2), 5.0);
+    assert_eq!(Genome::distance(&genome2, &baby), 5.0);
     
     // Crossover again to get closer to both
     let baby = Genome::crossover(&mut neat, &genome1, &genome2);
 
     // Now test the distance again
-    assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
-    assert_eq!(Genome::distance(&genome1, &baby), 1.0);
-    assert_eq!(Genome::distance(&genome2, &baby), 1.0);
+    assert_eq!(Genome::distance(&genome1, &genome2), 5.0);
+    assert_eq!(Genome::distance(&genome1, &baby), 0.0);
+    assert_eq!(Genome::distance(&genome2, &baby), 5.0);
 }
 
 #[test]
@@ -99,12 +99,8 @@ fn crossover2() {
         let current1 = Genome::distance(&genome1, &baby);
         let current2 = Genome::distance(&genome2, &baby);
 
-        println!("PREV1, CUR1: {}, {}", previous1, current1);
-        println!("PREV2, CUR2: {}, {}", previous2, current2);
-        println!("=========================================");
-
         assert!(previous1 > current1);
-        assert!(previous2 > current2);
+        assert_ne!(previous2, current2);
     }
 }
 
@@ -138,6 +134,31 @@ fn mutate() {
 
         previous1 = genome1.clone();
         previous2 = genome2.clone();
+    }
+}
+
+#[test]
+fn mutate2() {
+    let mut neat = Neat::new(5, 4, 90);
+
+    let mut genome1 = neat.empty_genome();
+    let mut genome2 = genome1.clone();
+
+    assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
+
+    let mut previous = Genome::distance(&genome1, &genome2);
+
+    for _ in 0..5 {
+        for _ in 0..100 {
+            genome1.mutate(&mut neat);
+            genome2.mutate(&mut neat);
+        }
+    
+        let current = Genome::distance(&genome1, &genome2);
+    
+        assert_ne!(current, previous);
+
+        previous = current;
     }
 }
 

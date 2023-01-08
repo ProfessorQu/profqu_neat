@@ -1,4 +1,4 @@
-use std::{collections::HashMap, cell::RefCell, rc::Rc, hash::Hash};
+use std::{collections::HashMap, cell::RefCell, rc::Rc};
 
 use crate::genome::Genome;
 

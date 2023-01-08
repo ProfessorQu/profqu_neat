@@ -1,11 +1,11 @@
-use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::{RandomHashSet, PseudoFloat}};
+use std::fmt::Debug;
 
-use super::Species;
+use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::PseudoFloat, Neat};
 
 /// The client that controls the genome and the fitness
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Clone)]
 pub struct Client {
-    genome: Genome,
+    pub genome: Genome,
     calculator: Option<Calculator>,
     pub fitness: PseudoFloat
 }
@@ -15,7 +15,7 @@ impl Client {
         Self {
             genome,
             calculator: None,
-            fitness: PseudoFloat::new(0.0)
+            fitness: PseudoFloat::new(0.0),
         }
     }
 
@@ -32,9 +32,25 @@ impl Client {
 
         self.calculator.as_mut().expect("Failed to generate calculator").calculate(inputs)
     }
+
+    /// Calculate the distance from this client's genome to other's genome
+    pub fn distance(&self, other: &Client) -> f32 {
+        Genome::distance(&self.genome, &other.genome)
+    }
+
+    /// Mutate this client's genome
+    pub fn mutate(&mut self, neat: &mut Neat) {
+        self.genome.mutate(neat);
+    }
 }
 
 impl Gene for Client {
     fn get_innovation_number(&self) -> u32 { 0 }
-    fn set_innovation_number(&mut self, new: u32) { }
+    fn set_innovation_number(&mut self, _new: u32) { }
+}
+
+impl Debug for Client {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Client {{ fitness: {:?} }}", self.fitness)
+    }
 }
