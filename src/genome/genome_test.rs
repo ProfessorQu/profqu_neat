@@ -82,8 +82,8 @@ fn crossover2() {
 
     let mut baby = neat.empty_genome();
     
-    let mut previous1 = Genome::distance(&genome1, &baby);
-    let mut previous2 = Genome::distance(&genome2, &baby);
+    let mut previous1: f32;
+    let mut previous2: f32;
 
     for _ in 0..10 {
         for _ in 0..200 {

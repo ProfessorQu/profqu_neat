@@ -1,5 +1,3 @@
-use core::num;
-use core::panic;
 use std::cmp::{Ordering, max};
 
 use rand::{thread_rng, Rng};

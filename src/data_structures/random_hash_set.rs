@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fmt::{self, write};
+use std::fmt;
 use std::hash::Hash;
 use rand::seq::SliceRandom;
 use core::fmt::Debug;
