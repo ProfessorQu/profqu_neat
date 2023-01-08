@@ -123,14 +123,14 @@ fn random_element() {
 
     // ----- Add first node -----
     let node1 = NodeGene::new(3);
-    set.add_sorted(node1);
+    set.add(node1);
     
     // ----- Add second node -----
     let node2 = NodeGene::new(1);
-    set.add_sorted(node2);
+    set.add(node2);
 
     let node3 = NodeGene::new(2);
-    set.add_sorted(node3);
+    set.add(node3);
 
     let element = set.random_element().expect("No elements in set");
     // Use ^ (exclusive or) to test that only one has the same innovation number

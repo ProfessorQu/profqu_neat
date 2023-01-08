@@ -140,18 +140,18 @@ mod tests {
 
         let mut genome = neat.empty_genome();
         
-        genome.generate_calculator();
-        let result = genome.calculate(vec![0.0, 0.0, 0.0]).unwrap();
+        let mut calc = Calculator::new(genome.clone());
+        let result = calc.calculate(vec![0.0, 0.0, 0.0]).unwrap();
         assert_eq!(result, vec![0.5, 0.5, 0.5]);
 
         genome.add_connection(&mut neat, 0, 3);
 
-        genome.generate_calculator();
-        assert_eq!(genome.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
+        let mut calc = Calculator::new(genome.clone());
+        assert_eq!(calc.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
         
         genome.add_connection(&mut neat, 1, 3);
         
-        genome.generate_calculator();
-        assert_eq!(genome.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
+        let mut calc = Calculator::new(genome.clone());
+        assert_eq!(calc.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
     }
 }

@@ -3,7 +3,6 @@ use std::cmp::{Ordering, max};
 use rand::{thread_rng, Rng};
 
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
-use crate::calculations::Calculator;
 use crate::data_structures::PseudoFloat;
 use crate::data_structures::RandomHashSet;
 use crate::neat::{Neat, self}; 
@@ -17,8 +16,7 @@ mod genome_test;
 #[derive(Clone, PartialEq, Debug)]
 pub struct Genome {
     pub connections: RandomHashSet<ConnectionGene>,
-    pub nodes: RandomHashSet<NodeGene>,
-    calculator: Option<Calculator>
+    pub nodes: RandomHashSet<NodeGene>
 }
 
 impl Genome {
@@ -26,21 +24,7 @@ impl Genome {
     pub fn new() -> Self {
         Self {
             connections: RandomHashSet::new(),
-            nodes: RandomHashSet::new(),
-            calculator: None
-        }
-    }
-
-    /// Generate a calculator for this genome
-    pub fn generate_calculator(&mut self) {
-        self.calculator = Some(Calculator::new(self.clone()));
-    }
-
-    /// Calculate the outputs
-    pub fn calculate(&self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
-        match self.calculator.clone() {
-            Some(mut calculator) => calculator.calculate(inputs),
-            None => Err("No calculator created")
+            nodes: RandomHashSet::new()
         }
     }
 
