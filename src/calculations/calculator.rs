@@ -54,7 +54,7 @@ impl Calculator {
             let node_to = node_hash_map.get(&to.innovation_number)
                     .expect("'to' is not in the hashmap");
 
-            let mut connection = Connection::new(Rc::clone(&node_from));
+            let mut connection = Connection::new(Rc::clone(node_from));
             connection.weight = connection_gene.weight;
             connection.enabled = connection_gene.enabled;
             let pointer = Rc::new(RefCell::new(connection));
@@ -67,22 +67,26 @@ impl Calculator {
 
     /// Calculate the outputs
     pub fn calculate(&mut self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
-        for i in 0..self.input_nodes.len() {
-            self.input_nodes[i].borrow_mut().output = inputs[i].into();
+        if inputs.len() != self.input_nodes.len() {
+            return Err("Number of inputs aren't equal to number of input nodes")
+        }
+
+        for (i, input) in inputs.iter().enumerate() {
+            self.input_nodes[i].borrow_mut().output = (*input).into();
         }
 
         for hidden_node in self.hidden_nodes.clone() {
             hidden_node.borrow_mut().calculate();
         }
 
-        let mut output = vec![0.0; self.output_nodes.len()];
+        let mut outputs = vec![0.0; self.output_nodes.len()];
 
-        for i in 0..self.output_nodes.len() {
-            self.output_nodes[i].borrow_mut().calculate();
-            output[i] = self.output_nodes[i].borrow_mut().output.into();
+        for (i, output) in self.output_nodes.iter().enumerate() {
+            output.borrow_mut().calculate();
+            outputs[i] = output.borrow().output.into();
         }
 
-        Ok(output)
+        Ok(outputs)
     }
 }
 

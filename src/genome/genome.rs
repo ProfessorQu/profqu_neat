@@ -40,7 +40,7 @@ impl Genome {
     /// Calculate the outputs
     pub fn calculate(&self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
         match self.calculator.clone() {
-            Some(calculator) => calculator.clone().calculate(inputs),
+            Some(mut calculator) => calculator.calculate(inputs),
             None => Err("No calculator created")
         }
     }
