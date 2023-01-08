@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::data_structures::PseudoFloat;
 
 use super::Connection;
@@ -7,7 +9,7 @@ use super::Connection;
 pub struct Node {
     pub x: PseudoFloat,
     pub output: PseudoFloat,
-    pub connections: Vec<Connection>,
+    pub connections: Vec<Rc<RefCell<Connection>>>,
 }
 
 impl Node {
@@ -25,8 +27,8 @@ impl Node {
         let mut sum = 0.0;
 
         for connection in &self.connections {
-            if connection.enabled {
-                sum += connection.weight.parse() * connection.from.borrow_mut().output.parse();
+            if connection.borrow().enabled {
+                sum += connection.borrow().weight.parse() * connection.borrow().from.borrow().output.parse();
             }
         }
 

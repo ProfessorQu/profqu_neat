@@ -1,15 +1,15 @@
-use std::{collections::HashMap, rc::Rc, cell::RefCell, borrow::BorrowMut, ops::Deref};
+use std::{collections::HashMap, cell::RefCell, rc::Rc};
 
 use crate::genome::Genome;
 
-use super::{Node, Connection, node};
+use super::{Node, Connection};
 
 /// The struct to calculate the output of a genome
 #[derive(Clone, PartialEq, Debug)]
 pub struct Calculator {
-    input_nodes: Vec<RefCell<Node>>,
-    hidden_nodes: Vec<RefCell<Node>>,
-    output_nodes: Vec<RefCell<Node>>,
+    input_nodes: Vec<Rc<RefCell<Node>>>,
+    hidden_nodes: Vec<Rc<RefCell<Node>>>,
+    output_nodes: Vec<Rc<RefCell<Node>>>,
 }
 
 impl Calculator {
@@ -27,20 +27,19 @@ impl Calculator {
         let mut node_hash_map = HashMap::new();
 
         for node_gene in nodes.data {
-            let node = RefCell::new(
-                    Node::new(node_gene.x.parse())
-            );
+            let node = Node::new(node_gene.x.parse());
+            let pointer = Rc::new(RefCell::new(node));
 
-            node_hash_map.insert(node_gene.innovation_number, node.clone());
+            node_hash_map.insert(node_gene.innovation_number, Rc::clone(&pointer));
 
             if node_gene.x.parse() <= 0.1 {
-                calc.input_nodes.push(node);
+                calc.input_nodes.push(pointer);
             }
             else if node_gene.x.parse() >= 0.9 {
-                calc.output_nodes.push(node);
+                calc.output_nodes.push(pointer);
             }
             else {
-                calc.hidden_nodes.push(node);
+                calc.hidden_nodes.push(pointer);
             }
         }
 
@@ -51,15 +50,16 @@ impl Calculator {
             let to = connection_gene.to;
 
             let node_from = node_hash_map.get(&from.innovation_number)
-                    .expect("'from' is not in the hashmap").clone();
+                    .expect("'from' is not in the hashmap");
             let node_to = node_hash_map.get(&to.innovation_number)
-                    .expect("'to' is not in the hashmap").clone();
+                    .expect("'to' is not in the hashmap");
 
-            let mut connection = Connection::new(node_from, RefCell::clone(&node_to));
+            let mut connection = Connection::new(Rc::clone(&node_from));
             connection.weight = connection_gene.weight;
             connection.enabled = connection_gene.enabled;
-
-            node_to.borrow_mut().connections.push(connection);
+            let pointer = Rc::new(RefCell::new(connection));
+            
+            node_to.borrow_mut().connections.push(pointer);
         }
 
         calc
@@ -88,7 +88,7 @@ impl Calculator {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Neat, genome::NodeGene};
+    use crate::{Neat};
 
     use super::*;
 
@@ -140,11 +140,14 @@ mod tests {
         let result = genome.calculate(vec![0.0, 0.0, 0.0]).unwrap();
         assert_eq!(result, vec![0.5, 0.5, 0.5]);
 
-        for _ in 0..100 {
-            genome.mutate(&mut neat);
-        }
+        genome.add_connection(&mut neat, 0, 3);
 
         genome.generate_calculator();
-        assert_ne!(genome.calculate(vec![6.9, 4.2, 40.9]).unwrap(), result);
+        assert_eq!(genome.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
+        
+        genome.add_connection(&mut neat, 1, 3);
+        
+        genome.generate_calculator();
+        assert_eq!(genome.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
     }
 }
