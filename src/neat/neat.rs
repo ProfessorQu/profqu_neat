@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use crate::genome::*;
 
+use super::{Client, Species};
+
 #[cfg(test)]
 #[path ="neat_test.rs"]
 mod neat_test;
@@ -21,15 +23,15 @@ pub const WEIGHT_SHIFT_STRENGTH: f32 = 0.3;
 pub const WEIGHT_RANDOM_STRENGTH: f32 = 1.0;
 
 /// The probability of mutating a new link
-pub const PROB_MUTATE_LINK: f32 = 0.4;
+pub const PROB_MUTATE_LINK: f32 = 0.01;
 /// The probability of mutating a new node
-pub const PROB_MUTATE_NODE: f32 = 0.4;
+pub const PROB_MUTATE_NODE: f32 = 0.003;
 /// The probability of mutating and shifting a weight
-pub const PROB_MUTATE_WEIGHT_SHIFT: f32 = 0.4;
+pub const PROB_MUTATE_WEIGHT_SHIFT: f32 = 0.002;
 /// The probability of mutating and selecting a new random value for a weight
-pub const PROB_MUTATE_WEIGHT_RANDOM: f32 = 0.4;
+pub const PROB_MUTATE_WEIGHT_RANDOM: f32 = 0.002;
 /// The probability of mutating and toggling a link
-pub const PROB_MUTATE_TOGGLE_LINK: f32 = 0.4;
+pub const PROB_MUTATE_TOGGLE_LINK: f32 = 0.0;
 
 /// The threshold for creating a new species
 pub const SPECIES_THRESHOLD: f32 = 4.0;
@@ -38,6 +40,8 @@ pub const SPECIES_THRESHOLD: f32 = 4.0;
 pub struct Neat {
     all_connections: HashMap<u32, ConnectionGene>,
     all_nodes: Vec<NodeGene>,
+    clients: Vec<Client>,
+    species: Vec<Species>,
     input_size: u32,
     output_size: u32,
     population_size: u32
@@ -54,6 +58,8 @@ impl Neat {
         let mut neat = Self {
             all_connections: HashMap::new(),
             all_nodes: Vec::new(),
+            clients: Vec::new(),
+            species: Vec::new(),
             input_size,
             output_size,
             population_size
@@ -61,27 +67,6 @@ impl Neat {
 
         neat.reset(input_size, output_size, population_size);
         neat
-    }
-
-    /// Create an empty genome with no hidden nodes or connections
-    /// ```rust
-    /// use profqu_neat::Neat;
-    /// 
-    /// let mut neat = Neat::new(3, 3, 100);
-    ///
-    /// let genome = neat.empty_genome();
-    ///
-    /// assert_eq!(genome.connections.len(), 0);
-    /// assert_eq!(genome.nodes.len(), 6);
-    /// ```
-    pub fn empty_genome(&mut self) -> Genome {
-        let mut genome = Genome::new();
-
-        for index in 0..self.input_size as usize + self.output_size as usize {
-            genome.nodes.add(self.get_node(index));
-        }
-
-        genome
     }
 
     /// Reset this neat struct with new values
@@ -104,6 +89,7 @@ impl Neat {
 
         self.all_connections.clear();
         self.all_nodes.clear();
+        self.clients.clear();
 
         for input_index in 0..input_size as usize {
             let y = (input_index + 1) as f32 / (input_size + 1) as f32;
@@ -114,6 +100,38 @@ impl Neat {
             let y = (output_index + 1) as f32 / (output_size + 1) as f32;
             self.create_node(0.9, y);
         }
+
+        for client_index in 0..population_size as usize {
+            let mut client = Client::new(self.empty_genome());
+            client.generate_calculator();
+            self.clients.push(client);
+        }
+    }
+
+    /// Get a client from this structure
+    pub fn get_client(&self, index: usize) -> Client {
+        self.clients.get(index).expect("Index out of bounds").clone()
+    }
+
+    /// Create an empty genome with no hidden nodes or connections
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let mut neat = Neat::new(3, 3, 100);
+    ///
+    /// let genome = neat.empty_genome();
+    ///
+    /// assert_eq!(genome.connections.len(), 0);
+    /// assert_eq!(genome.nodes.len(), 6);
+    /// ```
+    pub fn empty_genome(&mut self) -> Genome {
+        let mut genome = Genome::new();
+
+        for index in 0..self.input_size as usize + self.output_size as usize {
+            genome.nodes.add(self.get_node(index));
+        }
+
+        genome
     }
 
     /// Create a new node with a certain x and y coordinate
@@ -155,5 +173,46 @@ impl Neat {
         }
 
         connection_gene
+    }
+
+    /// A wrapper function for all the evolution steps
+    pub fn evolve(&mut self) {
+        self.gen_species();
+        // self.kill();
+        // self.remove_extinct_species();
+        // self.reproduct();
+        // self.mutate();
+
+        for client in &mut self.clients {
+            client.generate_calculator();
+        }
+    }
+
+    /// Generate new species
+    fn gen_species(&mut self) {
+        for species in &mut self.species {
+            species.reset();
+        }
+
+        for client in &mut self.clients {
+            if client.has_species { continue }
+
+            let mut found = false;
+            for species in &mut self.species {
+                if species.put(client) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if !found {
+                client.has_species = true;
+                self.species.push(Species::new(client.clone()));
+            }
+        }
+
+        for species in &mut self.species {
+            species.evaluate_fitness();
+        }
     }
 }

@@ -30,6 +30,7 @@ impl Species {
     /// Put a new client in this species if possible
     pub fn put(&mut self, client: &mut Client) -> bool {
         if client.distance(&self.representative) < neat::SPECIES_THRESHOLD {
+            client.has_species = true;
             self.clients.push(client.clone());
 
             true
@@ -41,12 +42,15 @@ impl Species {
 
     /// Put a species in this species without any checks
     pub fn force_put(&mut self, client: &mut Client) {
+        client.has_species = true;
         self.clients.push(client.clone());
     }
 
     /// Make this species go extinct
     pub fn go_extinct(&mut self) {
-        self.clients.clear()
+        for client in &mut self.clients {
+            client.has_species = false;
+        }
     }
 
     /// Calculate a new average fitness for this species
@@ -63,9 +67,13 @@ impl Species {
     pub fn reset(&mut self) {
         // TODO: Make RandomHashSet more general
         self.representative = self.get_random_element();
+        for client in &mut self.clients {
+            client.has_species = false;
+        }
 
         self.clients.clear();
 
+        self.representative.has_species = true;
         self.clients.push(self.representative.clone());
         self.fitness = PseudoFloat::new(0.0);
     }
@@ -81,6 +89,7 @@ impl Species {
         );
 
         for i in 0..(percentage * self.clients.len() as f32) as usize {
+            self.clients[i].has_species = false;
             self.clients.remove(i);
         }
     }

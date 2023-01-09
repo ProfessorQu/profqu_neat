@@ -7,7 +7,8 @@ use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::P
 pub struct Client {
     pub genome: Genome,
     calculator: Option<Calculator>,
-    pub fitness: PseudoFloat
+    pub fitness: PseudoFloat,
+    pub has_species: bool
 }
 
 impl Client {
@@ -16,6 +17,7 @@ impl Client {
             genome,
             calculator: None,
             fitness: PseudoFloat::new(0.0),
+            has_species: false
         }
     }
 
