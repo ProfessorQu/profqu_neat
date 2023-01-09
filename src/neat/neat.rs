@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, rc::Rc, cell::RefCell};
+use rand::seq::SliceRandom;
+
 use crate::genome::*;
 
 use super::{Client, Species};
@@ -36,11 +38,14 @@ pub const PROB_MUTATE_TOGGLE_LINK: f32 = 0.0;
 /// The threshold for creating a new species
 pub const SPECIES_THRESHOLD: f32 = 4.0;
 
+/// Determine the percentage of clients that will be killed
+pub const KILL_PERCENTAGE: f32 = 0.2;
+
 /// The struct that controls the entire library
 pub struct Neat {
     all_connections: HashMap<u32, ConnectionGene>,
     all_nodes: Vec<NodeGene>,
-    clients: Vec<Client>,
+    clients: Vec<Rc<RefCell<Client>>>,
     species: Vec<Species>,
     input_size: u32,
     output_size: u32,
@@ -101,16 +106,16 @@ impl Neat {
             self.create_node(0.9, y);
         }
 
-        for client_index in 0..population_size as usize {
-            let mut client = Client::new(self.empty_genome());
-            client.generate_calculator();
+        for _client_index in 0..population_size as usize {
+            let client = Client::new(self.empty_genome());
+            client.borrow_mut().generate_calculator();
             self.clients.push(client);
         }
     }
 
     /// Get a client from this structure
-    pub fn get_client(&self, index: usize) -> Client {
-        self.clients.get(index).expect("Index out of bounds").clone()
+    pub fn get_client(&self, index: usize) -> Rc<RefCell<Client>> {
+        Rc::clone(self.clients.get(index).expect("Index out of bounds"))
     }
 
     /// Create an empty genome with no hidden nodes or connections
@@ -178,35 +183,39 @@ impl Neat {
     /// A wrapper function for all the evolution steps
     pub fn evolve(&mut self) {
         self.gen_species();
-        // self.kill();
-        // self.remove_extinct_species();
-        // self.reproduct();
-        // self.mutate();
+        self.kill();
+        self.remove_extinct_species();
+        self.reproduce();
+        self.mutate();
 
-        for client in &mut self.clients {
-            client.generate_calculator();
+        for client in &self.clients {
+            client.borrow_mut().generate_calculator();
         }
     }
 
     /// Generate new species
     fn gen_species(&mut self) {
+        for client in &self.clients {
+            client.borrow_mut().has_species = false;
+        }
+
         for species in &mut self.species {
             species.reset();
         }
 
-        for client in &mut self.clients {
-            if client.has_species { continue }
+        for client in &self.clients {
+            if client.borrow().has_species { continue }
 
             let mut found = false;
             for species in &mut self.species {
-                if species.put(client) {
+                if species.put(Rc::clone(client)) {
                     found = true;
                     break;
                 }
             }
 
             if !found {
-                client.has_species = true;
+                client.borrow_mut().has_species = true;
                 self.species.push(Species::new(client.clone()));
             }
         }
@@ -214,5 +223,105 @@ impl Neat {
         for species in &mut self.species {
             species.evaluate_fitness();
         }
+    }
+
+    /// Kill a certain percentage of species
+    fn kill(&mut self) {
+        for species in &mut self.species {
+            species.kill(KILL_PERCENTAGE);
+        }
+    }
+
+    /// Remove all the extinct species
+    fn remove_extinct_species(&mut self) {
+        // TODO: FIX ITER BOUNDS
+        for i in (0..self.species.len()).rev() {
+            if self.species[i].len() <= 1 {
+                self.species[i].go_extinct();
+                self.species.remove(i);
+            }
+        }
+    }
+
+    /// Reproduce the clients
+    fn reproduce(&mut self) {
+        let clients = self.clients.clone();
+        let mut all_species = self.species.clone();
+        for client in clients {
+            if !client.borrow().has_species {
+                let species = all_species
+                    .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness.parse())
+                    .expect("species is empty");
+
+                client.borrow_mut().genome = species.breed(self);
+                species.force_put(Rc::clone(&client));
+            }
+        }
+
+        self.species = all_species;
+    }
+
+    /// Mutate all the clients
+    fn mutate(&mut self) {
+        let mut clients = self.clients.clone();
+        for client in &mut clients {
+            client.borrow_mut().mutate(self);
+        }
+
+        self.clients = clients;
+    }
+
+    /// Returns the best client out of all of them
+    pub fn best_client(&mut self) -> Option<Client> {
+        let mut best_client = None;
+
+        let mut best_fitness = f32::MIN;
+        for client in &self.clients {
+            let fitness = client.borrow().fitness.parse();
+            if fitness > best_fitness {
+                best_client = Some(client.borrow().clone());
+                best_fitness = fitness;
+            }
+        }
+
+        best_client
+    }
+
+    /// Print all the different species
+    pub fn print_species(&self) {
+        println!("#######################################################");
+        for species in &self.species {
+            println!("{species:?}");
+        }
+        println!("#######################################################");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn evolve() {
+        let mut neat = Neat::new(10, 1, 1000);
+
+        let input: Vec<f32> = vec![rand::random(); 10];
+
+        let fitness_before = neat.clients[0].borrow_mut()
+            .calculate(input.clone()).expect("Failed to calculate")[0];
+
+        for _ in 0..100 {
+            for client in &neat.clients {
+                let fitness = client.borrow_mut().calculate(input.clone()).expect("Failed to calculate")[0];
+                client.borrow_mut().fitness = fitness.into();
+            }
+
+            neat.evolve();
+        }
+
+        let best = neat.best_client().expect("Failed to get client");
+        neat.print_species();
+
+        assert!(best.fitness.parse() > fitness_before);
     }
 }

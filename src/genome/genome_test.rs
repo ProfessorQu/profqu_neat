@@ -86,7 +86,7 @@ fn crossover2() {
     let mut previous2: f32;
 
     for _ in 0..10 {
-        for _ in 0..200 {
+        for _ in 0..1000 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
         }
@@ -122,7 +122,7 @@ fn mutate() {
     let mut previous2 = genome2.clone();
 
     for _ in 0..100 {
-        for _ in 0..10 {
+        for _ in 0..1000 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
         }
@@ -149,7 +149,7 @@ fn mutate2() {
     let mut previous = Genome::distance(&genome1, &genome2);
 
     for _ in 0..5 {
-        for _ in 0..100 {
+        for _ in 0..1000 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
         }

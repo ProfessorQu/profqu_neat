@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
 use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::PseudoFloat, Neat};
 
@@ -12,13 +12,17 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(genome: Genome) -> Self {
-        Self {
-            genome,
-            calculator: None,
-            fitness: PseudoFloat::new(0.0),
-            has_species: false
-        }
+    pub fn new(genome: Genome) -> Rc<RefCell<Self>> {
+        Rc::new(
+            RefCell::new(
+                Self {
+                    genome,
+                    calculator: None,
+                    fitness: PseudoFloat::new(0.0),
+                    has_species: false
+                }
+            )
+        )
     }
 
     /// Generate a calculator for this genome

@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
 use rand::seq::SliceRandom;
 
@@ -8,30 +8,30 @@ use super::{Client, neat};
 
 #[derive(Clone)]
 pub struct Species {
-    clients: Vec<Client>,
-    representative: Client,
-    fitness: PseudoFloat
+    clients: Vec<Rc<RefCell<Client>>>,
+    representative: Rc<RefCell<Client>>,
+    pub average_fitness: PseudoFloat
 }
 
 impl Species {
     /// Create a new species from a representative
-    pub fn new(representative: Client) -> Self {
+    pub fn new(representative: Rc<RefCell<Client>>) -> Self {
         Self {
-            clients: vec![representative.clone()],
+            clients: vec![Rc::clone(&representative)],
             representative,
-            fitness: PseudoFloat::new(0.0),
+            average_fitness: PseudoFloat::new(0.0),
         }
     }
 
-    fn get_random_element(&self) -> Client {
-        self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species").clone()
+    fn get_random_element(&self) -> Rc<RefCell<Client>> {
+        Rc::clone(self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species"))
     }
 
     /// Put a new client in this species if possible
-    pub fn put(&mut self, client: &mut Client) -> bool {
-        if client.distance(&self.representative) < neat::SPECIES_THRESHOLD {
-            client.has_species = true;
-            self.clients.push(client.clone());
+    pub fn put(&mut self, client: Rc<RefCell<Client>>) -> bool {
+        if client.borrow().distance(&self.representative.borrow()) < neat::SPECIES_THRESHOLD {
+            client.borrow_mut().has_species = true;
+            self.clients.push(Rc::clone(&client));
 
             true
         }
@@ -41,15 +41,15 @@ impl Species {
     }
 
     /// Put a species in this species without any checks
-    pub fn force_put(&mut self, client: &mut Client) {
-        client.has_species = true;
-        self.clients.push(client.clone());
+    pub fn force_put(&mut self, client: Rc<RefCell<Client>>) {
+        client.borrow_mut().has_species = true;
+        self.clients.push(Rc::clone(&client));
     }
 
     /// Make this species go extinct
     pub fn go_extinct(&mut self) {
-        for client in &mut self.clients {
-            client.has_species = false;
+        for client in &self.clients {
+            client.borrow_mut().has_species = false;
         }
     }
 
@@ -57,10 +57,10 @@ impl Species {
     pub fn evaluate_fitness(&mut self) {
         let mut total_fitness = 0.0;
         for client in &self.clients {
-            total_fitness += client.fitness.parse();
+            total_fitness += client.borrow().fitness.parse();
         }
 
-        self.fitness = PseudoFloat::new(total_fitness / self.clients.len() as f32);
+        self.average_fitness = PseudoFloat::new(total_fitness / self.clients.len() as f32);
     }
 
     /// Reset this species
@@ -68,14 +68,14 @@ impl Species {
         // TODO: Make RandomHashSet more general
         self.representative = self.get_random_element();
         for client in &mut self.clients {
-            client.has_species = false;
+            client.borrow_mut().has_species = false;
         }
 
         self.clients.clear();
 
-        self.representative.has_species = true;
-        self.clients.push(self.representative.clone());
-        self.fitness = PseudoFloat::new(0.0);
+        self.representative.borrow_mut().has_species = true;
+        self.clients.push(Rc::clone(&self.representative));
+        self.average_fitness = PseudoFloat::new(0.0);
     }
 
     /// Kill 50% of this species
@@ -83,14 +83,14 @@ impl Species {
         // Sort so that the lowest fitness is at index 0
         self.clients.sort_by(
             |a, b|
-            a.fitness.parse().total_cmp(
-                &b.fitness.parse()
+            a.borrow().fitness.parse().total_cmp(
+                &b.borrow().fitness.parse()
             )
         );
 
-        for i in 0..(percentage * self.clients.len() as f32) as usize {
-            self.clients[i].has_species = false;
-            self.clients.remove(i);
+        for _ in 0..(percentage * self.clients.len() as f32) as usize {
+            self.clients[0].borrow_mut().has_species = false;
+            self.clients.remove(0);
         }
     }
 
@@ -99,11 +99,11 @@ impl Species {
         let client1 = self.get_random_element();
         let client2 = self.get_random_element();
 
-        if client1.fitness.parse() > client2.fitness.parse() {
-            Genome::crossover(neat, &client1.genome, &client2.genome)
+        if client1.borrow().fitness.parse() > client2.borrow().fitness.parse() {
+            Genome::crossover(neat, &client1.borrow().genome, &client2.borrow().genome)
         }
         else {
-            Genome::crossover(neat, &client2.genome, &client1.genome)
+            Genome::crossover(neat, &client2.borrow().genome, &client1.borrow().genome)
         }
     }
 
@@ -120,7 +120,7 @@ impl Species {
 
 impl Debug for Species {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Species {{ representative: {:?}, fitness: {:?} }}", self.representative, self.fitness)
+        write!(f, "Species {{ len: {:?}, fitness: {:?} }}", self.len(), self.average_fitness)
     }
 }
 
@@ -151,7 +151,7 @@ mod tests {
 
         let mut genome1 = neat.empty_genome();
         let mut genome2 = neat.empty_genome();
-        for _ in 0..100 {
+        for _ in 0..5000 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
         }
@@ -163,13 +163,13 @@ mod tests {
         assert_eq!(species.len(), 1);
         assert!(!species.is_empty());
 
-        let mut new = Client::new(genome2);
+        let new = Client::new(genome2);
 
-        assert!(!species.put(&mut new));
+        assert!(!species.put(Rc::clone(&new)));
         
         assert_eq!(species.len(), 1);
 
-        species.force_put(&mut new);
+        species.force_put(new);
 
         assert_eq!(species.len(), 2);
     }
@@ -185,8 +185,8 @@ mod tests {
             genome2.mutate(&mut neat);
         }
 
-        let mut rep = Client::new(genome1);
-        rep.fitness = PseudoFloat::new(10.0);
+        let rep = Client::new(genome1);
+        rep.borrow_mut().fitness = PseudoFloat::new(10.0);
 
         let mut species = Species::new(rep);
         
@@ -196,9 +196,9 @@ mod tests {
                 genome.mutate(&mut neat);
             }
 
-            let mut client = Client::new(genome);
+            let client = Client::new(genome);
             
-            species.force_put(&mut client);
+            species.force_put(client);
         }
 
         assert_eq!(species.len(), 11);
