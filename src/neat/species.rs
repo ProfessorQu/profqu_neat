@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 
 use crate::{data_structures::PseudoFloat, genome::Genome, Neat};
 
-use super::{Client, neat};
+use super::{Client, Config};
 
 #[derive(Clone)]
 pub struct Species {
@@ -29,7 +29,7 @@ impl Species {
 
     /// Put a new client in this species if possible
     pub fn put(&mut self, client: Rc<RefCell<Client>>) -> bool {
-        if client.borrow().distance(&self.representative.borrow()) < neat::SPECIES_THRESHOLD {
+        if client.borrow().distance(&self.representative.borrow()) < Config::global().species_threshold {
             client.borrow_mut().has_species = true;
             self.clients.push(Rc::clone(&client));
 

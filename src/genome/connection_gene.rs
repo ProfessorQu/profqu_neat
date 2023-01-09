@@ -12,6 +12,7 @@ pub struct ConnectionGene {
     pub to: NodeGene,
     pub weight: PseudoFloat,
     pub enabled: bool,
+    pub replace_index: usize,
 }
 
 impl ConnectionGene {
@@ -23,6 +24,7 @@ impl ConnectionGene {
             to,
             weight: PseudoFloat::new(1.0),
             enabled: true,
+            replace_index: 0
         }
     }
 
@@ -44,7 +46,7 @@ impl Gene for ConnectionGene {
 
 impl Debug for ConnectionGene {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Connection({:?})", self.innovation_number)
+        write!(f, "Connection({:?}, weight: {:?}, enabled: {:?}, replace_index: {:?})", self.innovation_number, self.weight, self.enabled, self.replace_index)
     }
 }
 

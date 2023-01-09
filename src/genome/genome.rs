@@ -5,8 +5,7 @@ use rand::{thread_rng, Rng};
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
 use crate::data_structures::PseudoFloat;
 use crate::data_structures::RandomHashSet;
-use crate::neat::{Neat, self}; 
-use crate::neat::{MULT_DISJOINT, MULT_WEIGHT_DIFF, MULT_EXCESS};
+use crate::neat::{Neat, Config};
 
 #[cfg(test)]
 #[path = "genome_test.rs"]
@@ -136,9 +135,9 @@ impl Genome {
             total_genes = 1.0;
         }
 
-        MULT_DISJOINT * num_disjoint as f32 / total_genes +
-        MULT_EXCESS * num_excess as f32 / total_genes +
-        MULT_WEIGHT_DIFF * average_weight_diff
+        Config::global().mult_disjoint * num_disjoint as f32 / total_genes +
+        Config::global().mult_excess * num_excess as f32 / total_genes +
+        Config::global().mult_weight_diff * average_weight_diff
     }
 
     /// Crossover two genomes, the first element should have the highest fitness
@@ -225,19 +224,19 @@ impl Genome {
     ///  - Mutate a [new random weight](Self::mutate_weight_random) with [`PROB_MUTATE_WEIGHT_RANDOM`](crate::neat::PROB_MUTATE_WEIGHT_RANDOM)
     ///  - Mutate a [toggle in a link](Self::mutate_link_toggle) with [`PROB_MUTATE_TOGGLE_LINK`](crate::neat::PROB_MUTATE_TOGGLE_LINK)
     pub fn mutate(&mut self, neat: &mut Neat) {
-        if neat::PROB_MUTATE_LINK > rand::random() {
+        if Config::global().prob_mutate_link > rand::random() {
             self.mutate_link(neat);
         }
-        if neat::PROB_MUTATE_NODE > rand::random() {
+        if Config::global().prob_mutate_node > rand::random() {
             self.mutate_node(neat);
         }
-        if neat::PROB_MUTATE_WEIGHT_SHIFT > rand::random() {
+        if Config::global().prob_mutate_weight_shift > rand::random() {
             self.mutate_weight_shift();
         }
-        if neat::PROB_MUTATE_WEIGHT_RANDOM > rand::random() {
+        if Config::global().prob_mutate_weight_random > rand::random() {
             self.mutate_weight_random();
         }
-        if neat::PROB_MUTATE_TOGGLE_LINK > rand::random() {
+        if Config::global().prob_mutate_toggle_link > rand::random() {
             self.mutate_link_toggle();
         }
     }
@@ -268,7 +267,7 @@ impl Genome {
             }
 
             let mut connection = neat.get_connection(connection.from, connection.to);
-            let result = Genome::get_random_range(neat::WEIGHT_SHIFT_STRENGTH);
+            let result = Genome::get_random_range(Config::global().weight_shift_strength);
             connection.weight = PseudoFloat::new(result);
 
             self.connections.add_sorted(connection);
@@ -282,10 +281,24 @@ impl Genome {
             let from = connection.from;
             let to = connection.to;
 
-            let x = (from.x.parse() + to.x.parse()) / 2.0;
-            let y = (from.y.parse() + to.y.parse()) / 2.0 + Genome::get_random_range(0.05);
+            let replace_index = neat.get_replace_index(from, to);
+            let middle: NodeGene;
+            if replace_index == 0 {
+                let x = (from.x.parse() + to.x.parse()) / 2.0;
+                let y = (from.y.parse() + to.y.parse()) / 2.0 + Genome::get_random_range(0.05);
 
-            let middle = neat.create_node(x, y);
+                middle = neat.create_node(x, y);
+                neat.set_replace_index(
+                    from, to, 
+                    middle.innovation_number.try_into().expect("usize too big to convert to u32")
+                );
+                println!("replace_index: {:?}, replace_index: {:?}", middle.innovation_number, neat.get_replace_index(from, to));
+            }
+            else {
+                println!("HERE");
+                middle = neat.get_node(replace_index).expect("Failed to get the replace_index");
+                println!("HERE 2");
+            }
 
             let mut connection1 = neat.get_connection(from, middle);
             let mut connection2= neat.get_connection(middle, to);
@@ -310,7 +323,7 @@ impl Genome {
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = connection.weight.parse() + Genome::get_random_range(neat::WEIGHT_SHIFT_STRENGTH);
+            let result = connection.weight.parse() + Genome::get_random_range(Config::global().weight_shift_strength);
             connection.weight = PseudoFloat::new(result);
         }
     }
@@ -318,7 +331,7 @@ impl Genome {
     /// Mutate a weight and assign a new value to it
     pub fn mutate_weight_random(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = Genome::get_random_range(neat::WEIGHT_RANDOM_STRENGTH);
+            let result = Genome::get_random_range(Config::global().weight_random_strength);
             connection.weight = PseudoFloat::new(result);
         }
     }

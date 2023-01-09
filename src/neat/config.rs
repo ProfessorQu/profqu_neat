@@ -1,86 +1,87 @@
 use std::fs;
+use once_cell::sync::OnceCell;
+
+pub static CONFIG: OnceCell<Config> = OnceCell::new();
 
 pub struct Config {
     /// The multiplier for the disjoint genes in the `distance` function
-    pub MULT_DISJOINT: f32,
+    pub mult_disjoint: f32,
     /// The multiplier for the excess genes in the `distance` function
-    pub MULT_EXCESS: f32,
+    pub mult_excess: f32,
     /// The multiplier for the weight difference in the `distance` function
-    pub MULT_WEIGHT_DIFF: f32,
+    pub mult_weight_diff: f32,
 
     /// The weight shifting strength when mutating
-    pub WEIGHT_SHIFT_STRENGTH: f32,
+    pub weight_shift_strength: f32,
     /// The weight randomness strength when mutating
-    pub WEIGHT_RANDOM_STRENGTH: f32,
+    pub weight_random_strength: f32,
 
     /// The probability of mutating a new link
-    pub PROB_MUTATE_LINK: f32,
+    pub prob_mutate_link: f32,
     /// The probability of mutating a new node
-    pub PROB_MUTATE_NODE: f32,
+    pub prob_mutate_node: f32,
     /// The probability of mutating and shifting a weight
-    pub PROB_MUTATE_WEIGHT_SHIFT: f32,
+    pub prob_mutate_weight_shift: f32,
     /// The probability of mutating and selecting a new random value for a weight
-    pub PROB_MUTATE_WEIGHT_RANDOM: f32,
+    pub prob_mutate_weight_random: f32,
     /// The probability of mutating and toggling a link
-    pub PROB_MUTATE_TOGGLE_LINK: f32,
+    pub prob_mutate_toggle_link: f32,
 
     /// The threshold for creating a new species
-    pub SPECIES_THRESHOLD: f32,
+    pub species_threshold: f32,
 
     /// Determine the percentage of clients that will be killed
-    pub KILL_PERCENTAGE: f32,
+    pub kill_percentage: f32,
 }
 
 impl Config {
-    pub fn new(MULT_DISJOINT: f32, MULT_EXCESS: f32, MULT_WEIGHT_DIFF: f32,
-            WEIGHT_RANDOM_STRENGTH: f32, WEIGHT_SHIFT_STRENGTH: f32,
-            PROB_MUTATE_LINK: f32, PROB_MUTATE_NODE: f32,
-            PROB_MUTATE_WEIGHT_SHIFT: f32, PROB_MUTATE_WEIGHT_RANDOM: f32,
-            PROB_MUTATE_TOGGLE_LINK: f32,
-            SPECIES_THRESHOLD: f32,
-            KILL_PERCENTAGE: f32) -> Self {
+    pub fn new(variables: Vec<f32>) -> Self {
+        if variables.len() != 12 {
+            panic!("variables should have length 12");
+        }
+        
         Self {
-            MULT_DISJOINT,
-            MULT_EXCESS,
-            MULT_WEIGHT_DIFF,
+            mult_disjoint: variables[0],
+            mult_excess: variables[1],
+            mult_weight_diff: variables[2],
             
-            WEIGHT_SHIFT_STRENGTH,
-            WEIGHT_RANDOM_STRENGTH,
+            weight_shift_strength: variables[3],
+            weight_random_strength: variables[4],
             
-            PROB_MUTATE_LINK,
-            PROB_MUTATE_NODE,
-            PROB_MUTATE_WEIGHT_SHIFT,
-            PROB_MUTATE_WEIGHT_RANDOM,
-            PROB_MUTATE_TOGGLE_LINK,
+            prob_mutate_link: variables[5],
+            prob_mutate_node: variables[6],
+            prob_mutate_weight_shift: variables[7],
+            prob_mutate_weight_random: variables[8],
+            prob_mutate_toggle_link: variables[9],
             
-            SPECIES_THRESHOLD,
+            species_threshold: variables[10],
             
-            KILL_PERCENTAGE,
+            kill_percentage: variables[11],
         }
     }
 
     pub fn init_zero() -> Self {
         Self {
-            MULT_DISJOINT: 0.0,
-            MULT_EXCESS: 0.0,
-            MULT_WEIGHT_DIFF: 0.0,
+            mult_disjoint: 0.0,
+            mult_excess: 0.0,
+            mult_weight_diff: 0.0,
             
-            WEIGHT_SHIFT_STRENGTH: 0.0,
-            WEIGHT_RANDOM_STRENGTH: 0.0,
+            weight_shift_strength: 0.0,
+            weight_random_strength: 0.0,
             
-            PROB_MUTATE_LINK: 0.0,
-            PROB_MUTATE_NODE: 0.0,
-            PROB_MUTATE_WEIGHT_SHIFT: 0.0,
-            PROB_MUTATE_WEIGHT_RANDOM: 0.0,
-            PROB_MUTATE_TOGGLE_LINK: 0.0,
+            prob_mutate_link: 0.0,
+            prob_mutate_node: 0.0,
+            prob_mutate_weight_shift: 0.0,
+            prob_mutate_weight_random: 0.0,
+            prob_mutate_toggle_link: 0.0,
             
-            SPECIES_THRESHOLD: 0.0,
+            species_threshold: 0.0,
             
-            KILL_PERCENTAGE: 0.0,
+            kill_percentage: 0.0,
         }
     }
 
-    pub fn from_file(filename: String) -> Self {
+    pub fn from_file(filename: &str) {
         let mut config = Config::init_zero();
 
         let content = fs::read_to_string(filename).expect("Error opening file");
@@ -90,26 +91,60 @@ impl Config {
 
             while let Some(name) = split.next() {
                 match name {
-                    "MULT_DISJOINT" => config.MULT_DISJOINT = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "MULT_EXCESS" => config.MULT_EXCESS = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "MULT_WEIGHT_DIFF" => config.MULT_WEIGHT_DIFF = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "mult_disjoint" => config.mult_disjoint = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "mult_excess" => config.mult_excess = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "mult_weight_diff" => config.mult_weight_diff = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     
-                    "WEIGHT_SHIFT_STRENGTH" => config.WEIGHT_SHIFT_STRENGTH = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "WEIGHT_RANDOM_STRENGTH" => config.WEIGHT_RANDOM_STRENGTH = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "weight_shift_strength" => config.weight_shift_strength = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "weight_random_strength" => config.weight_random_strength = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     
-                    "PROB_MUTATE_LINK" => config.PROB_MUTATE_LINK = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "PROB_MUTATE_NODE" => config.PROB_MUTATE_NODE = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "PROB_MUTATE_WEIGHT_SHIFT" => config.PROB_MUTATE_WEIGHT_SHIFT = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "PROB_MUTATE_WEIGHT_RANDOM" => config.PROB_MUTATE_WEIGHT_RANDOM = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "PROB_MUTATE_TOGGLE_LINK" => config.PROB_MUTATE_TOGGLE_LINK = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "prob_mutate_link" => config.prob_mutate_link = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "prob_mutate_node" => config.prob_mutate_node = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "prob_mutate_weight_shift" => config.prob_mutate_weight_shift = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "prob_mutate_weight_random" => config.prob_mutate_weight_random = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "prob_mutate_toggle_link" => config.prob_mutate_toggle_link = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     
-                    "SPECIES_THRESHOLD" => config.SPECIES_THRESHOLD = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "KILL_PERCENTAGE" => config.KILL_PERCENTAGE = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "species_threshold" => config.species_threshold = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "kill_percentage" => config.kill_percentage = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "" => { },
                     _ => panic!("No recognized pattern")
                 }
             }
         }
 
-        config
+        if CONFIG.set(config).is_err() {
+            panic!("Failed to set config")
+        }
+    }
+
+    pub fn global() -> &'static Self {
+        CONFIG.get().expect("config is not initialized")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Config;
+
+    #[test]
+    fn from_file() {
+        Config::from_file("tests/config.txt");
+
+        assert_eq!(Config::global().mult_disjoint, 3.0);
+        assert_eq!(Config::global().mult_excess, 2.0);
+        assert_eq!(Config::global().mult_weight_diff, 4.0);
+
+        assert_eq!(Config::global().weight_shift_strength, 0.3);
+        assert_eq!(Config::global().weight_random_strength, 1.0);
+
+        assert_eq!(Config::global().prob_mutate_link, 0.01);
+        assert_eq!(Config::global().prob_mutate_node, 0.003);
+        assert_eq!(Config::global().prob_mutate_weight_shift, 0.002);
+        assert_eq!(Config::global().prob_mutate_weight_random, 0.002);
+        assert_eq!(Config::global().prob_mutate_toggle_link, 0.0);
+
+        assert_eq!(Config::global().species_threshold, 4.0);
+
+        assert_eq!(Config::global().kill_percentage, 0.2);
     }
 }

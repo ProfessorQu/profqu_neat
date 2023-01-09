@@ -1,7 +1,6 @@
 use crate::Neat;
 use crate::genome::Genome;
-
-use super::*;
+use crate::neat::Config;
 
 #[test]
 fn distance() {
@@ -224,7 +223,7 @@ fn mutate_node_with_disabled_link() {
     let node1 = neat.create_node(0.1, 0.5);
     let node2 = neat.create_node(0.9, 0.5);
 
-    let mut connection = ConnectionGene::new(node1, node2);
+    let mut connection = neat.get_connection(node1, node2);
     connection.enabled = false;
 
     genome.connections.add(connection);
@@ -261,7 +260,7 @@ fn mutate_weight_shift() {
         genome.mutate_weight_shift();
         let new_weight = genome.get_connection(0).weight.parse();
         let difference = (new_weight - weight).abs();
-        assert!((0.0..neat::WEIGHT_SHIFT_STRENGTH).contains(&difference));
+        assert!((0.0..Config::global().weight_shift_strength).contains(&difference));
     }
 }
 

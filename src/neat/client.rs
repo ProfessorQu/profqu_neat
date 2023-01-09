@@ -6,7 +6,7 @@ use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::P
 #[derive(Clone)]
 pub struct Client {
     pub genome: Genome,
-    calculator: Option<Calculator>,
+    pub calculator: Option<Calculator>,
     pub fitness: PseudoFloat,
     pub has_species: bool
 }

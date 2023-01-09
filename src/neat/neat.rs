@@ -3,7 +3,7 @@ use rand::seq::SliceRandom;
 
 use crate::genome::*;
 
-use super::{Client, Species};
+use super::{Client, Species, Config};
 
 #[cfg(test)]
 #[path ="neat_test.rs"]
@@ -11,35 +11,6 @@ mod neat_test;
 
 /// The maximum number of nodes in a network
 pub const MAX_NODES: u32 = 2u32.pow(20);
-
-/// The multiplier for the disjoint genes in the `distance` function
-pub const MULT_DISJOINT: f32 = 3.0;
-/// The multiplier for the excess genes in the `distance` function
-pub const MULT_EXCESS: f32 = 2.0;
-/// The multiplier for the weight difference in the `distance` function
-pub const MULT_WEIGHT_DIFF: f32 = 4.0;
-
-/// The weight shifting strength when mutating
-pub const WEIGHT_SHIFT_STRENGTH: f32 = 0.3;
-/// The weight randomness strength when mutating
-pub const WEIGHT_RANDOM_STRENGTH: f32 = 1.0;
-
-/// The probability of mutating a new link
-pub const PROB_MUTATE_LINK: f32 = 0.01;
-/// The probability of mutating a new node
-pub const PROB_MUTATE_NODE: f32 = 0.003;
-/// The probability of mutating and shifting a weight
-pub const PROB_MUTATE_WEIGHT_SHIFT: f32 = 0.002;
-/// The probability of mutating and selecting a new random value for a weight
-pub const PROB_MUTATE_WEIGHT_RANDOM: f32 = 0.002;
-/// The probability of mutating and toggling a link
-pub const PROB_MUTATE_TOGGLE_LINK: f32 = 0.0;
-
-/// The threshold for creating a new species
-pub const SPECIES_THRESHOLD: f32 = 4.0;
-
-/// Determine the percentage of clients that will be killed
-pub const KILL_PERCENTAGE: f32 = 0.2;
 
 /// The struct that controls the entire library
 pub struct Neat {
@@ -111,6 +82,8 @@ impl Neat {
             client.borrow_mut().generate_calculator();
             self.clients.push(client);
         }
+
+        Config::from_file("tests/config.txt");
     }
 
     /// Get a client from this structure
@@ -133,7 +106,7 @@ impl Neat {
         let mut genome = Genome::new();
 
         for index in 0..self.input_size as usize + self.output_size as usize {
-            genome.nodes.add(self.get_node(index));
+            genome.nodes.add(self.get_node(index + 1).expect("Failed to get a node"));
         }
 
         genome
@@ -153,13 +126,13 @@ impl Neat {
     }
 
     /// Get a new node if it's out of bounds
-    pub fn get_node(&mut self, index: usize) -> NodeGene {
+    pub fn get_node(&mut self, index: usize) -> Option<NodeGene> {
         let len = self.all_nodes.len();
         if index <= len {
-            self.all_nodes[index]
+            Some(self.all_nodes[index - 1])
         }
         else {
-            self.create_node(0.0, 0.0)
+            None
         }
     }
 
@@ -178,6 +151,25 @@ impl Neat {
         }
 
         connection_gene
+    }
+
+    /// Set a replace index from a connection
+    pub fn set_replace_index(&mut self, from: NodeGene, to: NodeGene, replace_index: usize) {
+        println!("BEFORE self.all_connections: {:#?}", self.all_connections);
+        self.all_connections.get_mut(&ConnectionGene::new(from, to).hash_code())
+            .expect("Failed to find connection gene").replace_index = replace_index;
+        println!("AFTER self.all_connections: {:#?}", self.all_connections);
+    }
+
+    /// Get a replace index from a connection
+    pub fn get_replace_index(&self, from: NodeGene, to: NodeGene) -> usize {
+        let connection = ConnectionGene::new(from, to);
+        if let Some(connection )= self.all_connections.get(&connection.hash_code()) {
+            connection.replace_index
+        }
+        else {
+            0
+        }
     }
 
     /// A wrapper function for all the evolution steps
@@ -228,7 +220,7 @@ impl Neat {
     /// Kill a certain percentage of species
     fn kill(&mut self) {
         for species in &mut self.species {
-            species.kill(KILL_PERCENTAGE);
+            species.kill(Config::global().kill_percentage);
         }
     }
 
@@ -302,6 +294,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = "takes a while"]
     fn evolve() {
         let mut neat = Neat::new(10, 1, 1000);
 
@@ -310,7 +303,7 @@ mod tests {
         let fitness_before = neat.clients[0].borrow_mut()
             .calculate(input.clone()).expect("Failed to calculate")[0];
 
-        for _ in 0..100 {
+        for _iteration in 0..100 {
             for client in &neat.clients {
                 let fitness = client.borrow_mut().calculate(input.clone()).expect("Failed to calculate")[0];
                 client.borrow_mut().fitness = fitness.into();
@@ -321,6 +314,7 @@ mod tests {
 
         let best = neat.best_client().expect("Failed to get client");
         neat.print_species();
+        println!("Best: {:?}", best);
 
         assert!(best.fitness.parse() > fitness_before);
     }

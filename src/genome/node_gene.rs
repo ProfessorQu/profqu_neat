@@ -40,6 +40,6 @@ impl Gene for NodeGene {
 
 impl Debug for NodeGene {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Node({:?})", self.innovation_number)
+        write!(f, "Node({:?}, x: {:?}, y: {:?})", self.innovation_number, self.x, self.y)
     }
 }
