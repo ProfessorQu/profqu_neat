@@ -57,6 +57,6 @@ impl Gene for Client {
 
 impl Debug for Client {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Client {{ fitness: {:?} }}", self.fitness)
+        write!(f, "Client {{ fitness: {:?}, has_species: {:?} }}", self.fitness, self.has_species)
     }
 }
