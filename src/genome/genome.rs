@@ -190,8 +190,6 @@ impl Genome {
                     index2 += 1;
                 },
                 Ordering::Greater => {  // Disjoint gene of genome 2
-                    // TODO: KEEP THIS IN MIND FOR BUGS BECAUSE IT'S ONLY USED FOR MAKING CROSSOVER2 CORRECT
-
                     index2 += 1;
                 },
                 Ordering::Less => {     // Disjoint gene of genome 1
@@ -294,12 +292,9 @@ impl Genome {
                     from, to, 
                     middle.innovation_number.try_into().expect("usize too big to convert to u32")
                 );
-                println!("replace_index: {:?}, replace_index: {:?}", middle.innovation_number, neat.get_replace_index(from, to));
             }
             else {
-                println!("HERE");
                 middle = neat.get_node(replace_index).expect("Failed to get the replace_index");
-                println!("HERE 2");
             }
 
             let mut connection1 = neat.get_connection(from, middle);

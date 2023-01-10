@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc, cell::RefCell, slice::Iter};
+use std::{collections::HashMap, rc::Rc, cell::{RefCell, RefMut}};
 use rand::seq::SliceRandom;
 
 use crate::genome::*;
@@ -84,23 +84,23 @@ impl Neat {
         }
     }
 
-    ///
+    /// Load a test config
     pub fn test_config() {
-        Neat::load_config_from_file("tests/config.txt");
-    }
-
-    /// Load a config from a vector
-    pub fn load_config_from_vec(config: Vec<f32>) {
-        let config = Config::from_vec(config);
-        if CONFIG.set(config).is_err() {
-            panic!("Failed to set config")
+        if CONFIG.get().is_none() {
+            Neat::load_config_from_file("tests/config.txt");
         }
     }
 
-    /// Load the config from file
-    pub fn load_config_from_file(filename: &str) {
+    /// Load a config from a vector and return if it succeeded
+    pub fn load_config_from_vec(config: Vec<f32>) -> bool {
+        let config = Config::from_vec(config);
+        CONFIG.set(config).is_ok()
+    }
+
+    /// Load the config from file and return if it succeeded
+    pub fn load_config_from_file(filename: &str) -> bool {
         let config = Config::from_file(filename);
-        CONFIG.set(config);
+        CONFIG.set(config).is_ok()
     }
 
     /// Get a client from this structure
@@ -172,10 +172,8 @@ impl Neat {
 
     /// Set a replace index from a connection
     pub fn set_replace_index(&mut self, from: NodeGene, to: NodeGene, replace_index: usize) {
-        println!("BEFORE self.all_connections: {:#?}", self.all_connections);
         self.all_connections.get_mut(&ConnectionGene::new(from, to).hash_code())
             .expect("Failed to find connection gene").replace_index = replace_index;
-        println!("AFTER self.all_connections: {:#?}", self.all_connections);
     }
 
     /// Get a replace index from a connection
@@ -243,7 +241,6 @@ impl Neat {
 
     /// Remove all the extinct species
     fn remove_extinct_species(&mut self) {
-        // TODO: FIX ITER BOUNDS
         for i in (0..self.species.len()).rev() {
             if self.species[i].len() <= 1 {
                 self.species[i].go_extinct();
@@ -281,8 +278,13 @@ impl Neat {
     }
 
     /// Iterate over all the clients in this struct
-    pub fn iter_clients(&mut self) -> Iter<'_, Rc<RefCell<Client>>> {
-        self.clients.iter()
+    pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
+        let mut clients = Vec::new();
+        for client in self.clients.iter() {
+            clients.push(client.borrow_mut());
+        }
+        
+        clients
     }
 
     /// Returns the best client out of all of the clients
@@ -295,9 +297,9 @@ impl Neat {
     /// let input: Vec<f32> = vec![rand::random(); 10];
     /// 
     /// for _iteration in 0..10 {
-    ///     for client in neat.iter_clients() {
-    ///         let fitness = client.borrow_mut().calculate(input.clone())[0];
-    ///         client.borrow_mut().fitness = fitness.into();
+    ///     for mut client in neat.iter_clients() {
+    ///         let fitness = client.calculate(input.clone())[0];
+    ///         client.fitness = fitness.into();
     ///     }
     /// 
     ///     neat.evolve();
@@ -330,9 +332,9 @@ impl Neat {
     /// let input: Vec<f32> = vec![rand::random(); 10];
     /// 
     /// for _iteration in 0..10 {
-    ///     for client in neat.iter_clients() {
-    ///         let fitness = client.borrow_mut().calculate(input.clone())[0];
-    ///         client.borrow_mut().fitness = fitness.into();
+    ///     for mut client in neat.iter_clients() {
+    ///         let fitness = client.calculate(input.clone())[0];
+    ///         client.fitness = fitness.into();
     ///     }
     /// 
     ///     neat.evolve();
@@ -364,21 +366,12 @@ mod tests {
         let fitness_before = neat.clients[0].borrow_mut()
             .calculate(input.clone())[0];
 
-        // for _iteration in 0..100 {
-        //     for client in neat.iter_clients() {
-        //         let fitness = client.borrow_mut()
-        //             .calculate(input.clone())[0];
-        //         client.borrow_mut().fitness = fitness.into();
-        //     }
-
-        //     neat.evolve();
-        // }
-        for _iteration in 0..10 {
-            for client in neat.iter_clients() {
-                let fitness = client.borrow_mut().calculate(input.clone())[0];
-                client.borrow_mut().fitness = fitness.into();
+        for _iteration in 0..200 {
+            for mut client in neat.iter_clients() {
+                let fitness = client.calculate(input.clone())[0];
+                client.fitness = fitness.into();
             }
-        
+
             neat.evolve();
         }
 

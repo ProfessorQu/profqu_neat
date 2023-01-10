@@ -3,6 +3,8 @@ use once_cell::sync::OnceCell;
 
 pub static CONFIG: OnceCell<Config> = OnceCell::new();
 
+#[derive(Debug)]
+/// The struct that stores all the config options
 pub struct Config {
     /// The multiplier for the disjoint genes in the `distance` function
     pub mult_disjoint: f32,
@@ -116,7 +118,7 @@ impl Config {
     }
 
     pub fn global() -> &'static Self {
-        CONFIG.get().expect("config is not initialized")
+        CONFIG.get().expect("Config is not initialized")
     }
 }
 
