@@ -5,11 +5,11 @@ mult_weight_diff: 4.0
 weight_shift_strength: 0.3
 weight_random_strength: 1.0
 
-prob_mutate_link: 0.5
-prob_mutate_node: 0.5
-prob_mutate_weight_shift: 0.5
-prob_mutate_weight_random: 0.5
-prob_mutate_toggle_link: 0.5
+prob_mutate_link: 0.3
+prob_mutate_node: 0.2
+prob_mutate_weight_shift: 0.1
+prob_mutate_weight_random: 0.1
+prob_mutate_toggle_link: 0.0
 
 species_threshold: 2.0
 

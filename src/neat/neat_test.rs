@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn new() {
     let neat = Neat::new(3, 3, 15);
-    assert_eq!(neat.all_nodes.len(), 6);
+    assert_eq!(neat.all_nodes.len(), 7);
 
     assert_eq!(neat.input_size, 3);
     assert_eq!(neat.output_size, 3);
@@ -36,16 +36,21 @@ fn outputs() {
 
     let x: f32 = neat.all_nodes[3].x.into();
     let y: f32 = neat.all_nodes[3].y.into();
-    assert_eq!(x, 0.9);
-    assert_eq!(y, 0.25);
-    
+    assert_eq!(x, 0.1);
+    assert_eq!(y, 0.9);
+
     let x: f32 = neat.all_nodes[4].x.into();
     let y: f32 = neat.all_nodes[4].y.into();
     assert_eq!(x, 0.9);
-    assert_eq!(y, 0.5);
+    assert_eq!(y, 0.25);
     
     let x: f32 = neat.all_nodes[5].x.into();
     let y: f32 = neat.all_nodes[5].y.into();
+    assert_eq!(x, 0.9);
+    assert_eq!(y, 0.5);
+    
+    let x: f32 = neat.all_nodes[6].x.into();
+    let y: f32 = neat.all_nodes[6].y.into();
     assert_eq!(x, 0.9);
     assert_eq!(y, 0.75);
 }
@@ -69,13 +74,13 @@ fn create_node() {
 
     assert_eq!(node.x.parse(), 0.0);
     assert_eq!(node.y.parse(), 1.0);
-    assert_eq!(node.innovation_number, 10);
+    assert_eq!(node.innovation_number, 11);
     
     let node = neat.create_node(0.5, 3.4);
 
     assert_eq!(node.x.parse(), 0.5);
     assert_eq!(node.y.parse(), 3.4);
-    assert_eq!(node.innovation_number, 11);
+    assert_eq!(node.innovation_number, 12);
 }
 
 #[test]

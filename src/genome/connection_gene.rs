@@ -46,7 +46,8 @@ impl Gene for ConnectionGene {
 
 impl Debug for ConnectionGene {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Connection({:?}, weight: {:?}, enabled: {:?}, replace_index: {:?})", self.innovation_number, self.weight, self.enabled, self.replace_index)
+        write!(f, "Connection({:?}, from: {:?}, to: {:?}, weight: {:?}, enabled: {:?}, replace_index: {:?})",
+            self.innovation_number, self.from.innovation_number, self.to.innovation_number, self.weight, self.enabled, self.replace_index)
     }
 }
 

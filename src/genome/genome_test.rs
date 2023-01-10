@@ -170,22 +170,22 @@ fn mutate_link() {
 
     let mut genome = neat.empty_genome();
 
-    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.nodes.len(),10);
     assert_eq!(genome.connections.len(), 0);
 
     genome.mutate_link(&mut neat);
 
-    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.nodes.len(), 10);
     assert_eq!(genome.connections.len(), 1);
     
     genome.mutate_link(&mut neat);
     
-    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.nodes.len(), 10);
     assert_eq!(genome.connections.len(), 2);
 
     genome.mutate_link(&mut neat);
     
-    assert_eq!(genome.nodes.len(), 9);
+    assert_eq!(genome.nodes.len(), 10);
     assert_eq!(genome.connections.len(), 3);
 }
 
@@ -195,22 +195,22 @@ fn mutate_node() {
 
     let mut genome = neat.empty_genome();
 
-    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.nodes.len(), 6);
     assert_eq!(genome.connections.len(), 0);
 
     genome.mutate_link(&mut neat);
 
-    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.nodes.len(), 6);
     assert_eq!(genome.connections.len(), 1);
     
     genome.mutate_node(&mut neat);
 
-    assert_eq!(genome.nodes.len(), 6);
+    assert_eq!(genome.nodes.len(), 7);
     assert_eq!(genome.connections.len(), 2);
 
     genome.mutate_node(&mut neat);
     
-    assert_eq!(genome.nodes.len(), 7);
+    assert_eq!(genome.nodes.len(), 8);
     assert_eq!(genome.connections.len(), 3);
 }
 
@@ -220,7 +220,7 @@ fn mutate_node_with_disabled_link() {
 
     let mut genome = neat.empty_genome();
 
-    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.nodes.len(), 6);
     assert_eq!(genome.connections.len(), 0);
 
     let node1 = neat.create_node(0.1, 0.5);
@@ -231,13 +231,13 @@ fn mutate_node_with_disabled_link() {
 
     genome.connections.add(connection);
 
-    assert_eq!(genome.nodes.len(), 5);
+    assert_eq!(genome.nodes.len(), 6);
     assert_eq!(genome.connections.len(), 1);
     assert!(!genome.get_connection(0).enabled);
     
     genome.mutate_node(&mut neat);
 
-    assert_eq!(genome.nodes.len(), 6);
+    assert_eq!(genome.nodes.len(), 7);
     assert_eq!(genome.connections.len(), 2);
     
     assert!(genome.get_connection(0).enabled);
@@ -245,7 +245,7 @@ fn mutate_node_with_disabled_link() {
 
     genome.mutate_node(&mut neat);
     
-    assert_eq!(genome.nodes.len(), 7);
+    assert_eq!(genome.nodes.len(), 8);
     assert_eq!(genome.connections.len(), 3);
 }
 

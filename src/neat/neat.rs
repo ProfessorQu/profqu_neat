@@ -51,12 +51,12 @@ impl Neat {
     /// 
     /// let mut neat = Neat::new(3, 3, 15);
     /// let genome = neat.empty_genome();
-    /// assert_eq!(genome.nodes.len(), 6);
+    /// assert_eq!(genome.nodes.len(), 7);
     /// 
     /// neat.reset(3, 5, 4);
     /// 
     /// let genome = neat.empty_genome();
-    /// assert_eq!(genome.nodes.len(), 8);
+    /// assert_eq!(genome.nodes.len(), 9);
     /// ```
     pub fn reset(&mut self, input_size: u32, output_size: u32, population_size: u32) {
         self.input_size = input_size;
@@ -71,6 +71,9 @@ impl Neat {
             let y = (input_index + 1) as f32 / (input_size + 1) as f32;
             self.create_node(0.1, y);
         }
+
+        // Create a bias node
+        self.create_node(0.1, 0.9);
 
         for output_index in 0..output_size as usize {
             let y = (output_index + 1) as f32 / (output_size + 1) as f32;
@@ -115,12 +118,12 @@ impl Neat {
     /// let genome = neat.empty_genome();
     ///
     /// assert_eq!(genome.connections.len(), 0);
-    /// assert_eq!(genome.nodes.len(), 6);
+    /// assert_eq!(genome.nodes.len(), 7); // One extra for the bias
     /// ```
     pub fn empty_genome(&mut self) -> Genome {
         let mut genome = Genome::new();
 
-        for index in 0..self.input_size as usize + self.output_size as usize {
+        for index in 0..self.input_size as usize + 1 + self.output_size as usize {
             genome.nodes.add(self.get_node(index + 1).expect("Failed to get a node"));
         }
 
