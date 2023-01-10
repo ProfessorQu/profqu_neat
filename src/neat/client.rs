@@ -31,12 +31,14 @@ impl Client {
     }
 
     /// Calculate the outputs
-    pub fn calculate(&mut self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
+    pub fn calculate(&mut self, inputs: Vec<f32>) -> Vec<f32> {
         if self.calculator.is_none() {
             self.generate_calculator()
         }
 
-        self.calculator.as_mut().expect("Failed to generate calculator").calculate(inputs)
+        self.calculator.as_mut()
+            .expect("Failed to generate calculator")
+            .calculate(inputs).expect("Failed to calculate")
     }
 
     /// Calculate the distance from this client's genome to other's genome

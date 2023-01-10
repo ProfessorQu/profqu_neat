@@ -35,7 +35,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(variables: Vec<f32>) -> Self {
+    pub fn from_vec(variables: Vec<f32>) -> Self {
         if variables.len() != 12 {
             panic!("variables should have length 12");
         }
@@ -60,28 +60,7 @@ impl Config {
         }
     }
 
-    pub fn init_zero() -> Self {
-        Self {
-            mult_disjoint: 0.0,
-            mult_excess: 0.0,
-            mult_weight_diff: 0.0,
-            
-            weight_shift_strength: 0.0,
-            weight_random_strength: 0.0,
-            
-            prob_mutate_link: 0.0,
-            prob_mutate_node: 0.0,
-            prob_mutate_weight_shift: 0.0,
-            prob_mutate_weight_random: 0.0,
-            prob_mutate_toggle_link: 0.0,
-            
-            species_threshold: 0.0,
-            
-            kill_percentage: 0.0,
-        }
-    }
-
-    pub fn from_file(filename: &str) {
+    pub fn from_file(filename: &str) -> Self {
         let mut config = Config::init_zero();
 
         let content = fs::read_to_string(filename).expect("Error opening file");
@@ -112,8 +91,27 @@ impl Config {
             }
         }
 
-        if CONFIG.set(config).is_err() {
-            panic!("Failed to set config")
+        config
+    }
+
+    pub fn init_zero() -> Self {
+        Self {
+            mult_disjoint: 0.0,
+            mult_excess: 0.0,
+            mult_weight_diff: 0.0,
+            
+            weight_shift_strength: 0.0,
+            weight_random_strength: 0.0,
+            
+            prob_mutate_link: 0.0,
+            prob_mutate_node: 0.0,
+            prob_mutate_weight_shift: 0.0,
+            prob_mutate_weight_random: 0.0,
+            prob_mutate_toggle_link: 0.0,
+            
+            species_threshold: 0.0,
+            
+            kill_percentage: 0.0,
         }
     }
 

@@ -1,9 +1,9 @@
-use std::{collections::HashMap, rc::Rc, cell::RefCell};
+use std::{collections::HashMap, rc::Rc, cell::RefCell, slice::Iter};
 use rand::seq::SliceRandom;
 
 use crate::genome::*;
 
-use super::{Client, Species, Config};
+use super::{Client, Species, Config, config::CONFIG};
 
 #[cfg(test)]
 #[path ="neat_test.rs"]
@@ -82,8 +82,25 @@ impl Neat {
             client.borrow_mut().generate_calculator();
             self.clients.push(client);
         }
+    }
 
-        Config::from_file("tests/config.txt");
+    ///
+    pub fn test_config() {
+        Neat::load_config_from_file("tests/config.txt");
+    }
+
+    /// Load a config from a vector
+    pub fn load_config_from_vec(config: Vec<f32>) {
+        let config = Config::from_vec(config);
+        if CONFIG.set(config).is_err() {
+            panic!("Failed to set config")
+        }
+    }
+
+    /// Load the config from file
+    pub fn load_config_from_file(filename: &str) {
+        let config = Config::from_file(filename);
+        CONFIG.set(config);
     }
 
     /// Get a client from this structure
@@ -263,7 +280,31 @@ impl Neat {
         self.clients = clients;
     }
 
-    /// Returns the best client out of all of them
+    /// Iterate over all the clients in this struct
+    pub fn iter_clients(&mut self) -> Iter<'_, Rc<RefCell<Client>>> {
+        self.clients.iter()
+    }
+
+    /// Returns the best client out of all of the clients
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let mut neat = Neat::new(10, 1, 1000);
+    /// Neat::test_config();
+    /// 
+    /// let input: Vec<f32> = vec![rand::random(); 10];
+    /// 
+    /// for _iteration in 0..10 {
+    ///     for client in neat.iter_clients() {
+    ///         let fitness = client.borrow_mut().calculate(input.clone())[0];
+    ///         client.borrow_mut().fitness = fitness.into();
+    ///     }
+    /// 
+    ///     neat.evolve();
+    /// }
+    /// 
+    /// neat.print_species();
+    /// ```
     pub fn best_client(&mut self) -> Option<Client> {
         let mut best_client = None;
 
@@ -280,6 +321,25 @@ impl Neat {
     }
 
     /// Print all the different species
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// let mut neat = Neat::new(10, 1, 1000);
+    /// Neat::test_config();
+    /// 
+    /// let input: Vec<f32> = vec![rand::random(); 10];
+    /// 
+    /// for _iteration in 0..10 {
+    ///     for client in neat.iter_clients() {
+    ///         let fitness = client.borrow_mut().calculate(input.clone())[0];
+    ///         client.borrow_mut().fitness = fitness.into();
+    ///     }
+    /// 
+    ///     neat.evolve();
+    /// }
+    /// 
+    /// neat.print_species();
+    /// ```
     pub fn print_species(&self) {
         println!("#######################################################");
         for species in &self.species {
@@ -297,18 +357,28 @@ mod tests {
     #[ignore = "takes a while"]
     fn evolve() {
         let mut neat = Neat::new(10, 1, 1000);
+        Neat::test_config();
 
         let input: Vec<f32> = vec![rand::random(); 10];
 
         let fitness_before = neat.clients[0].borrow_mut()
-            .calculate(input.clone()).expect("Failed to calculate")[0];
+            .calculate(input.clone())[0];
 
-        for _iteration in 0..100 {
-            for client in &neat.clients {
-                let fitness = client.borrow_mut().calculate(input.clone()).expect("Failed to calculate")[0];
+        // for _iteration in 0..100 {
+        //     for client in neat.iter_clients() {
+        //         let fitness = client.borrow_mut()
+        //             .calculate(input.clone())[0];
+        //         client.borrow_mut().fitness = fitness.into();
+        //     }
+
+        //     neat.evolve();
+        // }
+        for _iteration in 0..10 {
+            for client in neat.iter_clients() {
+                let fitness = client.borrow_mut().calculate(input.clone())[0];
                 client.borrow_mut().fitness = fitness.into();
             }
-
+        
             neat.evolve();
         }
 

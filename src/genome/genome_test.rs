@@ -5,6 +5,7 @@ use crate::neat::Config;
 #[test]
 fn distance() {
     let mut neat = Neat::new(2, 2, 3);
+    Neat::test_config();
     
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();
@@ -32,6 +33,7 @@ fn distance() {
 #[test]
 fn crossover() {
     let mut neat = Neat::new(2, 2, 3);
+    Neat::test_config();
 
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();
@@ -75,6 +77,7 @@ fn crossover() {
 #[test]
 fn crossover2() {
     let mut neat = Neat::new(2, 2, 3);
+    Neat::test_config();
 
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();

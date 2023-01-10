@@ -69,6 +69,7 @@ impl Genome {
     /// use profqu_neat::{Neat, genome::Genome};
     /// 
     /// let mut neat = Neat::new(2, 2, 3);
+    /// Neat::test_config();
     /// 
     /// let mut genome1 = neat.empty_genome();
     /// let mut genome2 = neat.empty_genome();
@@ -144,6 +145,7 @@ impl Genome {
     /// ```rust
     /// use profqu_neat::{Neat, genome::Genome};
     /// let mut neat = Neat::new(3, 4, 10);
+    /// Neat::test_config();
     /// 
     /// let mut genome1 = neat.empty_genome();
     /// let genome2 = neat.empty_genome();
