@@ -64,7 +64,7 @@ impl Config {
 
     pub fn from_file(filename: &str) -> Self {
         let mut config = Config::init_zero();
-
+        
         let content = fs::read_to_string(filename).expect("Error opening file");
 
         for line in content.lines() {
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn from_file() {
-        Config::from_file("tests/config.txt");
+        Config::from_file("src/test_config.txt");
 
         assert_eq!(Config::global().mult_disjoint, 3.0);
         assert_eq!(Config::global().mult_excess, 2.0);

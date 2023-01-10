@@ -86,7 +86,7 @@ impl Neat {
 
     /// Load a test config
     pub fn test_config() {
-        Neat::load_config_from_file("tests/config.txt");
+        Neat::load_config_from_file("src/test_config.txt");
     }
 
     /// Load a config from a vector and return if it succeeded
