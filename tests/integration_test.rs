@@ -57,7 +57,6 @@ fn xor_test() {
     neat.print_species();
     let mut best = neat.best_client().expect("No clients");
     println!("Best: {:?}", best);
-    println!("Best genome: {:?}", best.genome);
 
     for input in inputs {
         println!("{:?}: {:?}", input, best.calculate(input.clone()));
