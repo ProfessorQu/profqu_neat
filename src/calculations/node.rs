@@ -1,6 +1,7 @@
+use core::panic;
 use std::{cell::RefCell, rc::Rc};
 
-use crate::data_structures::PseudoFloat;
+use crate::{data_structures::PseudoFloat, neat::{Config, ActivationFunction}};
 
 use super::Connection;
 
@@ -10,6 +11,7 @@ pub struct Node {
     pub x: PseudoFloat,
     pub output: PseudoFloat,
     pub connections: Vec<Rc<RefCell<Connection>>>,
+    activation: fn(f32) -> f32,
 }
 
 impl Node {
@@ -18,7 +20,11 @@ impl Node {
         Self {
             x: PseudoFloat::new(x),
             output: PseudoFloat::new(0.0),
-            connections: Vec::new()
+            connections: Vec::new(),
+            activation: match Config::global().activation {
+                ActivationFunction::Relu => Self::relu_activation,
+                ActivationFunction::Sigmoid => Self::sigmoid_activation,
+            }
         }
     }
 
@@ -32,11 +38,21 @@ impl Node {
             }
         }
 
-        self.output = Self::activation(sum).into();
+        self.output = (self.activation)(sum).into();
     }
 
-    /// The activation function
-    fn activation(input: f32) -> f32 {
+    /// The ReLu activation function
+    fn relu_activation(input: f32) -> f32 {
+        if input <= 0.0 {
+            0.0
+        }
+        else {
+            input
+        }
+    }
+
+    /// The sigmoid activation function
+    fn sigmoid_activation(input: f32) -> f32 {
         1.0 / (1.0 + (-input).exp())
     }
 }

@@ -2,6 +2,7 @@ use super::*;
 
 #[test]
 fn new() {
+    Neat::test_config();
     let neat = Neat::new(3, 3, 15);
     assert_eq!(neat.all_nodes.len(), 7);
 
@@ -12,6 +13,7 @@ fn new() {
 
 #[test]
 fn inputs() {
+    Neat::test_config();
     let neat = Neat::new(3, 3, 200);
 
     let x: f32 = neat.all_nodes[0].x.into();
@@ -32,6 +34,7 @@ fn inputs() {
 
 #[test]
 fn outputs() {
+    Neat::test_config();
     let neat = Neat::new(3, 3, 40);
 
     let x: f32 = neat.all_nodes[3].x.into();
@@ -57,6 +60,7 @@ fn outputs() {
 
 #[test]
 fn empty_genome() {
+    Neat::test_config();
     let mut neat = Neat::new(3, 3, 100);
 
     let genome = neat.empty_genome();
@@ -68,6 +72,7 @@ fn empty_genome() {
 
 #[test]
 fn create_node() {
+    Neat::test_config();
     let mut neat = Neat::new(4, 5, 25);
 
     let node = neat.create_node(0.0, 1.0);
@@ -85,6 +90,7 @@ fn create_node() {
 
 #[test]
 fn get_connection() {
+    Neat::test_config();
     let mut neat = Neat::new(3, 3, 100);
 
     for i in 0..10 {

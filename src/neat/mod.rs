@@ -7,4 +7,4 @@ mod config;
 pub use neat::{Neat, MAX_NODES};
 pub use species::Species;
 pub use client::Client;
-pub use config::Config;
+pub use config::{Config, ActivationFunction};

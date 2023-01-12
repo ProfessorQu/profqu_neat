@@ -14,3 +14,5 @@ prob_mutate_toggle_link: 0.0
 species_threshold: 4.0
 
 kill_percentage: 0.2
+
+activation: sigmoid

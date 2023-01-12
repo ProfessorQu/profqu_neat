@@ -29,8 +29,8 @@ impl ConnectionGene {
     }
 
     /// Get the hash code of this connection gene
-    pub fn hash_code(&self) -> u32 {
-        self.from.innovation_number * neat::MAX_NODES + self.to.innovation_number
+    pub fn hash_code(&self) -> u64 {
+        self.from.innovation_number as u64 * neat::MAX_NODES + self.to.innovation_number as u64
     }
 }
 
@@ -68,7 +68,7 @@ mod tests {
     
             let connection = ConnectionGene::new(from, to);
     
-            assert_eq!(connection.hash_code(), from_innov * neat::MAX_NODES + to_innov);
+            assert_eq!(connection.hash_code(), from_innov as u64 * neat::MAX_NODES + to_innov as u64);
         }
     }
 }

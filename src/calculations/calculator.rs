@@ -94,12 +94,13 @@ impl Calculator {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Neat};
+    use crate::{Neat, neat::Config};
 
     use super::*;
 
     #[test]
     fn new() {
+        Neat::test_config();
         let mut neat = Neat::new(3, 3, 10);
 
         let mut genome = neat.empty_genome();
@@ -138,6 +139,7 @@ mod tests {
 
     #[test]
     fn calculate() {
+        Neat::test_config();
         let mut neat = Neat::new(3, 3, 10);
 
         let mut genome = neat.empty_genome();
@@ -159,6 +161,7 @@ mod tests {
 
     #[test]
     fn calculate2() {
+        Neat::test_config();
         let mut neat = Neat::new(3, 3, 10);
 
         let mut genome = neat.empty_genome();

@@ -10,11 +10,11 @@ use super::{Client, Species, Config, config::CONFIG};
 mod neat_test;
 
 /// The maximum number of nodes in a network
-pub const MAX_NODES: u32 = 2u32.pow(20);
+pub const MAX_NODES: u64 = 2u64.pow(20);
 
 /// The struct that controls the entire library
 pub struct Neat {
-    all_connections: HashMap<u32, ConnectionGene>,
+    all_connections: HashMap<u64, ConnectionGene>,
     all_nodes: Vec<NodeGene>,
     clients: Vec<Rc<RefCell<Client>>>,
     species: Vec<Species>,
@@ -28,6 +28,7 @@ impl Neat {
     /// ```rust
     /// use profqu_neat::Neat;
     /// 
+    /// Neat::test_config();
     /// let neat = Neat::new(3, 3, 15);
     /// ```
     pub fn new(input_size: u32, output_size: u32, population_size: u32) -> Self {
@@ -49,7 +50,9 @@ impl Neat {
     /// ```rust
     /// use profqu_neat::Neat;
     /// 
+    /// Neat::test_config();
     /// let mut neat = Neat::new(3, 3, 15);
+    /// 
     /// let genome = neat.empty_genome();
     /// assert_eq!(genome.nodes.len(), 7);
     /// 
@@ -89,12 +92,13 @@ impl Neat {
 
     /// Load a test config
     pub fn test_config() {
-        Neat::load_config_from_file("src/test_config.txt");
+        let config = Config::from_file("src/test_config.txt");
+        CONFIG.set(config);
     }
 
     /// Load a config from a vector and return if it succeeded
     pub fn load_config_from_vec(config: Vec<f32>) -> bool {
-        let config = Config::from_vec(config);
+        let config = Config::from_vec(config, "relu");
         CONFIG.set(config).is_ok()
     }
 
@@ -113,6 +117,7 @@ impl Neat {
     /// ```rust
     /// use profqu_neat::Neat;
     /// 
+    /// Neat::test_config();
     /// let mut neat = Neat::new(3, 3, 100);
     ///
     /// let genome = neat.empty_genome();
@@ -292,8 +297,8 @@ impl Neat {
     /// ```rust
     /// use profqu_neat::Neat;
     /// 
-    /// let mut neat = Neat::new(10, 1, 1000);
     /// Neat::test_config();
+    /// let mut neat = Neat::new(10, 1, 1000);
     /// 
     /// let input: Vec<f32> = vec![rand::random(); 10];
     /// 
@@ -310,8 +315,8 @@ impl Neat {
     /// ```
     pub fn best_client(&mut self) -> Option<Client> {
         let mut best_client = None;
-
         let mut best_fitness = f32::MIN;
+
         for client in &self.clients {
             let fitness = client.borrow().fitness.parse();
             if fitness > best_fitness {
@@ -327,8 +332,8 @@ impl Neat {
     /// ```rust
     /// use profqu_neat::Neat;
     /// 
-    /// let mut neat = Neat::new(10, 1, 1000);
     /// Neat::test_config();
+    /// let mut neat = Neat::new(10, 1, 1000);
     /// 
     /// let input: Vec<f32> = vec![rand::random(); 10];
     /// 
@@ -359,8 +364,8 @@ mod tests {
     #[test]
     #[ignore = "takes a while"]
     fn evolve() {
-        let mut neat = Neat::new(10, 1, 1000);
         Neat::test_config();
+        let mut neat = Neat::new(10, 1, 1000);
 
         let input: Vec<f32> = vec![rand::random(); 10];
 

@@ -4,6 +4,22 @@ use once_cell::sync::OnceCell;
 pub static CONFIG: OnceCell<Config> = OnceCell::new();
 
 #[derive(Debug)]
+pub enum ActivationFunction {
+    Sigmoid,
+    Relu
+}
+
+impl From<&str> for ActivationFunction {
+    fn from(value: &str) -> Self {
+        match value {
+            "relu" => ActivationFunction::Relu,
+            "sigmoid" => ActivationFunction::Sigmoid,
+            _ => panic!("Wrong activation input")
+        }
+    }
+}
+
+#[derive(Debug)]
 /// The struct that stores all the config options
 pub struct Config {
     /// The multiplier for the disjoint genes in the `distance` function
@@ -34,10 +50,13 @@ pub struct Config {
 
     /// Determine the percentage of clients that will be killed
     pub kill_percentage: f32,
+
+    /// The activation function to use
+    pub activation: ActivationFunction,
 }
 
 impl Config {
-    pub fn from_vec(variables: Vec<f32>) -> Self {
+    pub fn from_vec(variables: Vec<f32>, activation: &str) -> Self {
         if variables.len() != 12 {
             panic!("variables should have length 12");
         }
@@ -59,6 +78,8 @@ impl Config {
             species_threshold: variables[10],
             
             kill_percentage: variables[11],
+
+            activation: activation.into(),
         }
     }
 
@@ -87,6 +108,7 @@ impl Config {
                     
                     "species_threshold" => config.species_threshold = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     "kill_percentage" => config.kill_percentage = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
+                    "activation" => config.activation = split.next().expect("No string after parameter").into(),
                     "" => { },
                     _ => panic!("No recognized pattern")
                 }
@@ -114,6 +136,8 @@ impl Config {
             species_threshold: 0.0,
             
             kill_percentage: 0.0,
+
+            activation: ActivationFunction::Relu
         }
     }
 

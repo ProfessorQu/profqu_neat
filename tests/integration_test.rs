@@ -4,13 +4,12 @@ use profqu_neat::Neat;
 fn max() {
     let inputs: Vec<f32> = vec![rand::random(); 10];
 
-    let mut neat = Neat::new(10, 1, 100);
-
     Neat::load_config_from_file("tests/config.txt");
+    let mut neat = Neat::new(10, 1, 100);
     
     for _iteration in 0..100 {
         for mut client in neat.iter_clients() {
-            let fitness = client.calculate(inputs.clone())[0];
+            let fitness = 1.0 + client.calculate(inputs.clone())[0];
 
             client.fitness = fitness.into();
         }
@@ -24,7 +23,7 @@ fn max() {
 }
 
 #[test]
-#[ignore = "reason"]
+#[ignore = "takes too long"]
 fn xor_test() {
     let inputs: Vec<Vec<f32>> = vec![
         vec![0.0, 0.0],
@@ -34,18 +33,23 @@ fn xor_test() {
     ];
     let outputs: Vec<f32> = inputs.iter().map(|input| (input[0] as i64 ^ input[1] as i64) as f32).collect();
 
-    let mut neat = Neat::new(2, 1, 100);
-
     Neat::load_config_from_file("tests/config.txt");
+    let mut neat = Neat::new(2, 1, 300);
 
     for _iteration in 0..100 {
         for mut client in neat.iter_clients() {
-            let mut fitness = 2.0;
+            let mut fitness = 0.0;
 
             for index in 0..inputs.len() {
                 let result = client.calculate(inputs[index].clone())[0];
-
-                fitness -= (result - outputs[index]).powf(2.0);
+                if (result >= 0.5 && outputs[index] == 1.0) || (result < 0.5 && outputs[index] == 0.0) {
+                    if inputs[index][0] == 0.0 && inputs[index][1] == 0.0 {
+                        fitness += 1.0;
+                    }
+                    else {
+                        fitness += 1.02;
+                    }
+                }
             }
 
             client.fitness = fitness.into();
@@ -58,7 +62,21 @@ fn xor_test() {
     let mut best = neat.best_client().expect("No clients");
     println!("Best: {:?}", best);
 
-    for input in inputs {
-        println!("{:?}: {:?}", input, best.calculate(input.clone()));
+    let mut wrong = 0;
+    for i in 0..inputs.len() {
+        let mut result = best.calculate(inputs[i].clone())[0];
+        println!("{:.0?}: {:.5?}\t\ttrue value: {:.0?}", inputs[i], result, outputs[i]);
+        result = if result > 0.5 {
+            1.0
+        }
+        else {
+            0.0
+        };
+
+        if result != outputs[i] {
+            wrong += 1;
+        }
     }
+
+    assert!(wrong <= 1);
 }

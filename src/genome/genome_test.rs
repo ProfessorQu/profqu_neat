@@ -4,8 +4,8 @@ use crate::neat::Config;
 
 #[test]
 fn distance() {
-    let mut neat = Neat::new(2, 2, 3);
     Neat::test_config();
+    let mut neat = Neat::new(2, 2, 3);
     
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();
@@ -32,8 +32,8 @@ fn distance() {
 
 #[test]
 fn crossover() {
-    let mut neat = Neat::new(2, 2, 3);
     Neat::test_config();
+    let mut neat = Neat::new(2, 2, 3);
 
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();
@@ -76,8 +76,8 @@ fn crossover() {
 
 #[test]
 fn crossover2() {
-    let mut neat = Neat::new(2, 2, 3);
     Neat::test_config();
+    let mut neat = Neat::new(2, 2, 3);
 
     let mut genome1 = neat.empty_genome();
     let mut genome2 = neat.empty_genome();
@@ -108,6 +108,7 @@ fn crossover2() {
 
 #[test]
 fn mutate() {
+    Neat::test_config();
     let mut neat = Neat::new(5, 4, 90);
 
     let mut genome1 = neat.empty_genome();
@@ -141,6 +142,7 @@ fn mutate() {
 
 #[test]
 fn mutate2() {
+    Neat::test_config();
     let mut neat = Neat::new(5, 4, 90);
 
     let mut genome1 = neat.empty_genome();
@@ -166,6 +168,7 @@ fn mutate2() {
 
 #[test]
 fn mutate_link() {
+    Neat::test_config();
     let mut neat = Neat::new(5, 4, 90);
 
     let mut genome = neat.empty_genome();
@@ -191,6 +194,7 @@ fn mutate_link() {
 
 #[test]
 fn mutate_node() {
+    Neat::test_config();
     let mut neat = Neat::new(2, 3, 90);
 
     let mut genome = neat.empty_genome();
@@ -216,6 +220,7 @@ fn mutate_node() {
 
 #[test]
 fn mutate_node_with_disabled_link() {
+    Neat::test_config();
     let mut neat = Neat::new(2, 3, 90);
 
     let mut genome = neat.empty_genome();
@@ -251,6 +256,7 @@ fn mutate_node_with_disabled_link() {
 
 #[test]
 fn mutate_weight_shift() {
+    Neat::test_config();
     let mut neat = Neat::new(2, 3, 90);
 
     let mut genome = neat.empty_genome();
@@ -269,6 +275,7 @@ fn mutate_weight_shift() {
 
 #[test]
 fn mutate_weight_random() {
+    Neat::test_config();
     let mut neat = Neat::new(2, 3, 90);
 
     let mut genome = neat.empty_genome();
@@ -289,6 +296,7 @@ fn mutate_weight_random() {
 
 #[test]
 fn mutate_link_toggle() {
+    Neat::test_config();
     let mut neat = Neat::new(2, 3, 90);
 
     let mut genome = neat.empty_genome();
