@@ -229,7 +229,7 @@ impl Neat {
 
             if !found {
                 client.borrow_mut().has_species = true;
-                self.species.push(Species::new(client.clone()));
+                self.species.push(Species::new(Rc::clone(client)));
             }
         }
 
