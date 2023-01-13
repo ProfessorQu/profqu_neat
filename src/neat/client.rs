@@ -1,4 +1,4 @@
-use std::{fmt::Debug, rc::Rc, cell::RefCell, sync::{Mutex, Arc}};
+use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
 use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::PseudoFloat, Neat};
 
@@ -12,9 +12,9 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(genome: Genome) -> Arc<Mutex<Self>> {
-        Arc::new(
-            Mutex::new(
+    pub fn new(genome: Genome) -> Rc<RefCell<Self>> {
+        Rc::new(
+            RefCell::new(
                 Self {
                     genome,
                     calculator: None,

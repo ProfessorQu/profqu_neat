@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc, cell::{RefCell, RefMut}, thread, sync::{Arc, Mutex, MutexGuard}};
+use std::{collections::HashMap, rc::Rc, cell::{RefCell, RefMut}};
 use rand::seq::SliceRandom;
 
 use crate::genome::*;
@@ -16,7 +16,7 @@ pub const MAX_NODES: u64 = 2u64.pow(20);
 pub struct Neat {
     all_connections: HashMap<u64, ConnectionGene>,
     all_nodes: Vec<NodeGene>,
-    clients: Vec<Arc<Mutex<Client>>>,
+    clients: Vec<Rc<RefCell<Client>>>,
     species: Vec<Species>,
     input_size: u32,
     output_size: u32,
@@ -85,7 +85,7 @@ impl Neat {
 
         for _client_index in 0..population_size as usize {
             let client = Client::new(self.empty_genome());
-            client.lock().expect("Failed to get lock").generate_calculator();
+            client.borrow_mut().generate_calculator();
             self.clients.push(client);
         }
     }
@@ -109,8 +109,8 @@ impl Neat {
     }
 
     /// Get a client from this structure
-    pub fn get_client(&self, index: usize) -> Arc<Mutex<Client>> {
-        Arc::clone(self.clients.get(index).expect("Index out of bounds"))
+    pub fn get_client(&self, index: usize) -> Rc<RefCell<Client>> {
+        Rc::clone(self.clients.get(index).expect("Index out of bounds"))
     }
 
     /// Create an empty genome with no hidden nodes or connections
@@ -200,12 +200,16 @@ impl Neat {
         self.remove_extinct_species();
         self.reproduce();
         self.mutate();
+
+        for client in &self.clients {
+            client.borrow_mut().generate_calculator();
+        }
     }
 
     /// Generate new species
     fn gen_species(&mut self) {
         for client in &self.clients {
-            client.lock().expect("Failed to get lock").has_species = false;
+            client.borrow_mut().has_species = false;
         }
 
         for species in &mut self.species {
@@ -213,19 +217,19 @@ impl Neat {
         }
 
         for client in &self.clients {
-            if client.lock().expect("Failed to get immutable").has_species { continue }
+            if client.borrow().has_species { continue }
 
             let mut found = false;
             for species in &mut self.species {
-                if species.put(Arc::clone(client)) {
+                if species.put(Rc::clone(client)) {
                     found = true;
                     break;
                 }
             }
 
             if !found {
-                client.lock().expect("Failed to get lock").has_species = true;
-                self.species.push(Species::new(Arc::clone(client)));
+                client.borrow_mut().has_species = true;
+                self.species.push(Species::new(Rc::clone(client)));
             }
         }
 
@@ -256,13 +260,13 @@ impl Neat {
         let clients = self.clients.clone();
         let mut all_species = self.species.clone();
         for client in clients {
-            if !client.lock().expect("Failed to get lock").has_species {
+            if !client.borrow().has_species {
                 let species = all_species
                     .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness.parse())
                     .expect("species is empty");
 
-                client.lock().expect("Failed to get lock").genome = species.breed(self);
-                species.force_put(Arc::clone(&client));
+                client.borrow_mut().genome = species.breed(self);
+                species.force_put(Rc::clone(&client));
             }
         }
 
@@ -273,20 +277,17 @@ impl Neat {
     fn mutate(&mut self) {
         let mut clients = self.clients.clone();
         for client in &mut clients {
-            // handles.push(thread::spawn(|| {
-            client.lock().expect("Failed to get lock").mutate(self);
-            client.lock().expect("Failed to get lock").generate_calculator();
-            // }));
+            client.borrow_mut().mutate(self);
         }
 
         self.clients = clients;
     }
 
     /// Iterate over all the clients in this struct
-    pub fn iter_clients(&mut self) -> Vec<MutexGuard<Client>> {
+    pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
         let mut clients = Vec::new();
         for client in self.clients.iter() {
-            clients.push(client.lock().expect("Failed to get lock"));
+            clients.push(client.borrow_mut());
         }
         
         clients
@@ -317,9 +318,9 @@ impl Neat {
         let mut best_fitness = f32::MIN;
 
         for client in &self.clients {
-            let fitness = client.lock().expect("Failed to get lock").fitness.parse();
+            let fitness = client.borrow().fitness.parse();
             if fitness > best_fitness {
-                best_client = Some(client.lock().expect("Failed to get lock").clone());
+                best_client = Some(client.borrow().clone());
                 best_fitness = fitness;
             }
         }
@@ -368,7 +369,7 @@ mod tests {
 
         let input: Vec<f32> = vec![rand::random(); 10];
 
-        let fitness_before = neat.clients[0].lock().expect("Failed to get lock")
+        let fitness_before = neat.clients[0].borrow_mut()
             .calculate(input.clone())[0];
 
         for _iteration in 0..200 {

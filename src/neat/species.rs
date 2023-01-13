@@ -1,4 +1,4 @@
-use std::{fmt::Debug, rc::Rc, cell::RefCell, sync::{Mutex, Arc}};
+use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
 use rand::seq::SliceRandom;
 
@@ -8,29 +8,29 @@ use super::{Client, Config};
 
 #[derive(Clone)]
 pub struct Species {
-    clients: Vec<Arc<Mutex<Client>>>,
-    representative: Arc<Mutex<Client>>,
+    clients: Vec<Rc<RefCell<Client>>>,
+    representative: Rc<RefCell<Client>>,
     pub average_fitness: PseudoFloat
 }
 
 impl Species {
     /// Create a new species from a representative
-    pub fn new(representative: Arc<Mutex<Client>>) -> Self {
+    pub fn new(representative: Rc<RefCell<Client>>) -> Self {
         Self {
-            clients: vec![Arc::clone(&representative)],
+            clients: vec![Rc::clone(&representative)],
             representative,
             average_fitness: PseudoFloat::new(0.0),
         }
     }
 
-    fn get_best_client(&self) -> Arc<Mutex<Client>> {
+    fn get_best_client(&self) -> Rc<RefCell<Client>> {
         let mut best_client = None;
         let mut best_fitness = f32::MIN;
 
         for client in &self.clients {
-            let fitness = client.lock().expect("Failed to get lock").fitness.parse();
+            let fitness = client.borrow().fitness.parse();
             if fitness > best_fitness {
-                best_client = Some(Arc::clone(client));
+                best_client = Some(Rc::clone(client));
                 best_fitness = fitness;
             }
         }
@@ -39,17 +39,15 @@ impl Species {
     }
 
     /// Get a random element out of this species' clients
-    fn get_random_element(&self) -> Arc<Mutex<Client>> {
-        Arc::clone(self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species"))
+    fn get_random_element(&self) -> Rc<RefCell<Client>> {
+        Rc::clone(self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species"))
     }
 
     /// Put a new client in this species if possible
-    pub fn put(&mut self, client: Arc<Mutex<Client>>) -> bool {
-        if client.lock().expect("Failed to get lock").distance(
-            &self.representative.lock().expect("Failed to get lock"))
-            < Config::global().species_threshold {
-            client.lock().expect("Failed to get lock").has_species = true;
-            self.clients.push(Arc::clone(&client));
+    pub fn put(&mut self, client: Rc<RefCell<Client>>) -> bool {
+        if client.borrow().distance(&self.representative.borrow()) < Config::global().species_threshold {
+            client.borrow_mut().has_species = true;
+            self.clients.push(Rc::clone(&client));
 
             true
         }
@@ -59,15 +57,15 @@ impl Species {
     }
 
     /// Put a species in this species without any checks
-    pub fn force_put(&mut self, client: Arc<Mutex<Client>>) {
-        client.lock().expect("Failed to get lock").has_species = true;
-        self.clients.push(Arc::clone(&client));
+    pub fn force_put(&mut self, client: Rc<RefCell<Client>>) {
+        client.borrow_mut().has_species = true;
+        self.clients.push(Rc::clone(&client));
     }
 
     /// Make this species go extinct
     pub fn go_extinct(&mut self) {
         for client in &self.clients {
-            client.lock().expect("Failed to get lock").has_species = false;
+            client.borrow_mut().has_species = false;
         }
     }
 
@@ -75,7 +73,7 @@ impl Species {
     pub fn evaluate_fitness(&mut self) {
         let mut total_fitness = 0.0;
         for client in &self.clients {
-            total_fitness += client.lock().expect("Failed to get lock").fitness.parse();
+            total_fitness += client.borrow().fitness.parse();
         }
 
         self.average_fitness = PseudoFloat::new(total_fitness / self.clients.len() as f32);
@@ -86,13 +84,13 @@ impl Species {
         // TODO: Make RandomHashSet more general
         self.representative = self.get_random_element();
         for client in &mut self.clients {
-            client.lock().expect("Failed to get lock").has_species = false;
+            client.borrow_mut().has_species = false;
         }
 
         self.clients.clear();
 
-        self.representative.lock().expect("Failed to get lock").has_species = true;
-        self.clients.push(Arc::clone(&self.representative));
+        self.representative.borrow_mut().has_species = true;
+        self.clients.push(Rc::clone(&self.representative));
         self.average_fitness = PseudoFloat::new(0.0);
     }
 
@@ -101,13 +99,13 @@ impl Species {
         // Sort so that the lowest fitness is at index 0
         self.clients.sort_by(
             |a, b|
-            a.lock().expect("Failed to get lock").fitness.parse().total_cmp(
-                &b.lock().expect("Failed to get lock").fitness.parse()
+            a.borrow().fitness.parse().total_cmp(
+                &b.borrow().fitness.parse()
             )
         );
 
         for _ in 0..(percentage * self.clients.len() as f32) as usize {
-            self.clients[0].lock().expect("Failed to get lock").has_species = false;
+            self.clients[0].borrow_mut().has_species = false;
             self.clients.remove(0);
         }
     }
@@ -117,19 +115,11 @@ impl Species {
         let client1 = self.get_random_element();
         let client2 = self.get_random_element();
 
-        if client1.lock().expect("Failed to get lock").fitness.parse() > client2.lock().expect("Failed to get lock").fitness.parse() {
-            Genome::crossover(
-                neat,
-                &client1.lock().expect("Failed to get lock").genome,
-                &client2.lock().expect("Failed to get lock").genome
-            )
+        if client1.borrow().fitness.parse() > client2.borrow().fitness.parse() {
+            Genome::crossover(neat, &client1.borrow().genome, &client2.borrow().genome)
         }
         else {
-            Genome::crossover(
-                neat,
-                &client2.lock().expect("Failed to get lock").genome,
-                &client1.lock().expect("Failed to get lock").genome
-            )
+            Genome::crossover(neat, &client2.borrow().genome, &client1.borrow().genome)
         }
     }
 
@@ -193,7 +183,7 @@ mod tests {
 
         let new = Client::new(genome2);
 
-        assert!(!species.put(Arc::clone(&new)));
+        assert!(!species.put(Rc::clone(&new)));
         
         assert_eq!(species.len(), 1);
 
@@ -215,7 +205,7 @@ mod tests {
         }
 
         let rep = Client::new(genome1);
-        rep.lock().expect("Failed to get lock").fitness = PseudoFloat::new(10.0);
+        rep.borrow_mut().fitness = PseudoFloat::new(10.0);
 
         let mut species = Species::new(rep);
         
