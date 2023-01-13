@@ -1,4 +1,3 @@
-use core::panic;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{data_structures::PseudoFloat, neat::{Config, ActivationFunction}};

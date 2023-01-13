@@ -23,21 +23,6 @@ impl Species {
         }
     }
 
-    fn get_best_client(&self) -> Rc<RefCell<Client>> {
-        let mut best_client = None;
-        let mut best_fitness = f32::MIN;
-
-        for client in &self.clients {
-            let fitness = client.borrow().fitness.parse();
-            if fitness > best_fitness {
-                best_client = Some(Rc::clone(client));
-                best_fitness = fitness;
-            }
-        }
-
-        best_client.expect("clients is empty")
-    }
-
     /// Get a random element out of this species' clients
     fn get_random_element(&self) -> Rc<RefCell<Client>> {
         Rc::clone(self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species"))

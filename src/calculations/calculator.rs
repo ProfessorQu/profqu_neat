@@ -94,7 +94,7 @@ impl Calculator {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Neat, neat::Config};
+    use crate::Neat;
 
     use super::*;
 

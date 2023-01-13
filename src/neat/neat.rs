@@ -91,9 +91,9 @@ impl Neat {
     }
 
     /// Load a test config
-    pub fn test_config() {
+    pub fn test_config() -> bool {
         let config = Config::from_file("src/test_config.txt");
-        CONFIG.set(config);
+        CONFIG.set(config).is_ok()
     }
 
     /// Load a config from a vector and return if it succeeded
