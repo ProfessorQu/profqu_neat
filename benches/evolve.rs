@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use criterion::{criterion_group, criterion_main, Criterion};
 use profqu_neat::Neat;
 
@@ -19,7 +21,13 @@ fn test() {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("evolve", |b| b.iter(test));
+    let mut group = c.benchmark_group("NEAT evolution");
+    group.measurement_time(Duration::from_secs(20));
+
+    group.bench_function(
+        "evolve",
+        |b| b.iter(test)
+    );
 }
 
 criterion_group!(benches, criterion_benchmark);
