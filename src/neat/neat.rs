@@ -207,7 +207,7 @@ impl Neat {
     }
 
     /// Generate new species
-    fn gen_species(&mut self) {
+    pub fn gen_species(&mut self) {
         for species in &mut self.species {
             species.reset();
         }
@@ -231,7 +231,7 @@ impl Neat {
     }
 
     /// Kill a certain percentage of species
-    fn kill(&mut self) {
+    pub fn kill(&mut self) {
         for species in &mut self.species {
             species.evaluate_fitness();
             species.kill(Config::global().kill_percentage);
@@ -239,7 +239,7 @@ impl Neat {
     }
 
     /// Remove all the extinct species
-    fn remove_extinct_species(&mut self) {
+    pub fn remove_extinct_species(&mut self) {
         for i in (0..self.species.len()).rev() {
             if self.species[i].len() <= 1 {
                 self.species[i].go_extinct();
@@ -249,7 +249,7 @@ impl Neat {
     }
 
     /// Reproduce the clients
-    fn reproduce(&mut self) {
+    pub fn reproduce(&mut self) {
         let mut all_species = self.species.clone();
         for client in self.clients.clone() {
             if !client.borrow().has_species {
@@ -266,7 +266,7 @@ impl Neat {
     }
 
     /// Mutate all the clients
-    fn mutate(&mut self) {
+    pub fn mutate(&mut self) {
         for client in self.clients.clone() {
             client.borrow_mut().mutate(self);
         }
