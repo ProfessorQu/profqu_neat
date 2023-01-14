@@ -7,8 +7,8 @@ use super::Connection;
 /// The node for calculations
 #[derive(PartialEq, Clone, Debug)]
 pub struct Node {
-    pub x: PseudoFloat,
-    pub output: PseudoFloat,
+    pub x: f32,
+    pub output: f32,
     pub connections: Vec<Rc<RefCell<Connection>>>,
     activation: fn(f32) -> f32,
 }
@@ -17,8 +17,8 @@ impl Node {
     /// Create a new node
     pub fn new(x: f32) -> Self {
         Self {
-            x: PseudoFloat::new(x),
-            output: PseudoFloat::new(0.0),
+            x,
+            output: 0.,
             connections: Vec::new(),
             activation: match Config::global().activation {
                 ActivationFunction::Relu => Self::relu_activation,
@@ -33,11 +33,11 @@ impl Node {
 
         for connection in &self.connections {
             if connection.borrow().enabled {
-                sum += connection.borrow().weight.parse() * connection.borrow().from.borrow().output.parse();
+                sum += connection.borrow().weight * connection.borrow().from.borrow().output;
             }
         }
 
-        self.output = (self.activation)(sum).into();
+        self.output = (self.activation)(sum);
     }
 
     /// The ReLu activation function
@@ -58,7 +58,7 @@ impl Node {
 
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.x.parse().partial_cmp(&other.x.parse())
+        self.x.partial_cmp(&other.x)
     }
 }
 
@@ -66,6 +66,6 @@ impl Eq for Node { }
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.x.parse().total_cmp(&other.x.parse())
+        self.x.total_cmp(&other.x)
     }
 }

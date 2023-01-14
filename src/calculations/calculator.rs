@@ -55,7 +55,7 @@ impl Calculator {
                     .expect("'to' is not in the hashmap");
 
             let mut connection = Connection::new(Rc::clone(node_from));
-            connection.weight = connection_gene.weight;
+            connection.weight = connection_gene.weight.into();
             connection.enabled = connection_gene.enabled;
             let pointer = Rc::new(RefCell::new(connection));
             
@@ -72,10 +72,10 @@ impl Calculator {
         }
 
         for (i, input) in inputs.iter().enumerate() {
-            self.input_nodes[i].borrow_mut().output = (*input).into();
+            self.input_nodes[i].borrow_mut().output = (*input);
         }
         
-        self.input_nodes.last().expect("No input_nodes").borrow_mut().output = 1.0.into();
+        self.input_nodes.last().expect("No input_nodes").borrow_mut().output = 1.0;
 
         for hidden_node in self.hidden_nodes.clone() {
             hidden_node.borrow_mut().calculate();
@@ -85,7 +85,7 @@ impl Calculator {
 
         for (i, output) in self.output_nodes.iter().enumerate() {
             output.borrow_mut().calculate();
-            outputs[i] = output.borrow().output.into();
+            outputs[i] = output.borrow().output;
         }
 
         Ok(outputs)
@@ -126,7 +126,7 @@ mod tests {
         assert_eq!(calc.input_nodes.len(), 4);
         assert_eq!(calc.output_nodes.len(), 3);
         assert_eq!(calc.hidden_nodes.len(), 1);
-        assert_eq!(calc.hidden_nodes.get(0).unwrap().borrow().x.parse(), 0.5);
+        assert_eq!(calc.hidden_nodes.get(0).unwrap().borrow().x, 0.5);
         
         let node = neat.create_node(0.3, 0.5);
         genome.nodes.add(node);
@@ -134,7 +134,7 @@ mod tests {
         let calc = Calculator::new(genome.clone());
 
         assert_eq!(calc.hidden_nodes.len(), 2);
-        assert_eq!(calc.hidden_nodes.get(0).unwrap().borrow().x.parse(), 0.3);
+        assert_eq!(calc.hidden_nodes.get(0).unwrap().borrow().x, 0.3);
     }
 
     #[test]
@@ -169,18 +169,18 @@ mod tests {
         let mut calc = Calculator::new(genome.clone());
         let result = calc.calculate(vec![0.0, 0.0, 0.0]).unwrap();
         assert_eq!(result, vec![0.5, 0.5, 0.5]);
-        assert_eq!(calc.input_nodes.last().unwrap().borrow().output.parse(), 1.0);
+        assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
 
         genome.add_connection(&mut neat, 0, 4);
 
         let mut calc = Calculator::new(genome.clone());
         assert_eq!(calc.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
-        assert_eq!(calc.input_nodes.last().unwrap().borrow().output.parse(), 1.0);
+        assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
         
         genome.add_connection(&mut neat, 1, 4);
         
         let mut calc = Calculator::new(genome.clone());
         assert_eq!(calc.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
-        assert_eq!(calc.input_nodes.last().unwrap().borrow().output.parse(), 1.0);
+        assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
     }
 }

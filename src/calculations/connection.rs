@@ -8,7 +8,7 @@ use std::rc::Rc;
 #[derive(PartialEq, Clone, Debug)]
 pub struct Connection {
     pub from: Rc<RefCell<Node>>,
-    pub weight: PseudoFloat,
+    pub weight: f32,
     pub enabled: bool,
 }
 
@@ -16,7 +16,7 @@ impl Connection {
     pub fn new(from: Rc<RefCell<Node>>) -> Self {
         Self {
             from,
-            weight:PseudoFloat::new(1.0),
+            weight: 1.0,
             enabled: true
         }
     }

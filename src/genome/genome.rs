@@ -181,9 +181,13 @@ impl Genome {
                 Ordering::Equal => {    // Same gene
                     if rand::random() {
                         baby.connections.add(*connection_gene1);
+                        baby.nodes.add(connection_gene1.from);
+                        baby.nodes.add(connection_gene1.to);
                     }
                     else {
                         baby.connections.add(*connection_gene2);
+                        baby.nodes.add(connection_gene2.from);
+                        baby.nodes.add(connection_gene2.to);
                     }
 
                     index1 += 1;
@@ -194,6 +198,8 @@ impl Genome {
                 },
                 Ordering::Less => {     // Disjoint gene of genome 1
                     baby.connections.add(*connection_gene1);
+                    baby.nodes.add(connection_gene1.from);
+                    baby.nodes.add(connection_gene1.to);
 
                     index1 += 1;
                 },
@@ -205,13 +211,10 @@ impl Genome {
             let connection1 = genome1.get_connection(index1);
             
             baby.connections.add(*connection1);
+            baby.nodes.add(connection1.from);
+            baby.nodes.add(connection1.to);
 
             index1 += 1;
-        }
-
-        for connection in baby.clone().connections.data {
-            baby.nodes.add(connection.from);
-            baby.nodes.add(connection.to);
         }
 
         baby

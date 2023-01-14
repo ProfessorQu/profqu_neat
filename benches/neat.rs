@@ -8,7 +8,7 @@ fn test_evolve() {
     let mut neat = Neat::new(10, 1, 100);
 
     for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0.into(); }
+        for mut client in neat.iter_clients() { client.fitness = 1.0; }
         neat.evolve();
     }
 }
@@ -18,7 +18,7 @@ fn test_gen_species() {
     let mut neat = Neat::new(10, 1, 100);
 
     for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0.into(); }
+        for mut client in neat.iter_clients() { client.fitness = 1.0; }
         neat.gen_species()
     }
 }
@@ -28,7 +28,7 @@ fn test_kill() {
     let mut neat = Neat::new(10, 1, 100);
 
     for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0.into(); }
+        for mut client in neat.iter_clients() { client.fitness = 1.0; }
         neat.kill()
     }
 }
@@ -38,7 +38,7 @@ fn test_reproduce() {
     let mut neat = Neat::new(10, 1, 100);
 
     for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0.into(); }
+        for mut client in neat.iter_clients() { client.fitness = 1.0; }
         neat.mutate()
     }
 }
@@ -48,14 +48,14 @@ fn test_mutate() {
     let mut neat = Neat::new(10, 1, 100);
 
     for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0.into(); }
+        for mut client in neat.iter_clients() { client.fitness = 1.0; }
         neat.mutate()
     }
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("NEAT evolution");
-    group.measurement_time(Duration::from_secs(30));
+    group.measurement_time(Duration::from_secs(10));
 
     group.bench_function(
         "evolve",
@@ -80,6 +80,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         "mutate",
         |b| b.iter(test_mutate)
     );
+
+    group.finish();
 }
 
 criterion_group!(benches, criterion_benchmark);

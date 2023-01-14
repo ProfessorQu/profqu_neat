@@ -11,7 +11,7 @@ fn max() {
         for mut client in neat.iter_clients() {
             let fitness = 1.0 + client.calculate(inputs.clone())[0];
 
-            client.fitness = fitness.into();
+            client.fitness = fitness;
         }
 
         neat.evolve();
@@ -52,7 +52,7 @@ fn xor_test() {
                 }
             }
 
-            client.fitness = fitness.into();
+            client.fitness = fitness;
         }
 
         neat.evolve();

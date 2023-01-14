@@ -10,7 +10,7 @@ use super::{Client, Config};
 pub struct Species {
     clients: Vec<Rc<RefCell<Client>>>,
     representative: Rc<RefCell<Client>>,
-    pub average_fitness: PseudoFloat
+    pub average_fitness: f32
 }
 
 impl Species {
@@ -19,7 +19,7 @@ impl Species {
         Self {
             clients: vec![Rc::clone(&representative)],
             representative,
-            average_fitness: PseudoFloat::new(0.0),
+            average_fitness: 0.0,
         }
     }
 
@@ -56,17 +56,13 @@ impl Species {
 
     /// Calculate a new average fitness for this species
     pub fn evaluate_fitness(&mut self) {
-        let mut total_fitness = 0.0;
-        for client in &self.clients {
-            total_fitness += client.borrow().fitness.parse();
-        }
+        let total_fitness: f32 = self.clients.iter().map(|x| x.borrow().fitness).sum();
 
-        self.average_fitness = PseudoFloat::new(total_fitness / self.clients.len() as f32);
+        self.average_fitness = total_fitness / self.clients.len() as f32;
     }
 
     /// Reset this species
     pub fn reset(&mut self) {
-        // TODO: Make RandomHashSet more general
         self.representative = self.get_random_element();
         for client in &mut self.clients {
             client.borrow_mut().has_species = false;
@@ -76,7 +72,7 @@ impl Species {
 
         self.representative.borrow_mut().has_species = true;
         self.clients.push(Rc::clone(&self.representative));
-        self.average_fitness = PseudoFloat::new(0.0);
+        self.average_fitness = 0.0;
     }
 
     /// Kill 50% of this species
@@ -84,15 +80,13 @@ impl Species {
         // Sort so that the lowest fitness is at index 0
         self.clients.sort_by(
             |a, b|
-            a.borrow().fitness.parse().total_cmp(
-                &b.borrow().fitness.parse()
+            a.borrow().fitness.total_cmp(
+                &b.borrow().fitness
             )
         );
 
-        for _ in 0..(percentage * self.clients.len() as f32) as usize {
-            self.clients[0].borrow_mut().has_species = false;
-            self.clients.remove(0);
-        }
+        let kill_num = (percentage * self.clients.len() as f32) as usize;
+        self.clients.drain(0..kill_num);
     }
 
     // Select random clients and let them breed with eachother
@@ -100,7 +94,7 @@ impl Species {
         let client1 = self.get_random_element();
         let client2 = self.get_random_element();
 
-        if client1.borrow().fitness.parse() > client2.borrow().fitness.parse() {
+        if client1.borrow().fitness > client2.borrow().fitness {
             Genome::crossover(neat, &client1.borrow().genome, &client2.borrow().genome)
         }
         else {
@@ -190,7 +184,7 @@ mod tests {
         }
 
         let rep = Client::new(genome1);
-        rep.borrow_mut().fitness = PseudoFloat::new(10.0);
+        rep.borrow_mut().fitness = 10.0;
 
         let mut species = Species::new(rep);
         

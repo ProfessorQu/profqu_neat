@@ -254,7 +254,7 @@ impl Neat {
         for client in self.clients.clone() {
             if !client.borrow().has_species {
                 let species = all_species
-                    .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness.parse())
+                    .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness)
                     .expect("Species is empty");
 
                 client.borrow_mut().genome = species.breed(self);
@@ -307,7 +307,7 @@ impl Neat {
         let mut best_fitness = f32::MIN;
 
         for client in &self.clients {
-            let fitness = client.borrow().fitness.parse();
+            let fitness = client.borrow().fitness;
             if fitness > best_fitness {
                 best_client = Some(client.borrow().clone());
                 best_fitness = fitness;
@@ -364,7 +364,7 @@ mod tests {
         for _iteration in 0..200 {
             for mut client in neat.iter_clients() {
                 let fitness = client.calculate(input.clone())[0];
-                client.fitness = fitness.into();
+                client.fitness = fitness;
             }
 
             neat.evolve();
@@ -374,6 +374,6 @@ mod tests {
         neat.print_species();
         println!("Best: {:?}", best);
 
-        assert!(best.fitness.parse() > fitness_before);
+        assert!(best.fitness > fitness_before);
     }
 }
