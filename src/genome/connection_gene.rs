@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use crate::neat;
-use super::{node_gene::NodeGene, gene::Gene};
+use super::node_gene::NodeGene;
 use crate::data_structures::PseudoFloat;
 
 /// The connection gene
@@ -31,16 +31,6 @@ impl ConnectionGene {
     /// Get the hash code of this connection gene
     pub fn hash_code(&self) -> u64 {
         self.from.innovation_number as u64 * neat::MAX_NODES + self.to.innovation_number as u64
-    }
-}
-
-impl Gene for ConnectionGene {
-    fn get_innovation_number(&self) -> u32 {
-        self.innovation_number
-    }
-
-    fn set_innovation_number(&mut self, new: u32) {
-        self.innovation_number = new
     }
 }
 

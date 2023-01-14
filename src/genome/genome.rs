@@ -267,10 +267,10 @@ impl Genome {
             }
 
             let mut connection = neat.get_connection(connection.from, connection.to);
-            let result = Genome::get_random_range(Config::global().weight_shift_strength);
+            let result = Genome::get_random_range(Config::global().weight_random_strength);
             connection.weight = PseudoFloat::new(result);
 
-            self.connections.add_sorted(connection);
+            self.connections.add(connection);
             return;
         }
     }

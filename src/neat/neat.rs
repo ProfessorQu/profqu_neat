@@ -208,10 +208,6 @@ impl Neat {
 
     /// Generate new species
     fn gen_species(&mut self) {
-        for client in &self.clients {
-            client.borrow_mut().has_species = false;
-        }
-
         for species in &mut self.species {
             species.reset();
         }
@@ -232,15 +228,12 @@ impl Neat {
                 self.species.push(Species::new(Rc::clone(client)));
             }
         }
-
-        for species in &mut self.species {
-            species.evaluate_fitness();
-        }
     }
 
     /// Kill a certain percentage of species
     fn kill(&mut self) {
         for species in &mut self.species {
+            species.evaluate_fitness();
             species.kill(Config::global().kill_percentage);
         }
     }
@@ -257,13 +250,12 @@ impl Neat {
 
     /// Reproduce the clients
     fn reproduce(&mut self) {
-        let clients = self.clients.clone();
         let mut all_species = self.species.clone();
-        for client in clients {
+        for client in self.clients.clone() {
             if !client.borrow().has_species {
                 let species = all_species
                     .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness.parse())
-                    .expect("species is empty");
+                    .expect("Species is empty");
 
                 client.borrow_mut().genome = species.breed(self);
                 species.force_put(Rc::clone(&client));
@@ -275,12 +267,9 @@ impl Neat {
 
     /// Mutate all the clients
     fn mutate(&mut self) {
-        let mut clients = self.clients.clone();
-        for client in &mut clients {
+        for client in self.clients.clone() {
             client.borrow_mut().mutate(self);
         }
-
-        self.clients = clients;
     }
 
     /// Iterate over all the clients in this struct

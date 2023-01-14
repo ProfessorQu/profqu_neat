@@ -4,20 +4,18 @@ use std::hash::Hash;
 use rand::seq::SliceRandom;
 use core::fmt::Debug;
 
-use crate::genome::Gene;
-
 #[cfg(test)]
 #[path ="random_hash_set_test.rs"]
 mod random_hash_set_test;
 
 /// A hashset with some data that can get a random item
 #[derive(Clone, PartialEq, Eq)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
+pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     set: HashSet<T>,
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
+impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     /// Create a new hash set
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
@@ -151,35 +149,6 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
         }
     }
 
-    /// Add something to the hash set according to it's innovation number
-    /// Add a new element to the set
-    /// ```rust
-    /// use profqu_neat::genome::NodeGene;
-    /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
-    /// let mut set = RandomHashSet::<NodeGene>::new();
-    /// 
-    /// let node = NodeGene::new(3);
-    /// set.add_sorted(node.clone());
-    /// 
-    /// assert_eq!(set.get(0), Some(&node));
-    /// 
-    /// let node2 = NodeGene::new(1);
-    /// set.add_sorted(node2.clone());
-    /// 
-    /// assert_eq!(set.get(0), Some(&node2));
-    /// assert_eq!(set.get(1), Some(&node));
-    /// ```
-    pub fn add_sorted(&mut self, value: T) {
-        let pos = self.data.binary_search_by(
-            |probe| probe.get_innovation_number()
-                            .cmp(&value.get_innovation_number())
-        ).unwrap_or_else(|e| e);
-
-        self.data.insert(pos, value);
-        self.set.insert(value);
-    }
-
     /// Clear the entire set
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
@@ -282,20 +251,14 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Gene + Debug {
     }
 }
 
-impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> fmt::Debug for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
+impl<T> fmt::Debug for RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.data)
     }
 }
-
-// impl<T> Hash for RandomHashSet<T> where T: Eq + Hash + Clone + Gene + Copy + Debug {
-//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-//         self.data.hash(state);
-//     }
-// }

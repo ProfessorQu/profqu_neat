@@ -1,6 +1,6 @@
 use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
-use crate::{genome::{Genome, Gene}, calculations::Calculator, data_structures::PseudoFloat, Neat};
+use crate::{genome::Genome, calculations::Calculator, data_structures::PseudoFloat, Neat};
 
 /// The client that controls the genome and the fitness
 #[derive(Clone)]
@@ -50,11 +50,6 @@ impl Client {
     pub fn mutate(&mut self, neat: &mut Neat) {
         self.genome.mutate(neat);
     }
-}
-
-impl Gene for Client {
-    fn get_innovation_number(&self) -> u32 { 0 }
-    fn set_innovation_number(&mut self, _new: u32) { }
 }
 
 impl Debug for Client {
