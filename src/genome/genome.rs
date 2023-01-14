@@ -288,7 +288,7 @@ impl Genome {
             let middle: NodeGene;
             if replace_index == 0 {
                 let x = (from.x.parse() + to.x.parse()) / 2.0;
-                let y = (from.y.parse() + to.y.parse()) / 2.0 + Genome::get_random_range(0.05);
+                let y = (from.y.parse() + to.y.parse()) / 2.0;
 
                 middle = neat.create_node(x, y);
                 neat.set_replace_index(
@@ -323,16 +323,16 @@ impl Genome {
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = connection.weight.parse() + Genome::get_random_range(Config::global().weight_shift_strength);
-            connection.weight = PseudoFloat::new(result);
+            let weight = connection.weight.parse() + Genome::get_random_range(Config::global().weight_shift_strength);
+            connection.weight = PseudoFloat::new(weight);
         }
     }
 
     /// Mutate a weight and assign a new value to it
     pub fn mutate_weight_random(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let result = Genome::get_random_range(Config::global().weight_random_strength);
-            connection.weight = PseudoFloat::new(result);
+            let weight = Genome::get_random_range(Config::global().weight_random_strength);
+            connection.weight = PseudoFloat::new(weight);
         }
     }
 
