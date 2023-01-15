@@ -12,6 +12,7 @@ mod neat_test;
 /// The maximum number of nodes in a network
 pub const MAX_NODES: u64 = 2u64.pow(20);
 
+#[derive(Clone)]
 /// The struct that controls the entire library
 pub struct Neat {
     all_connections: HashMap<u64, ConnectionGene>,
@@ -251,10 +252,11 @@ impl Neat {
     /// Reproduce the clients
     pub fn reproduce(&mut self) {
         let mut all_species = self.species.clone();
+        let mut thread = rand::thread_rng();
         for client in self.clients.clone() {
             if !client.borrow().has_species {
                 let species = all_species
-                    .choose_weighted_mut(&mut rand::thread_rng(), |s| s.average_fitness)
+                    .choose_weighted_mut(&mut thread, |s| s.average_fitness)
                     .expect("Species is empty");
 
                 client.borrow_mut().genome = species.breed(self);
@@ -275,7 +277,7 @@ impl Neat {
     /// Iterate over all the clients in this struct
     pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
         let mut clients = Vec::new();
-        for client in self.clients.iter() {
+        for client in &self.clients {
             clients.push(client.borrow_mut());
         }
         

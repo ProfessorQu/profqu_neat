@@ -1,6 +1,6 @@
 use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
-use crate::{genome::Genome, calculations::Calculator, data_structures::PseudoFloat, Neat};
+use crate::{genome::Genome, calculations::Calculator, Neat};
 
 /// The client that controls the genome and the fitness
 #[derive(Clone)]

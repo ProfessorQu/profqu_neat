@@ -72,7 +72,7 @@ impl Calculator {
         }
 
         for (i, input) in inputs.iter().enumerate() {
-            self.input_nodes[i].borrow_mut().output = (*input);
+            self.input_nodes[i].borrow_mut().output = *input;
         }
         
         self.input_nodes.last().expect("No input_nodes").borrow_mut().output = 1.0;

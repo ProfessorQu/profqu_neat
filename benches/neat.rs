@@ -3,54 +3,34 @@ use std::time::Duration;
 use criterion::{criterion_group, criterion_main, Criterion};
 use profqu_neat::Neat;
 
-fn test_evolve() {
-    Neat::load_config_from_file("benches/config.txt");
-    let mut neat = Neat::new(10, 1, 100);
-
-    for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0; }
-        neat.evolve();
-    }
+fn test_evolve(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.evolve();
 }
 
-fn test_gen_species() {
-    Neat::load_config_from_file("benches/config.txt");
-    let mut neat = Neat::new(10, 1, 100);
-
-    for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0; }
-        neat.gen_species()
-    }
+fn test_gen_species(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.gen_species()
 }
 
-fn test_kill() {
-    Neat::load_config_from_file("benches/config.txt");
-    let mut neat = Neat::new(10, 1, 100);
-
-    for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0; }
-        neat.kill()
-    }
+fn test_kill(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.kill()
 }
 
-fn test_reproduce() {
-    Neat::load_config_from_file("benches/config.txt");
-    let mut neat = Neat::new(10, 1, 100);
-
-    for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0; }
-        neat.mutate()
-    }
+fn test_remove_extinct_species(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.remove_extinct_species()
 }
 
-fn test_mutate() {
-    Neat::load_config_from_file("benches/config.txt");
-    let mut neat = Neat::new(10, 1, 100);
+fn test_reproduce(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.reproduce()
+}
 
-    for _iteration in 0..10 {
-        for mut client in neat.iter_clients() { client.fitness = 1.0; }
-        neat.mutate()
-    }
+fn test_mutate(neat: &mut Neat) {
+    for mut client in neat.iter_clients() { client.fitness = 1.0; }
+    neat.mutate()
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -59,26 +39,76 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function(
         "evolve",
-        |b| b.iter(test_evolve)
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                Neat::new(10, 1, 100)
+            },
+            test_evolve,
+            criterion::BatchSize::SmallInput
+        )
     );
 
     group.bench_function(
         "gen_species",
-        |b| b.iter(test_gen_species)
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                Neat::new(10, 1, 100)
+            },
+            test_gen_species,
+            criterion::BatchSize::SmallInput
+        )
     );
 
     group.bench_function(
         "kill",
-        |b| b.iter(test_kill)
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                Neat::new(10, 1, 100)
+            },
+            test_kill,
+            criterion::BatchSize::SmallInput
+        )
     );
+    
+    group.bench_function(
+        "remove_extinct_species",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                Neat::new(10, 1, 100)
+            },
+            test_remove_extinct_species,
+            criterion::BatchSize::SmallInput
+        )
+    );
+
     group.bench_function(
         "reproduce",
-        |b| b.iter(test_reproduce)
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                neat.gen_species();
+                neat
+            },
+            test_reproduce,
+            criterion::BatchSize::SmallInput
+        )
     );
 
     group.bench_function(
         "mutate",
-        |b| b.iter(test_mutate)
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                Neat::new(10, 1, 100)
+            },
+            test_mutate,
+            criterion::BatchSize::SmallInput
+        )
     );
 
     group.finish();

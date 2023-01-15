@@ -2,7 +2,7 @@ use std::{fmt::Debug, rc::Rc, cell::RefCell};
 
 use rand::seq::SliceRandom;
 
-use crate::{data_structures::PseudoFloat, genome::Genome, Neat};
+use crate::{genome::Genome, Neat};
 
 use super::{Client, Config};
 

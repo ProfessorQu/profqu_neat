@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{data_structures::PseudoFloat, neat::{Config, ActivationFunction}};
+use crate::neat::{Config, ActivationFunction};
 
 use super::Connection;
 
