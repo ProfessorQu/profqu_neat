@@ -3,6 +3,32 @@ use std::{time::Duration, rc::Rc, cell::RefCell};
 use criterion::{criterion_group, criterion_main, Criterion};
 use profqu_neat::{Neat, genome::Genome, neat::Client};
 
+fn test_mutate_link(vars: &mut (Neat, Genome)) {
+    let mut neat = vars.0.clone();
+    let mut genome = vars.1.clone();
+    genome.mutate_link(&mut neat);
+}
+
+fn test_mutate_node(vars: &mut (Neat, Genome)) {
+    let mut neat = vars.0.clone();
+    let mut genome = vars.1.clone();
+    genome.mutate_node(&mut neat);
+}
+
+fn test_mutate_weight_shift(genome: &mut Genome) {
+    let mut genome = genome.clone();
+    genome.mutate_weight_shift();
+}
+
+fn test_mutate_weight_random(genome: &mut Genome) {
+    let mut genome = genome.clone();
+    genome.mutate_weight_random();
+}
+
+fn test_mutate_link_toggle(genome: &mut Genome) {
+    let mut genome = genome.clone();
+    genome.mutate_link_toggle();
+}
 
 fn test_crossover(vars: &mut (Neat, Genome, Genome)) {
     let mut neat = vars.0.clone();
@@ -19,6 +45,73 @@ fn test_calculate(client: &mut Rc<RefCell<Client>>) {
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("Genome mutation");
     group.measurement_time(Duration::from_secs(10));
+
+    group.bench_function(
+        "mutate_link",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                let genome = neat.empty_genome();
+                (neat, genome)
+            },
+            test_mutate_link,
+            criterion::BatchSize::SmallInput
+        )
+    );
+
+    group.bench_function(
+        "mutate_node",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                let genome = neat.empty_genome();
+                (neat, genome)
+            },
+            test_mutate_node,
+            criterion::BatchSize::SmallInput
+        )
+    );
+
+    group.bench_function(
+        "mutate_weight_shift",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                neat.empty_genome()
+            },
+            test_mutate_weight_shift,
+            criterion::BatchSize::SmallInput
+        )
+    );
+
+    group.bench_function(
+        "mutate_weight_random",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                neat.empty_genome()
+            },
+            test_mutate_weight_random,
+            criterion::BatchSize::SmallInput
+        )
+    );
+
+    group.bench_function(
+        "mutate_link_toggle",
+        |b| b.iter_batched_ref(
+            || {
+                Neat::load_config_from_file("benches/config.txt");
+                let mut neat = Neat::new(10, 1, 100);
+                neat.empty_genome()
+            },
+            test_mutate_link_toggle,
+            criterion::BatchSize::SmallInput
+        )
+    );
 
     group.bench_function(
         "crossover",

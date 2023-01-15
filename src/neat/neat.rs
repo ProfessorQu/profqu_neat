@@ -186,7 +186,7 @@ impl Neat {
     /// Get a replace index from a connection
     pub fn get_replace_index(&self, from: NodeGene, to: NodeGene) -> usize {
         let connection = ConnectionGene::new(from, to);
-        if let Some(connection )= self.all_connections.get(&connection.hash_code()) {
+        if let Some(connection) = self.all_connections.get(&connection.hash_code()) {
             connection.replace_index
         }
         else {
