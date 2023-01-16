@@ -5,8 +5,8 @@ edition = "2021"
 authors = ["ProfessorQu"]
 description = "A library that implements the NEAT algorithm"
 repository = "https://github.com/ProfessorQu/profqu_neat"
+keywords = ["neural", "network", "genetic"]
 license = "MIT"
-keyword = ["neural", "network", "genetic"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
