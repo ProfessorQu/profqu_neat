@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc, cell::{RefCell, RefMut}};
 use rand::seq::SliceRandom;
 
-use crate::genome::*;
+use crate::genome::{ConnectionGene, NodeGene, Genome};
 
 use super::{Client, Species, Config, config::CONFIG};
 
@@ -99,7 +99,7 @@ impl Neat {
     }
 
     /// Load a config from a vector and return if it succeeded
-    pub fn load_config_from_vec(config: Vec<f32>) -> bool {
+    pub fn load_config_from_vec(config: &Vec<f32>) -> bool {
         let config = Config::from_vec(config, "relu");
         CONFIG.set(config).is_ok()
     }
@@ -297,7 +297,7 @@ impl Neat {
     /// 
     /// for _iteration in 0..10 {
     ///     for mut client in neat.iter_clients() {
-    ///         let fitness = client.calculate(input.clone())[0];
+    ///         let fitness = client.calculate(&input)[0];
     ///         client.fitness = fitness.into();
     ///     }
     /// 
@@ -332,7 +332,7 @@ impl Neat {
     /// 
     /// for _iteration in 0..10 {
     ///     for mut client in neat.iter_clients() {
-    ///         let fitness = client.calculate(input.clone())[0];
+    ///         let fitness = client.calculate(&input)[0];
     ///         client.fitness = fitness.into();
     ///     }
     /// 
@@ -363,11 +363,11 @@ mod tests {
         let input: Vec<f32> = vec![rand::random(); 10];
 
         let fitness_before = neat.clients[0].borrow_mut()
-            .calculate(input.clone())[0];
+            .calculate(&input)[0];
 
         for _iteration in 0..200 {
             for mut client in neat.iter_clients() {
-                let fitness = client.calculate(input.clone())[0];
+                let fitness = client.calculate(&input)[0];
                 client.fitness = fitness;
             }
 
@@ -376,7 +376,7 @@ mod tests {
 
         let best = neat.best_client().expect("Failed to get client");
         neat.print_species();
-        println!("Best: {:?}", best);
+        println!("Best: {best:?}");
 
         assert!(best.fitness > fitness_before);
     }

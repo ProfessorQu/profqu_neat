@@ -1,3 +1,5 @@
+//! The module where it creates and uses genomes
+
 mod node_gene;
 mod connection_gene;
 #[allow(clippy::module_inception)]

@@ -7,8 +7,11 @@ use super::Connection;
 /// The node for calculations
 #[derive(PartialEq, Clone, Debug)]
 pub struct Node {
+    /// The x coordinate of the node, used for checking if a connection would be recursive
     pub x: f32,
+    /// The calculated output, calculated according to the incoming connections
     pub output: f32,
+    /// The incoming connections to this node
     pub connections: Vec<Rc<RefCell<Connection>>>,
     activation: fn(f32) -> f32,
 }
@@ -40,7 +43,7 @@ impl Node {
         self.output = (self.activation)(sum);
     }
 
-    /// The ReLu activation function
+    /// The `ReLu` activation function
     fn relu_activation(input: f32) -> f32 {
         if input <= 0.0 {
             0.0

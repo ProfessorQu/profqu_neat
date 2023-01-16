@@ -1,13 +1,25 @@
 use std::fmt;
 
 /// A workaround for float not implementing `Eq`
+/// 
+/// # Examples
+/// 
+/// ```rust
+/// use profqu_neat::data_structures::PseudoFloat;
+/// 
+/// let float = 3.1415;
+/// let pseudo = PseudoFloat::new(float);
+/// 
+/// assert_eq!(float, pseudo.into());
+/// ```
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct PseudoFloat {
     float: u32
 }
 
 impl PseudoFloat {
-    /// Create a new PseudoFloat from a float
+    /// Create a new `PseudoFloat` from a float
+    /// 
     /// ```rust
     /// use profqu_neat::data_structures::PseudoFloat;
     /// 

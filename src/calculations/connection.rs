@@ -6,8 +6,11 @@ use std::rc::Rc;
 /// The connection for calculations
 #[derive(PartialEq, Clone, Debug)]
 pub struct Connection {
+    /// Pointers to the nodes this connection is from
     pub from: Rc<RefCell<Node>>,
+    /// The weight of this connection
     pub weight: f32,
+    /// Whether this connection is enabled or not
     pub enabled: bool,
 }
 

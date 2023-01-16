@@ -5,13 +5,17 @@ use crate::{genome::Genome, calculations::Calculator, Neat};
 /// The client that controls the genome and the fitness
 #[derive(Clone)]
 pub struct Client {
+    /// The genome of this client
     pub genome: Genome,
-    pub calculator: Option<Calculator>,
+    calculator: Option<Calculator>,
+    /// The fitness of this client
     pub fitness: f32,
+    /// A boolean to determine whether this client is a part of a species or not
     pub has_species: bool
 }
 
 impl Client {
+    /// Create a new client
     pub fn new(genome: Genome) -> Rc<RefCell<Self>> {
         Rc::new(
             RefCell::new(
@@ -31,9 +35,9 @@ impl Client {
     }
 
     /// Calculate the outputs
-    pub fn calculate(&mut self, inputs: Vec<f32>) -> Vec<f32> {
+    pub fn calculate(&mut self, inputs: &Vec<f32>) -> Vec<f32> {
         if self.calculator.is_none() {
-            self.generate_calculator()
+            self.generate_calculator();
         }
 
         self.calculator.as_mut()

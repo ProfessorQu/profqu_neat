@@ -1,3 +1,5 @@
+//! The main module where all the evolution happens
+
 #[allow(clippy::module_inception)]
 mod neat;
 mod species;

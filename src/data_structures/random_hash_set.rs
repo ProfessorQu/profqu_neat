@@ -12,6 +12,7 @@ mod random_hash_set_test;
 #[derive(Clone, PartialEq, Eq)]
 pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     set: HashSet<T>,
+    /// The vector with non-repeating elements from the RandomHashSet
     pub data: Vec<T>,
 }
 
@@ -236,17 +237,18 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     /// assert!(!set.contains(&node2));
     /// ```
     pub fn remove_value(&mut self, value: &T) -> bool {
-        match self.set.remove(value) {
-            true => {
-                self.data.remove(
-                    self.data
-                            .iter()
-                            .position(|v| v == value)
-                            .expect("Failed to find value in self.data")
-                );
-                true
-            },
-            false => false
+        if self.set.remove(value) {
+            self.data.remove(
+                self.data
+                .iter()
+                .position(|v| v == value)
+                .expect("Failed to find value in self.data")
+            );
+            
+            true
+        }
+        else {
+            false
         }
     }
 }

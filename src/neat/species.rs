@@ -7,9 +7,11 @@ use crate::{genome::Genome, Neat};
 use super::{Client, Config};
 
 #[derive(Clone)]
+/// The species that stores all clients and a represantive
 pub struct Species {
     clients: Vec<Rc<RefCell<Client>>>,
     representative: Rc<RefCell<Client>>,
+    /// The average fitness of this species
     pub average_fitness: f32
 }
 
@@ -32,7 +34,7 @@ impl Species {
     pub fn put(&mut self, client: Rc<RefCell<Client>>) -> bool {
         if client.borrow().distance(&self.representative.borrow()) < Config::global().species_threshold {
             client.borrow_mut().has_species = true;
-            self.clients.push(Rc::clone(&client));
+            self.clients.push(client);
 
             true
         }
@@ -44,7 +46,7 @@ impl Species {
     /// Put a species in this species without any checks
     pub fn force_put(&mut self, client: Rc<RefCell<Client>>) {
         client.borrow_mut().has_species = true;
-        self.clients.push(Rc::clone(&client));
+        self.clients.push(client);
     }
 
     /// Make this species go extinct
@@ -89,7 +91,7 @@ impl Species {
         self.clients.drain(0..kill_num);
     }
 
-    // Select random clients and let them breed with eachother
+    /// Select random clients and let them breed with eachother
     pub fn breed(&self, neat: &mut Neat) -> Genome {
         let client1 = self.get_random_element();
         let client2 = self.get_random_element();

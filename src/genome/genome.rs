@@ -14,7 +14,9 @@ mod genome_test;
 /// The genome with the connections and nodes
 #[derive(Clone, PartialEq, Debug)]
 pub struct Genome {
+    /// All the connections in this genome
     pub connections: RandomHashSet<ConnectionGene>,
+    /// All the nodes in this genome
     pub nodes: RandomHashSet<NodeGene>
 }
 

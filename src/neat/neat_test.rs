@@ -1,3 +1,5 @@
+use crate::genome::NodeGene;
+
 use super::*;
 
 #[test]

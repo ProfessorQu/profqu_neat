@@ -7,11 +7,17 @@ use crate::data_structures::PseudoFloat;
 /// The connection gene
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct ConnectionGene {
+    /// The innovation number of this connection gene
     pub innovation_number: u32,
+    /// The node gene which it comes from
     pub from: NodeGene,
+    /// The node gene which it goes to
     pub to: NodeGene,
+    /// The weight of this connection
     pub weight: PseudoFloat,
+    /// Whether this gene is enabled
     pub enabled: bool,
+    /// The index for getting this connection instead of creating a new connection
     pub replace_index: usize,
 }
 
@@ -30,7 +36,7 @@ impl ConnectionGene {
 
     /// Get the hash code of this connection gene
     pub fn hash_code(&self) -> u64 {
-        self.from.innovation_number as u64 * neat::MAX_NODES + self.to.innovation_number as u64
+        u64::from(self.from.innovation_number) * neat::MAX_NODES + u64::from(self.to.innovation_number)
     }
 }
 
@@ -58,7 +64,7 @@ mod tests {
     
             let connection = ConnectionGene::new(from, to);
     
-            assert_eq!(connection.hash_code(), from_innov as u64 * neat::MAX_NODES + to_innov as u64);
+            assert_eq!(connection.hash_code(), u64::from(from_innov) * neat::MAX_NODES + u64::from(to_innov));
         }
     }
 }

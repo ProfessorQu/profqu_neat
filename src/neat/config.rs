@@ -4,8 +4,11 @@ use once_cell::sync::OnceCell;
 pub static CONFIG: OnceCell<Config> = OnceCell::new();
 
 #[derive(Debug)]
+/// The activation function enum to determine what activation function you're using
 pub enum ActivationFunction {
+    /// The sigmoid activation function
     Sigmoid,
+    /// The ReLu activation function
     Relu
 }
 
@@ -56,10 +59,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_vec(variables: Vec<f32>, activation: &str) -> Self {
-        if variables.len() != 12 {
-            panic!("variables should have length 12");
-        }
+    /// Create a config object from a vector
+    /// # Panics
+    /// Panics if the number of variables aren't the same length as the number of fields in Config
+    pub fn from_vec(variables: &Vec<f32>, activation: &str) -> Self {
+        assert!(variables.len() == 12);
         
         Self {
             mult_disjoint: variables[0],
@@ -83,6 +87,9 @@ impl Config {
         }
     }
 
+    /// Create a config from a filename
+    /// # Panics
+    /// Panics if it finds an unrecongized pattern in the config file
     pub fn from_file(filename: &str) -> Self {
         let mut config = Config::init_zero();
         
@@ -92,7 +99,7 @@ impl Config {
             let mut split = line.split(": ");
 
             while let Some(name) = split.next() {
-                match name {
+                match name.to_lowercase().as_str() {
                     "mult_disjoint" => config.mult_disjoint = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     "mult_excess" => config.mult_excess = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
                     "mult_weight_diff" => config.mult_weight_diff = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
@@ -118,6 +125,7 @@ impl Config {
         config
     }
 
+    /// Init everything to be the default
     pub fn init_zero() -> Self {
         Self {
             mult_disjoint: 0.0,
@@ -141,6 +149,7 @@ impl Config {
         }
     }
 
+    /// Get the global reference to the config
     pub fn global() -> &'static Self {
         CONFIG.get().expect("Config is not initialized")
     }

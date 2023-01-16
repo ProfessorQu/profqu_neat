@@ -5,8 +5,11 @@ use crate::data_structures::PseudoFloat;
 /// The node gene
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct NodeGene {
+    /// The innovation number of this gene
     pub innovation_number: u32,
+    /// The x coordinate of this gene, used for checking that we aren't creating recurrent connections and drawing the neural network
     pub x: PseudoFloat,
+    /// The y coordinate of this gene, used for drawing the neural network
     pub y: PseudoFloat,
 }
 

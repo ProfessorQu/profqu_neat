@@ -1,3 +1,5 @@
+//! A module for getting a genome and calculating the outputs of that genome
+
 mod calculator;
 mod connection;
 mod node;

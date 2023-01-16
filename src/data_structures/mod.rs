@@ -1,3 +1,5 @@
+//! A few data structures used in this library
+
 mod random_hash_set;
 mod pseudo_float;
 

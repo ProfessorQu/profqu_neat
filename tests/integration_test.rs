@@ -9,7 +9,7 @@ fn max() {
     
     for _iteration in 0..100 {
         for mut client in neat.iter_clients() {
-            let fitness = 1.0 + client.calculate(inputs.clone())[0];
+            let fitness = 1.0 + client.calculate(&inputs)[0];
 
             client.fitness = fitness;
         }
@@ -41,7 +41,7 @@ fn xor_test() {
             let mut fitness = 0.0;
 
             for index in 0..inputs.len() {
-                let result = client.calculate(inputs[index].clone())[0];
+                let result = client.calculate(&inputs[index])[0];
                 if (result >= 0.5 && outputs[index] == 1.0) || (result < 0.5 && outputs[index] == 0.0) {
                     if inputs[index][0] == 0.0 && inputs[index][1] == 0.0 {
                         fitness += 1.0;
@@ -64,7 +64,7 @@ fn xor_test() {
 
     let mut wrong = 0;
     for i in 0..inputs.len() {
-        let mut result = best.calculate(inputs[i].clone())[0];
+        let mut result = best.calculate(&inputs[i])[0];
         println!("{:.0?}: {:.5?}\t\ttrue value: {:.0?}", inputs[i], result, outputs[i]);
         result = if result > 0.5 {
             1.0

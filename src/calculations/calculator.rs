@@ -66,7 +66,9 @@ impl Calculator {
     }
 
     /// Calculate the outputs according to the genome that was given when it was created
-    pub fn calculate(&mut self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
+    /// # Errors
+    /// Returns an error when the number of inputs aren't equal to the number of input nodes.
+    pub fn calculate(&mut self, inputs: &Vec<f32>) -> Result<Vec<f32>, &'static str> {
         if inputs.len() + 1 != self.input_nodes.len() {
             return Err("Number of inputs aren't equal to number of input nodes")
         }
@@ -145,18 +147,18 @@ mod tests {
         let mut genome = neat.empty_genome();
         
         let mut calc = Calculator::new(genome.clone());
-        let result = calc.calculate(vec![0.0, 0.0, 0.0]).unwrap();
+        let result = calc.calculate(&vec![0.0, 0.0, 0.0]).unwrap();
         assert_eq!(result, vec![0.5, 0.5, 0.5]);
 
         genome.add_connection(&mut neat, 0, 4);
 
         let mut calc = Calculator::new(genome.clone());
-        assert_eq!(calc.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
+        assert_eq!(calc.calculate(&vec![1.0, 0.0, 0.0]).unwrap(), vec![0.731_058_6, 0.5, 0.5]);
         
         genome.add_connection(&mut neat, 1, 4);
         
         let mut calc = Calculator::new(genome.clone());
-        assert_eq!(calc.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
+        assert_eq!(calc.calculate(&vec![1.0, 2.0, 0.0]).unwrap(), vec![0.952_574_13, 0.5, 0.5]);
     }
 
     #[test]
@@ -167,20 +169,20 @@ mod tests {
         let mut genome = neat.empty_genome();
         
         let mut calc = Calculator::new(genome.clone());
-        let result = calc.calculate(vec![0.0, 0.0, 0.0]).unwrap();
+        let result = calc.calculate(&vec![0.0, 0.0, 0.0]).unwrap();
         assert_eq!(result, vec![0.5, 0.5, 0.5]);
         assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
 
         genome.add_connection(&mut neat, 0, 4);
 
         let mut calc = Calculator::new(genome.clone());
-        assert_eq!(calc.calculate(vec![1.0, 0.0, 0.0]).unwrap(), vec![0.7310586, 0.5, 0.5]);
+        assert_eq!(calc.calculate(&vec![1.0, 0.0, 0.0]).unwrap(), vec![0.731_058_6, 0.5, 0.5]);
         assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
         
         genome.add_connection(&mut neat, 1, 4);
         
         let mut calc = Calculator::new(genome.clone());
-        assert_eq!(calc.calculate(vec![1.0, 2.0, 0.0]).unwrap(), vec![0.95257413, 0.5, 0.5]);
+        assert_eq!(calc.calculate(&vec![1.0, 2.0, 0.0]).unwrap(), vec![0.952_574_13, 0.5, 0.5]);
         assert_eq!(calc.input_nodes.last().unwrap().borrow().output, 1.0);
     }
 }

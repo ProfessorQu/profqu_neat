@@ -39,7 +39,7 @@ fn test_crossover(vars: &mut (Neat, Genome, Genome)) {
 
 fn test_calculate(client: &mut Rc<RefCell<Client>>) {
     let inputs = vec![rand::random(); 2];
-    client.borrow_mut().calculate(inputs);
+    client.borrow_mut().calculate(&inputs);
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
