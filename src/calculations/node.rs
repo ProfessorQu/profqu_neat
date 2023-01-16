@@ -14,7 +14,7 @@ pub struct Node {
 }
 
 impl Node {
-    /// Create a new node
+    /// Create a new node, with a certain x value
     pub fn new(x: f32) -> Self {
         Self {
             x,
@@ -27,7 +27,7 @@ impl Node {
         }
     }
 
-    /// Calculate a the output value
+    /// Calculate a the output value given all it's inputs
     pub fn calculate(&mut self) {
         let mut sum = 0.0;
 

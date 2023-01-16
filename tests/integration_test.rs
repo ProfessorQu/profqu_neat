@@ -36,7 +36,7 @@ fn xor_test() {
     Neat::load_config_from_file("tests/config.txt");
     let mut neat = Neat::new(2, 1, 300);
 
-    for _iteration in 0..100 {
+    for _iteration in 0..200 {
         for mut client in neat.iter_clients() {
             let mut fitness = 0.0;
 

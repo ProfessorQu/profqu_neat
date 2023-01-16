@@ -27,8 +27,9 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Get the highest innovation number of this genome
-    pub fn highest_innov_num(&self) -> u32 {
+    fn highest_innov_num(&self) -> u32 {
         if self.connections.is_empty() {
             return 0
         }
@@ -36,6 +37,7 @@ impl Genome {
         self.connections.get(self.connections.len() - 1).expect("Index out of bounds").innovation_number
     }
 
+    #[doc(hidden)]
     /// Add a new connection to this genome
     pub fn add_connection(&mut self, neat: &mut Neat, index1: usize, index2: usize) {
         self.connections.add(
@@ -46,6 +48,7 @@ impl Genome {
         );
     }
     
+    #[doc(hidden)]
     /// Order two genomes according to their innovation number
     fn order_genomes(input_genome1: Genome, input_genome2: Genome) -> (Genome, Genome) {
         let innov1 = input_genome1.highest_innov_num();
@@ -59,7 +62,8 @@ impl Genome {
         }
     }
 
-    /// Get a connection by index
+    #[doc(hidden)]
+    /// Get a connection by index from this genome
     fn get_connection(&self, index: usize) -> &ConnectionGene {
         self.connections.get(index).expect("Index out of range")
     }
@@ -221,11 +225,11 @@ impl Genome {
     }
 
     /// Mutate this genome with one of the following with a certain probabily
-    ///  - Mutate a [new link](Self::mutate_link) with [`config.prob_mutate_link`](crate::neat::Config)
-    ///  - Mutate a [new node](Self::mutate_node) with [`config.PROB_MUtate_node`](crate::neat::Config)
-    ///  - Mutate a [weight shift](Self::mutate_weight_shift) with [`config.prob_mutate_weight_shift`](crate::neat::Config)
-    ///  - Mutate a [new random weight](Self::mutate_weight_random) with [`config.prob_mutate_weight_random`](crate::neat::Config)
-    ///  - Mutate a [toggle in a link](Self::mutate_link_toggle) with [`config.PROB_MUTATE_TOGGLE_LINK`](crate::neat::Config)
+    ///  - Mutate a new link with [`config.prob_mutate_link`](crate::neat::Config)
+    ///  - Mutate a new node with [`config.PROB_MUtate_node`](crate::neat::Config)
+    ///  - Mutate a weight shift with [`config.prob_mutate_weight_shift`](crate::neat::Config)
+    ///  - Mutate a new random weight with [`config.prob_mutate_weight_random`](crate::neat::Config)
+    ///  - Mutate a toggle a link on or off with [`config.PROB_MUTATE_TOGGLE_LINK`](crate::neat::Config)
     pub fn mutate(&mut self, neat: &mut Neat) {
         if Config::global().prob_mutate_link > rand::random() {
             self.mutate_link(neat);
@@ -244,6 +248,7 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Mutate a new link
     pub fn mutate_link(&mut self, neat: &mut Neat) {
         if self.nodes.len() <= 1 {
@@ -278,6 +283,7 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Mutate a new node
     pub fn mutate_node(&mut self, neat: &mut Neat) {
         if let Some(connection) = self.connections.clone().random_element() {
@@ -315,11 +321,13 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Get a random range from -constant to constant inclusive
     fn get_random_range(constant: f32) -> f32 {
         thread_rng().gen_range(-constant..=constant)
     }
 
+    #[doc(hidden)]
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
@@ -328,6 +336,7 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Mutate a weight and assign a new value to it
     pub fn mutate_weight_random(&mut self) {
         if let Some(connection) = self.connections.random_element() {
@@ -336,6 +345,7 @@ impl Genome {
         }
     }
 
+    #[doc(hidden)]
     /// Toggle the enabled status of a link
     pub fn mutate_link_toggle(&mut self) {
         if let Some(connection) = self.connections.random_element() {

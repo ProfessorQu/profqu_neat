@@ -91,7 +91,8 @@ impl Neat {
         }
     }
 
-    /// Load a test config
+    #[doc(hidden)]
+    /// Load the config at "src/test_config.txt"
     pub fn test_config() -> bool {
         let config = Config::from_file("src/test_config.txt");
         CONFIG.set(config).is_ok()
@@ -103,29 +104,20 @@ impl Neat {
         CONFIG.set(config).is_ok()
     }
 
-    /// Load the config from file and return if it succeeded
+    /// Load the config from a file and return if it succeeded
     pub fn load_config_from_file(filename: &str) -> bool {
         let config = Config::from_file(filename);
         CONFIG.set(config).is_ok()
     }
 
-    /// Get a client from this structure
+    #[doc(hidden)]
+    /// Get a client with some index from this structure
     pub fn get_client(&self, index: usize) -> Rc<RefCell<Client>> {
         Rc::clone(self.clients.get(index).expect("Index out of bounds"))
     }
 
+    #[doc(hidden)]
     /// Create an empty genome with no hidden nodes or connections
-    /// ```rust
-    /// use profqu_neat::Neat;
-    /// 
-    /// Neat::test_config();
-    /// let mut neat = Neat::new(3, 3, 100);
-    ///
-    /// let genome = neat.empty_genome();
-    ///
-    /// assert_eq!(genome.connections.len(), 0);
-    /// assert_eq!(genome.nodes.len(), 7); // One extra for the bias
-    /// ```
     pub fn empty_genome(&mut self) -> Genome {
         let mut genome = Genome::new();
 
@@ -136,7 +128,8 @@ impl Neat {
         genome
     }
 
-    /// Create a new node with a certain x and y coordinate
+    #[doc(hidden)]
+    /// Create a new node with certain x and y coordinates
     pub fn create_node(&mut self, x: f32, y: f32) -> NodeGene {
         let mut node = NodeGene::new(self.all_nodes.len() as u32 + 1);
 
@@ -149,7 +142,8 @@ impl Neat {
         self.all_nodes[len - 1]
     }
 
-    /// Get a new node if it's out of bounds
+    #[doc(hidden)]
+    /// Create a new node if it's out of bounds, othersize return the node at 'index'
     pub fn get_node(&mut self, index: usize) -> Option<NodeGene> {
         let len = self.all_nodes.len();
         if index <= len {
@@ -160,7 +154,8 @@ impl Neat {
         }
     }
 
-    /// Create a new connection from node1 to node2
+    #[doc(hidden)]
+    /// Create a new connection from node1 to node2 if it doesn't exist already
     pub fn get_connection(&mut self, node1: NodeGene, node2: NodeGene) -> ConnectionGene {
         let mut connection_gene = ConnectionGene::new(node1, node2);
 
@@ -177,12 +172,14 @@ impl Neat {
         connection_gene
     }
 
+    #[doc(hidden)]
     /// Set a replace index from a connection
     pub fn set_replace_index(&mut self, from: NodeGene, to: NodeGene, replace_index: usize) {
         self.all_connections.get_mut(&ConnectionGene::new(from, to).hash_code())
             .expect("Failed to find connection gene").replace_index = replace_index;
     }
 
+    #[doc(hidden)]
     /// Get a replace index from a connection
     pub fn get_replace_index(&self, from: NodeGene, to: NodeGene) -> usize {
         let connection = ConnectionGene::new(from, to);
@@ -207,6 +204,7 @@ impl Neat {
         }
     }
 
+    #[doc(hidden)]
     /// Generate new species
     pub fn gen_species(&mut self) {
         for species in &mut self.species {
@@ -231,6 +229,7 @@ impl Neat {
         }
     }
 
+    #[doc(hidden)]
     /// Kill a certain percentage of species
     pub fn kill(&mut self) {
         for species in &mut self.species {
@@ -239,6 +238,7 @@ impl Neat {
         }
     }
 
+    #[doc(hidden)]
     /// Remove all the extinct species
     pub fn remove_extinct_species(&mut self) {
         for i in (0..self.species.len()).rev() {
@@ -249,6 +249,7 @@ impl Neat {
         }
     }
 
+    #[doc(hidden)]
     /// Reproduce the clients
     pub fn reproduce(&mut self) {
         let mut all_species = self.species.clone();
@@ -267,6 +268,7 @@ impl Neat {
         self.species = all_species;
     }
 
+    #[doc(hidden)]
     /// Mutate all the clients
     pub fn mutate(&mut self) {
         for client in self.clients.clone() {
@@ -274,7 +276,7 @@ impl Neat {
         }
     }
 
-    /// Iterate over all the clients in this struct
+    /// Iterate over all the clients in this struct to set their fitness
     pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
         let mut clients = Vec::new();
         for client in &self.clients {

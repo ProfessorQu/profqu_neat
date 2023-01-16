@@ -65,7 +65,7 @@ impl Calculator {
         calc
     }
 
-    /// Calculate the outputs
+    /// Calculate the outputs according to the genome that was given when it was created
     pub fn calculate(&mut self, inputs: Vec<f32>) -> Result<Vec<f32>, &'static str> {
         if inputs.len() + 1 != self.input_nodes.len() {
             return Err("Number of inputs aren't equal to number of input nodes")
