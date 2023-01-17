@@ -2,7 +2,7 @@
 //! Created according to a [tutorial](https://www.youtube.com/playlist?list=PLgomWLYGNl1fcL0o4exBShNeCC5tc6s9C)
 //! from [Finn Eggers](https://www.youtube.com/@finneggers6612).
 //! I tried to implement NEAT from the official github [repository](https://github.com/f3270/NEAT),
-//! but I couldn't figure out how to do it.
+//! but I couldn't figure out how to do it, so I used Finn's implementation.
 //! 
 //! Then I looked on Youtube and found Finn Eggers and his tutorial really helped me with creating this library.
 //! 

@@ -1,4 +1,4 @@
-//! The module where it creates and uses genomes
+//! The module this crate uses to create and mutate/evolve genomes
 
 mod node_gene;
 mod connection_gene;

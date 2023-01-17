@@ -16,6 +16,8 @@ pub struct Client {
 
 impl Client {
     /// Create a new client
+    /// 
+    /// Not meant to be called directly
     pub fn new(genome: Genome) -> Rc<RefCell<Self>> {
         Rc::new(
             RefCell::new(
@@ -28,13 +30,28 @@ impl Client {
             )
         )
     }
-
+    
+    #[doc(hidden)]
     /// Generate a calculator for this genome
     pub fn generate_calculator(&mut self) {
         self.calculator = Some(Calculator::new(self.genome.clone()));
     }
 
     /// Calculate the outputs
+    /// 
+    /// # Examples
+    /// 
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// 
+    /// Neat::test_config();
+    /// let mut neat = Neat::new(3, 3, 5);
+    /// 
+    /// for mut client in neat.iter_clients() {
+    ///     let result = client.calculate(&vec![5.0, 1.0, 2.0]);
+    ///     client.fitness = result[0] + result[1] * result[2];
+    /// }
+    /// ```
     pub fn calculate(&mut self, inputs: &Vec<f32>) -> Vec<f32> {
         if self.calculator.is_none() {
             self.generate_calculator();
@@ -45,6 +62,7 @@ impl Client {
             .calculate(inputs).expect("Failed to calculate")
     }
 
+    #[doc(hidden)]
     /// Calculate the distance from this client's genome to other's genome
     pub fn distance(&self, other: &Client) -> f32 {
         Genome::distance(&self.genome, &other.genome)

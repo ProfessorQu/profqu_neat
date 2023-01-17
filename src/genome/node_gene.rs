@@ -1,6 +1,6 @@
 use std::{fmt::Debug, hash::Hash};
 
-/// The node gene
+/// The node gene of some genome
 #[derive(Clone, Copy)]
 pub struct NodeGene {
     /// The innovation number of this gene

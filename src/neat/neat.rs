@@ -14,6 +14,32 @@ pub const MAX_NODES: u64 = 2u64.pow(20);
 
 #[derive(Clone)]
 /// The struct that controls the entire library
+/// 
+/// # Examples
+/// 
+/// ```rust
+/// use profqu_neat::Neat;
+/// 
+/// Neat::test_config();
+/// let mut neat = Neat::new(10, 1, 1000);
+/// 
+/// let input: Vec<f32> = vec![rand::random(); 10];
+/// 
+/// for _iteration in 0..200 {
+///     for mut client in neat.iter_clients() {
+///         let fitness = client.calculate(&input)[0];
+///         client.fitness = fitness;
+///     }
+///     neat.evolve();
+/// }
+/// 
+/// let best = neat.best_client().expect("Failed to get client");
+/// 
+/// neat.print_species();
+/// println!("Best: {best:?}");
+/// 
+/// assert!(best.fitness > 0.8);
+/// ```
 pub struct Neat {
     all_connections: HashMap<u64, ConnectionGene>,
     all_nodes: Vec<NodeGene>,

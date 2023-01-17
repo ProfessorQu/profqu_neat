@@ -4,7 +4,7 @@ use crate::neat;
 
 use super::node_gene::NodeGene;
 
-/// The connection gene
+/// The connection gene of some genome
 #[derive(Clone, Copy)]
 pub struct ConnectionGene {
     /// The innovation number of this connection gene

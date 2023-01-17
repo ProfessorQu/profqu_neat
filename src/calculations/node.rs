@@ -30,7 +30,7 @@ impl Node {
         }
     }
 
-    /// Calculate a the output value given all it's inputs
+    /// Calculate a the output value given all it's incoming connections
     pub fn calculate(&mut self) {
         let mut sum = 0.0;
 

@@ -60,7 +60,9 @@ pub struct Config {
 
 impl Config {
     /// Create a config object from a vector
+    /// 
     /// # Panics
+    /// 
     /// Panics if the number of variables aren't the same length as the number of fields in Config
     pub fn from_vec(variables: &Vec<f32>, activation: &str) -> Self {
         assert!(variables.len() == 12);
@@ -88,7 +90,9 @@ impl Config {
     }
 
     /// Create a config from a filename
+    /// 
     /// # Panics
+    /// 
     /// Panics if it finds an unrecongized pattern in the config file
     pub fn from_file(filename: &str) -> Self {
         let mut config = Config::init_zero();

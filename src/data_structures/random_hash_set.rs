@@ -18,6 +18,9 @@ pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
 
 impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     /// Create a new hash set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -32,6 +35,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Test if the set contains a value
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -48,6 +54,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get a value at an index
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -70,6 +79,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get a random element from the set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -94,6 +106,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get the length of this hash set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -115,11 +130,14 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
         self.set.len()
     }
     /// Get the length of this hash set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
     /// 
-    /// let mut set = RandomHashSet::<NodeGene>::new();
+    /// let mut set = RandomHashSet::new();
     /// assert!(set.is_empty());
     /// 
     /// let mut node1 = NodeGene::new(0);
@@ -132,11 +150,14 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Add a new element to the set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
     /// 
-    /// let mut set: RandomHashSet<NodeGene> = RandomHashSet::new();
+    /// let mut set = RandomHashSet::new();
     /// let node1 = NodeGene::new(42);
     /// 
     /// set.add(node1);
@@ -151,6 +172,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Clear the entire set
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -178,6 +202,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Remove an item at a certain index
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -187,8 +214,6 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     /// 
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
-    /// assert!(set.contains(&node1));
     /// 
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
@@ -213,6 +238,9 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Remove an item with a certain value
+    /// 
+    /// # Examples
+    /// 
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
@@ -222,8 +250,6 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     /// 
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
-    /// assert!(set.contains(&node1));
     /// 
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);

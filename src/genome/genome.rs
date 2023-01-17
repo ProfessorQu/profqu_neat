@@ -10,7 +10,7 @@ use crate::neat::{Neat, Config};
 #[path = "genome_test.rs"]
 mod genome_test;
 
-/// The genome with the connections and nodes
+/// The genome with it's connections and nodes
 #[derive(Clone, PartialEq, Debug)]
 pub struct Genome {
     /// All the connections in this genome
@@ -225,12 +225,12 @@ impl Genome {
         baby
     }
 
-    /// Mutate this genome with one of the following with a certain probabily
-    ///  - Mutate a new link with [`config.prob_mutate_link`](crate::neat::Config)
-    ///  - Mutate a new node with [`config.PROB_MUtate_node`](crate::neat::Config)
-    ///  - Mutate a weight shift with [`config.prob_mutate_weight_shift`](crate::neat::Config)
-    ///  - Mutate a new random weight with [`config.prob_mutate_weight_random`](crate::neat::Config)
-    ///  - Mutate a toggle a link on or off with [`config.PROB_MUTATE_TOGGLE_LINK`](crate::neat::Config)
+    /// Mutate this genome with one of the following with a certain probability
+    ///  - Mutate a new link with [`config.prob_mutate_link`](crate::neat::Config::prob_mutate_link)
+    ///  - Mutate a new node with [`config.prob_mutate_node`](crate::neat::Config::prob_mutate_node)
+    ///  - Mutate a weight shift with [`config.prob_mutate_weight_shift`](crate::neat::Config::prob_mutate_weight_shift)
+    ///  - Mutate a new random weight with [`config.prob_mutate_weight_random`](crate::neat::Config::prob_mutate_weight_random)
+    ///  - Mutate a toggle a link on or off with [`config.prob_mutate_toggle_link`](crate::neat::Config::prob_mutate_toggle_link)
     pub fn mutate(&mut self, neat: &mut Neat) {
         if Config::global().prob_mutate_link > rand::random() {
             self.mutate_link(neat);
