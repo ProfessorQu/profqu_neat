@@ -4,7 +4,27 @@ use crate::genome::Genome;
 
 use super::{Node, Connection};
 
-/// The struct to calculate the output of a genome
+/// Used to calculate the outputs of a genome
+/// 
+/// # Examples
+/// ```rust
+/// use profqu_neat::Neat;
+/// use profqu_neat::calculations::Calculator;
+/// 
+/// Neat::test_config();
+/// 
+/// let mut neat = Neat::new(2, 1, 10);
+/// 
+/// let mut genome = neat.empty_genome();
+/// 
+/// for _ in 0..10 {
+///     genome.mutate(&mut neat);
+/// }
+/// 
+/// let mut calc = Calculator::new(genome);
+/// 
+/// calc.calculate(&vec![0.0, 1.0]);
+/// ```
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Calculator {
     input_nodes: Vec<Rc<RefCell<Node>>>,
@@ -14,6 +34,18 @@ pub struct Calculator {
 
 impl Calculator {
     /// Create a new calculator from a genome
+    /// # Examples
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// use profqu_neat::calculations::Calculator;
+    /// 
+    /// Neat::test_config();
+    /// 
+    /// let mut neat = Neat::new(2, 1, 10);
+    /// let genome = neat.empty_genome();
+    /// 
+    /// let calc = Calculator::new(genome);
+    /// ```
     pub fn new(genome: Genome) -> Self {
         let mut calc = Self {
             input_nodes: Vec::new(),
@@ -27,15 +59,15 @@ impl Calculator {
         let mut node_hash_map = HashMap::new();
 
         for node_gene in nodes.data {
-            let node = Node::new(node_gene.x.parse());
+            let node = Node::new(node_gene.x);
             let pointer = Rc::new(RefCell::new(node));
 
             node_hash_map.insert(node_gene.innovation_number, Rc::clone(&pointer));
 
-            if node_gene.x.parse() <= 0.1 {
+            if node_gene.x <= 0.1 {
                 calc.input_nodes.push(pointer);
             }
-            else if node_gene.x.parse() >= 0.9 {
+            else if node_gene.x >= 0.9 {
                 calc.output_nodes.push(pointer);
             }
             else {
@@ -55,7 +87,7 @@ impl Calculator {
                     .expect("'to' is not in the hashmap");
 
             let mut connection = Connection::new(Rc::clone(node_from));
-            connection.weight = connection_gene.weight.into();
+            connection.weight = connection_gene.weight;
             connection.enabled = connection_gene.enabled;
             let pointer = Rc::new(RefCell::new(connection));
             
@@ -65,8 +97,36 @@ impl Calculator {
         calc
     }
 
-    /// Calculate the outputs according to the genome that was given when it was created
+    /// Calculate the outputs according to the genome that was given when it was created and an array of floats as inputs.
+    /// 
+    /// # Examples
+    /// 
+    /// ```rust
+    /// use profqu_neat::Neat;
+    /// use profqu_neat::calculations::Calculator;
+    /// 
+    /// Neat::test_config();
+    /// let mut neat = Neat::new(3, 3, 10);
+    /// 
+    /// let mut genome = neat.empty_genome();
+    /// 
+    /// let mut calc = Calculator::new(genome.clone());
+    /// let result = calc.calculate(&vec![0.0, 0.0, 0.0]).unwrap();
+    /// assert_eq!(result, vec![0.5, 0.5, 0.5]);
+    /// 
+    /// genome.add_connection(&mut neat, 0, 4);
+    /// 
+    /// let mut calc = Calculator::new(genome.clone());
+    /// assert_eq!(calc.calculate(&vec![1.0, 0.0, 0.0]).unwrap(), vec![0.731_058_6, 0.5, 0.5]);
+    /// 
+    /// genome.add_connection(&mut neat, 1, 4);
+    /// 
+    /// let mut calc = Calculator::new(genome.clone());
+    /// assert_eq!(calc.calculate(&vec![1.0, 2.0, 0.0]).unwrap(), vec![0.952_574_13, 0.5, 0.5]);
+    /// ```
+    /// 
     /// # Errors
+    /// 
     /// Returns an error when the number of inputs aren't equal to the number of input nodes.
     pub fn calculate(&mut self, inputs: &Vec<f32>) -> Result<Vec<f32>, &'static str> {
         if inputs.len() + 1 != self.input_nodes.len() {

@@ -262,12 +262,12 @@ fn mutate_weight_shift() {
     let mut genome = neat.empty_genome();
 
     genome.add_connection(&mut neat, 0, 2);
-    assert_eq!(genome.get_connection(0).weight.parse(), 1.0);
+    assert_eq!(genome.get_connection(0).weight, 1.0);
 
     for _ in 0..10 {
-        let weight = genome.get_connection(0).weight.parse();
+        let weight = genome.get_connection(0).weight;
         genome.mutate_weight_shift();
-        let new_weight = genome.get_connection(0).weight.parse();
+        let new_weight = genome.get_connection(0).weight;
         let difference = (new_weight - weight).abs();
         assert!((0.0..Config::global().weight_shift_strength).contains(&difference));
     }
@@ -281,14 +281,14 @@ fn mutate_weight_random() {
     let mut genome = neat.empty_genome();
 
     genome.add_connection(&mut neat, 0, 2);
-    assert_eq!(genome.get_connection(0).weight.parse(), 1.0);
+    assert_eq!(genome.get_connection(0).weight, 1.0);
     
-    let mut previous = genome.get_connection(0).weight.parse();
+    let mut previous = genome.get_connection(0).weight;
 
     for _ in 0..10 {
         genome.mutate_weight_random();
     
-        let current = genome.get_connection(0).weight.parse();
+        let current = genome.get_connection(0).weight;
         assert_ne!(current, previous);
         previous = current;
     }

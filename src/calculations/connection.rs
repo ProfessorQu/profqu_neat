@@ -15,7 +15,7 @@ pub struct Connection {
 }
 
 impl Connection {
-    /// Create a new connection using reference to a cell where it comes from
+    /// Create a new connection using a reference to a cell where it comes from
     pub fn new(from: Rc<RefCell<Node>>) -> Self {
         Self {
             from,

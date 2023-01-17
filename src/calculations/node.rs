@@ -43,7 +43,6 @@ impl Node {
         self.output = (self.activation)(sum);
     }
 
-    /// The `ReLu` activation function
     fn relu_activation(input: f32) -> f32 {
         if input <= 0.0 {
             0.0
@@ -53,7 +52,6 @@ impl Node {
         }
     }
 
-    /// The sigmoid activation function
     fn sigmoid_activation(input: f32) -> f32 {
         1.0 / (1.0 + (-input).exp())
     }

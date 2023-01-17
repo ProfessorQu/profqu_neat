@@ -131,6 +131,7 @@ mod tests {
         let mut neat = Neat::new(3, 3, 100);
 
         let mut genome = neat.empty_genome();
+        
         for _ in 0..100 {
             genome.mutate(&mut neat);
         }
@@ -150,6 +151,7 @@ mod tests {
 
         let mut genome1 = neat.empty_genome();
         let mut genome2 = neat.empty_genome();
+
         for _ in 0..5000 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
@@ -180,6 +182,7 @@ mod tests {
 
         let mut genome1 = neat.empty_genome();
         let mut genome2 = neat.empty_genome();
+
         for _ in 0..100 {
             genome1.mutate(&mut neat);
             genome2.mutate(&mut neat);
@@ -189,7 +192,7 @@ mod tests {
         rep.borrow_mut().fitness = 10.0;
 
         let mut species = Species::new(rep);
-        
+
         for _ in 0..10 {
             let mut genome = neat.empty_genome();
             for _ in 0..100 {

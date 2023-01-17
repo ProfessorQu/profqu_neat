@@ -3,7 +3,6 @@ use std::cmp::{Ordering, max};
 use rand::{thread_rng, Rng};
 
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
-use crate::data_structures::PseudoFloat;
 use crate::data_structures::RandomHashSet;
 use crate::neat::{Neat, Config};
 
@@ -115,7 +114,7 @@ impl Genome {
             match innov1.cmp(&innov2) {
                 Ordering::Equal => {    // Same gene
                     num_weight_similar += 1;
-                    total_weight_diff += (connection_gene1.weight.parse() - connection_gene2.weight.parse()).abs();
+                    total_weight_diff += (connection_gene1.weight - connection_gene2.weight).abs();
                     index1 += 1;
                     index2 += 1;
                 },
@@ -265,7 +264,7 @@ impl Genome {
                 continue;
             }
 
-            let connection = if node1.x.parse() < node2.x.parse() {
+            let connection = if node1.x < node2.x {
                 ConnectionGene::new(node1, node2)
             }
             else {
@@ -278,7 +277,7 @@ impl Genome {
 
             let mut connection = neat.get_connection(connection.from, connection.to);
             let result = Genome::get_random_range(Config::global().weight_random_strength);
-            connection.weight = PseudoFloat::new(result);
+            connection.weight = result;
 
             self.connections.add(connection);
             return;
@@ -292,16 +291,16 @@ impl Genome {
             let from = connection.from;
             let to = connection.to;
 
-            let replace_index = neat.get_replace_index(from, to);
+            let replace_index = neat.get_replace_index(connection);
             let middle: NodeGene;
             if replace_index == 0 {
-                let x = (from.x.parse() + to.x.parse()) / 2.0;
-                let y = (from.y.parse() + to.y.parse()) / 2.0;
+                let x = (from.x + to.x) / 2.0;
+                let y = (from.y + to.y) / 2.0;
 
                 middle = neat.create_node(x, y);
                 neat.set_replace_index(
-                    from, to, 
-                    middle.innovation_number.try_into().expect("usize too big to convert to u32")
+                    connection,
+                    middle.innovation_number.try_into().expect("u32 too small to convert to usize")
                 );
             }
             else {
@@ -311,7 +310,7 @@ impl Genome {
             let mut connection1 = neat.get_connection(from, middle);
             let mut connection2= neat.get_connection(middle, to);
 
-            connection1.weight = PseudoFloat::new(1.0);
+            connection1.weight = 1.0;
             connection2.weight = connection.weight;
             connection2.enabled = connection.enabled;
 
@@ -333,8 +332,8 @@ impl Genome {
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let weight = connection.weight.parse() + Genome::get_random_range(Config::global().weight_shift_strength);
-            connection.weight = PseudoFloat::new(weight);
+            let weight = connection.weight + Genome::get_random_range(Config::global().weight_shift_strength);
+            connection.weight = weight;
         }
     }
 
@@ -343,7 +342,7 @@ impl Genome {
     pub fn mutate_weight_random(&mut self) {
         if let Some(connection) = self.connections.random_element() {
             let weight = Genome::get_random_range(Config::global().weight_random_strength);
-            connection.weight = PseudoFloat::new(weight);
+            connection.weight = weight;
         }
     }
 

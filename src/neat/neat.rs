@@ -133,8 +133,8 @@ impl Neat {
     pub fn create_node(&mut self, x: f32, y: f32) -> NodeGene {
         let mut node = NodeGene::new(self.all_nodes.len() as u32 + 1);
 
-        node.x = x.into();
-        node.y = y.into();
+        node.x = x;
+        node.y = y;
 
         self.all_nodes.push(node);
         let len = self.all_nodes.len();
@@ -159,10 +159,8 @@ impl Neat {
     pub fn get_connection(&mut self, node1: NodeGene, node2: NodeGene) -> ConnectionGene {
         let mut connection_gene = ConnectionGene::new(node1, node2);
 
-        if self.all_connections.contains_key(&connection_gene.hash_code()) {
-            connection_gene.innovation_number = self.all_connections.get(&connection_gene.hash_code())
-                                                    .expect("all_connections doesn't contain connection_gene")
-                                                    .innovation_number;
+        if let Some(found) = self.all_connections.get(&connection_gene.hash_code()) {
+            connection_gene.innovation_number = found.innovation_number;
         }
         else {
             connection_gene.innovation_number = self.all_connections.len() as u32 + 1;
@@ -174,15 +172,14 @@ impl Neat {
 
     #[doc(hidden)]
     /// Set a replace index from a connection
-    pub fn set_replace_index(&mut self, from: NodeGene, to: NodeGene, replace_index: usize) {
-        self.all_connections.get_mut(&ConnectionGene::new(from, to).hash_code())
+    pub fn set_replace_index(&mut self, connection: &ConnectionGene, replace_index: usize) {
+        self.all_connections.get_mut(&connection.hash_code())
             .expect("Failed to find connection gene").replace_index = replace_index;
     }
 
     #[doc(hidden)]
     /// Get a replace index from a connection
-    pub fn get_replace_index(&self, from: NodeGene, to: NodeGene) -> usize {
-        let connection = ConnectionGene::new(from, to);
+    pub fn get_replace_index(&self, connection: &ConnectionGene) -> usize {
         if let Some(connection) = self.all_connections.get(&connection.hash_code()) {
             connection.replace_index
         }

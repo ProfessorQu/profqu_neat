@@ -1,4 +1,7 @@
-//! A module for getting a genome and calculating the outputs of that genome
+//! The calculations required to calculate any genomes output
+//! 
+//! It contains a `Calculator` which is created by a client to calculate it's genome's output with some input.
+//! The `Connection` and `Node` structs are used in the `Calculator` to calculate the outputs.
 
 mod calculator;
 mod connection;
