@@ -301,34 +301,18 @@ impl Neat {
 
     /// Iterate over all the clients in this struct to set their fitness
     pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
-        let mut clients = Vec::new();
-        for client in &self.clients {
-            clients.push(client.borrow_mut());
+        self.clients.iter().map(|client| client.borrow_mut()).collect()
+    }
+
+    /// Set the fitness of all clients with a vector
+    pub fn set_fitness(&mut self, fitnesses: &Vec<f32>) {
+        for (index, client) in self.clients.clone().into_iter().enumerate()
+        {
+            client.borrow_mut().fitness = fitnesses[index];
         }
-        
-        clients
     }
 
     /// Returns the best client out of all of the clients
-    /// ```rust
-    /// use profqu_neat::Neat;
-    /// 
-    /// Neat::test_config();
-    /// let mut neat = Neat::new(10, 1, 1000);
-    /// 
-    /// let input: Vec<f32> = vec![rand::random(); 10];
-    /// 
-    /// for _iteration in 0..10 {
-    ///     for mut client in neat.iter_clients() {
-    ///         let fitness = client.calculate(&input)[0];
-    ///         client.fitness = fitness.into();
-    ///     }
-    /// 
-    ///     neat.evolve();
-    /// }
-    /// 
-    /// neat.print_species();
-    /// ```
     pub fn best_client(&mut self) -> Option<Client> {
         let mut best_client = None;
         let mut best_fitness = f32::MIN;
@@ -345,25 +329,6 @@ impl Neat {
     }
 
     /// Print all the different species
-    /// ```rust
-    /// use profqu_neat::Neat;
-    /// 
-    /// Neat::test_config();
-    /// let mut neat = Neat::new(10, 1, 1000);
-    /// 
-    /// let input: Vec<f32> = vec![rand::random(); 10];
-    /// 
-    /// for _iteration in 0..10 {
-    ///     for mut client in neat.iter_clients() {
-    ///         let fitness = client.calculate(&input)[0];
-    ///         client.fitness = fitness.into();
-    ///     }
-    /// 
-    ///     neat.evolve();
-    /// }
-    /// 
-    /// neat.print_species();
-    /// ```
     pub fn print_species(&self) {
         println!("#######################################################");
         for species in &self.species {
