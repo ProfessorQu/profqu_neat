@@ -3,9 +3,9 @@
 //! from [Finn Eggers](https://www.youtube.com/@finneggers6612).
 //! I tried to implement NEAT from the official github [repository](https://github.com/f3270/NEAT),
 //! but I couldn't figure out how to do it, so I used Finn's implementation.
-//! 
+//!
 //! Then I looked on Youtube and found Finn Eggers and his tutorial really helped me with creating this library.
-//! 
+//!
 //! Doesn't allow recurrent connections in the networks.
 
 #![warn(clippy::pedantic)]
@@ -16,9 +16,9 @@
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::ptr_arg)]
 
-pub mod data_structures;
-pub mod neat;
-pub mod genome;
 pub mod calculations;
+pub mod data_structures;
+pub mod genome;
+pub mod neat;
 
 pub use neat::Neat;

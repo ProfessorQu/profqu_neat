@@ -22,12 +22,12 @@ fn inputs() {
     let y = neat.all_nodes[0].y;
     assert_eq!(x, 0.1);
     assert_eq!(y, 0.25);
-    
+
     let x = neat.all_nodes[1].x;
     let y = neat.all_nodes[1].y;
     assert_eq!(x, 0.1);
     assert_eq!(y, 0.5);
-    
+
     let x = neat.all_nodes[2].x;
     let y = neat.all_nodes[2].y;
     assert_eq!(x, 0.1);
@@ -48,12 +48,12 @@ fn outputs() {
     let y = neat.all_nodes[4].y;
     assert_eq!(x, 0.9);
     assert_eq!(y, 0.25);
-    
+
     let x = neat.all_nodes[5].x;
     let y = neat.all_nodes[5].y;
     assert_eq!(x, 0.9);
     assert_eq!(y, 0.5);
-    
+
     let x = neat.all_nodes[6].x;
     let y = neat.all_nodes[6].y;
     assert_eq!(x, 0.9);
@@ -82,7 +82,7 @@ fn create_node() {
     assert_eq!(node.x, 0.0);
     assert_eq!(node.y, 1.0);
     assert_eq!(node.innovation_number, 11);
-    
+
     let node = neat.create_node(0.5, 3.4);
 
     assert_eq!(node.x, 0.5);

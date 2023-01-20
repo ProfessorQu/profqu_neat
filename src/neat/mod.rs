@@ -1,12 +1,12 @@
 //! The main module where all the evolution happens
 
+mod client;
+mod config;
 #[allow(clippy::module_inception)]
 mod neat;
 mod species;
-mod client;
-mod config;
 
+pub use client::Client;
+pub use config::{ActivationFunction, Config};
 pub use neat::{Neat, MAX_NODES};
 pub use species::Species;
-pub use client::Client;
-pub use config::{Config, ActivationFunction};

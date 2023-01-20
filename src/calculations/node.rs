@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::neat::{Config, ActivationFunction};
+use crate::neat::{ActivationFunction, Config};
 
 use super::Connection;
 
@@ -26,7 +26,7 @@ impl Node {
             activation: match Config::global().activation {
                 ActivationFunction::Relu => Self::relu_activation,
                 ActivationFunction::Sigmoid => Self::sigmoid_activation,
-            }
+            },
         }
     }
 
@@ -46,8 +46,7 @@ impl Node {
     fn relu_activation(input: f32) -> f32 {
         if input <= 0.0 {
             0.0
-        }
-        else {
+        } else {
             input
         }
     }
@@ -63,7 +62,7 @@ impl PartialOrd for Node {
     }
 }
 
-impl Eq for Node { }
+impl Eq for Node {}
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {

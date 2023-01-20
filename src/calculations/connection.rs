@@ -20,7 +20,7 @@ impl Connection {
         Self {
             from,
             weight: 1.0,
-            enabled: true
+            enabled: true,
         }
     }
 }

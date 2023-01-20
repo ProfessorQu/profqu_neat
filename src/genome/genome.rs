@@ -1,10 +1,10 @@
-use std::cmp::{Ordering, max};
+use std::cmp::{max, Ordering};
 
 use rand::{thread_rng, Rng};
 
 use super::{connection_gene::ConnectionGene, node_gene::NodeGene};
 use crate::data_structures::RandomHashSet;
-use crate::neat::{Neat, Config};
+use crate::neat::{Config, Neat};
 
 #[cfg(test)]
 #[path = "genome_test.rs"]
@@ -16,7 +16,7 @@ pub struct Genome {
     /// All the connections in this genome
     pub connections: RandomHashSet<ConnectionGene>,
     /// All the nodes in this genome
-    pub nodes: RandomHashSet<NodeGene>
+    pub nodes: RandomHashSet<NodeGene>,
 }
 
 impl Genome {
@@ -24,7 +24,7 @@ impl Genome {
     pub fn new() -> Self {
         Self {
             connections: RandomHashSet::new(),
-            nodes: RandomHashSet::new()
+            nodes: RandomHashSet::new(),
         }
     }
 
@@ -32,10 +32,13 @@ impl Genome {
     /// Get the highest innovation number of this genome
     fn highest_innov_num(&self) -> u32 {
         if self.connections.is_empty() {
-            return 0
+            return 0;
         }
 
-        self.connections.get(self.connections.len() - 1).expect("Index out of bounds").innovation_number
+        self.connections
+            .get(self.connections.len() - 1)
+            .expect("Index out of bounds")
+            .innovation_number
     }
 
     #[doc(hidden)]
@@ -43,22 +46,27 @@ impl Genome {
     pub fn add_connection(&mut self, neat: &mut Neat, index1: usize, index2: usize) {
         self.connections.add(
             neat.get_connection(
-                *self.nodes.get(index1).expect("Failed to find node in genome with index1"),
-                *self.nodes.get(index2).expect("Failed to find node in genome with index2")
-            )
+                *self
+                    .nodes
+                    .get(index1)
+                    .expect("Failed to find node in genome with index1"),
+                *self
+                    .nodes
+                    .get(index2)
+                    .expect("Failed to find node in genome with index2"),
+            ),
         );
     }
-    
+
     #[doc(hidden)]
     /// Order two genomes according to their innovation number
     fn order_genomes(input_genome1: Genome, input_genome2: Genome) -> (Genome, Genome) {
         let innov1 = input_genome1.highest_innov_num();
         let innov2 = input_genome2.highest_innov_num();
-        
+
         if innov1 < innov2 {
             (input_genome2, input_genome1)
-        }
-        else {
+        } else {
             (input_genome1, input_genome2)
         }
     }
@@ -72,29 +80,30 @@ impl Genome {
     /// Calculate the distance between this and another genome
     /// ```rust
     /// use profqu_neat::{Neat, genome::Genome};
-    /// 
+    ///
     /// Neat::test_config();
     /// let mut neat = Neat::new(2, 2, 3);
-    /// 
+    ///
     /// let mut genome1 = neat.empty_genome();
     /// let mut genome2 = neat.empty_genome();
-    /// 
+    ///
     /// assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
     /// assert_eq!(Genome::distance(&genome2, &genome2), 0.0);
     /// assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
-    /// 
+    ///
     /// genome1.add_connection(&mut neat, 0, 2);
-    /// 
+    ///
     /// assert_eq!(Genome::distance(&genome1, &genome1), 0.0);
     /// assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     ///```
     pub fn distance(input_genome1: &Genome, input_genome2: &Genome) -> f32 {
         if input_genome1.connections.is_empty() && input_genome2.connections.is_empty() {
-            return 0.0
+            return 0.0;
         }
 
         // Set the highest genome to be genome1
-        let (genome1, genome2) = Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
+        let (genome1, genome2) =
+            Genome::order_genomes(input_genome1.clone(), input_genome2.clone());
 
         let mut index1 = 0;
         let mut index2 = 0;
@@ -112,26 +121,29 @@ impl Genome {
             let innov2 = connection_gene2.innovation_number;
 
             match innov1.cmp(&innov2) {
-                Ordering::Equal => {    // Same gene
+                Ordering::Equal => {
+                    // Same gene
                     num_weight_similar += 1;
                     total_weight_diff += (connection_gene1.weight - connection_gene2.weight).abs();
                     index1 += 1;
                     index2 += 1;
-                },
-                Ordering::Greater => {  // Disjoint gene of genome 1
+                }
+                Ordering::Greater => {
+                    // Disjoint gene of genome 1
                     num_disjoint += 1;
                     index2 += 1;
-                },
-                Ordering::Less => {     // Disjoint gene of genome 2
+                }
+                Ordering::Less => {
+                    // Disjoint gene of genome 2
                     num_disjoint += 1;
                     index1 += 1;
-                },
+                }
             }
         }
 
         let average_weight_diff = match num_weight_similar {
             0 => 0.0,
-            _ => total_weight_diff / num_weight_similar as f32
+            _ => total_weight_diff / num_weight_similar as f32,
         };
 
         let num_excess = genome1.connections.len() - index1;
@@ -141,9 +153,9 @@ impl Genome {
             total_genes = 1.0;
         }
 
-        Config::global().mult_disjoint * num_disjoint as f32 / total_genes +
-        Config::global().mult_excess * num_excess as f32 / total_genes +
-        Config::global().mult_weight_diff * average_weight_diff
+        Config::global().mult_disjoint * num_disjoint as f32 / total_genes
+            + Config::global().mult_excess * num_excess as f32 / total_genes
+            + Config::global().mult_weight_diff * average_weight_diff
     }
 
     /// Crossover two genomes, the first element should have the highest fitness
@@ -151,19 +163,19 @@ impl Genome {
     /// use profqu_neat::{Neat, genome::Genome};
     /// Neat::test_config();
     /// let mut neat = Neat::new(3, 4, 10);
-    /// 
+    ///
     /// let mut genome1 = neat.empty_genome();
     /// let genome2 = neat.empty_genome();
-    /// 
+    ///
     /// let baby = Genome::crossover(&mut neat, &genome1, &genome2);
-    /// 
+    ///
     /// assert_eq!(Genome::distance(&genome1, &genome2), 0.0);
     /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
     ///
     /// genome1.add_connection(&mut neat, 0, 2);
-    /// 
+    ///
     /// let baby = Genome::crossover(&mut neat, &genome1, &genome2);
-    /// 
+    ///
     /// assert_eq!(Genome::distance(&genome1, &genome2), 2.0);
     /// assert_eq!(Genome::distance(&genome1, &baby), 0.0);
     /// ```
@@ -183,13 +195,13 @@ impl Genome {
 
             // Add connections to the result genome accordingly
             match innov1.cmp(&innov2) {
-                Ordering::Equal => {    // Same gene
+                Ordering::Equal => {
+                    // Same gene
                     if rand::random() {
                         baby.connections.add(*connection_gene1);
                         baby.nodes.add(connection_gene1.from);
                         baby.nodes.add(connection_gene1.to);
-                    }
-                    else {
+                    } else {
                         baby.connections.add(*connection_gene2);
                         baby.nodes.add(connection_gene2.from);
                         baby.nodes.add(connection_gene2.to);
@@ -197,24 +209,26 @@ impl Genome {
 
                     index1 += 1;
                     index2 += 1;
-                },
-                Ordering::Greater => {  // Disjoint gene of genome 2
+                }
+                Ordering::Greater => {
+                    // Disjoint gene of genome 2
                     index2 += 1;
-                },
-                Ordering::Less => {     // Disjoint gene of genome 1
+                }
+                Ordering::Less => {
+                    // Disjoint gene of genome 1
                     baby.connections.add(*connection_gene1);
                     baby.nodes.add(connection_gene1.from);
                     baby.nodes.add(connection_gene1.to);
 
                     index1 += 1;
-                },
+                }
             }
         }
 
         // Add all the excess nodes to the result genome
         while index1 < genome1.connections.len() {
             let connection1 = genome1.get_connection(index1);
-            
+
             baby.connections.add(*connection1);
             baby.nodes.add(connection1.from);
             baby.nodes.add(connection1.to);
@@ -253,7 +267,7 @@ impl Genome {
     /// Mutate a new link
     pub fn mutate_link(&mut self, neat: &mut Neat) {
         if self.nodes.len() <= 1 {
-            return
+            return;
         }
 
         for _ in 0..100 {
@@ -266,8 +280,7 @@ impl Genome {
 
             let connection = if node1.x < node2.x {
                 ConnectionGene::new(node1, node2)
-            }
-            else {
+            } else {
                 ConnectionGene::new(node2, node1)
             };
 
@@ -300,15 +313,19 @@ impl Genome {
                 middle = neat.create_node(x, y);
                 neat.set_replace_index(
                     connection,
-                    middle.innovation_number.try_into().expect("u32 too small to convert to usize")
+                    middle
+                        .innovation_number
+                        .try_into()
+                        .expect("u32 too small to convert to usize"),
                 );
-            }
-            else {
-                middle = neat.get_node(replace_index).expect("Failed to get the replace_index");
+            } else {
+                middle = neat
+                    .get_node(replace_index)
+                    .expect("Failed to get the replace_index");
             }
 
             let mut connection1 = neat.get_connection(from, middle);
-            let mut connection2= neat.get_connection(middle, to);
+            let mut connection2 = neat.get_connection(middle, to);
 
             connection1.weight = 1.0;
             connection2.weight = connection.weight;
@@ -332,7 +349,8 @@ impl Genome {
     /// Mutate weight shift
     pub fn mutate_weight_shift(&mut self) {
         if let Some(connection) = self.connections.random_element() {
-            let weight = connection.weight + Genome::get_random_range(Config::global().weight_shift_strength);
+            let weight = connection.weight
+                + Genome::get_random_range(Config::global().weight_shift_strength);
             connection.weight = weight;
         }
     }

@@ -30,13 +30,14 @@ impl ConnectionGene {
             to,
             weight: 1.0,
             enabled: true,
-            replace_index: 0
+            replace_index: 0,
         }
     }
 
     /// Get the hash code of this function
     pub fn hash_code(&self) -> u64 {
-        u64::from(self.from.innovation_number) * neat::MAX_NODES + u64::from(self.to.innovation_number)
+        u64::from(self.from.innovation_number) * neat::MAX_NODES
+            + u64::from(self.to.innovation_number)
     }
 }
 
@@ -49,12 +50,12 @@ impl Debug for ConnectionGene {
 
 impl PartialEq for ConnectionGene {
     fn eq(&self, other: &Self) -> bool {
-        self.innovation_number == other.innovation_number &&
-        self.enabled == other.enabled &&
-        self.from == other.from &&
-        self.to == other.to &&
-        self.weight == other.weight &&
-        self.replace_index == other.replace_index
+        self.innovation_number == other.innovation_number
+            && self.enabled == other.enabled
+            && self.from == other.from
+            && self.to == other.to
+            && self.weight == other.weight
+            && self.replace_index == other.replace_index
     }
 }
 
@@ -83,7 +84,7 @@ mod tests {
 
             let from = NodeGene::new(from_innov);
             let to = NodeGene::new(to_innov);
-    
+
             let connection = ConnectionGene::new(from, to);
             let mut state_connection = DefaultHasher::new();
 

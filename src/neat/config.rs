@@ -1,5 +1,5 @@
-use std::fs;
 use once_cell::sync::OnceCell;
+use std::fs;
 
 pub static CONFIG: OnceCell<Config> = OnceCell::new();
 
@@ -9,7 +9,7 @@ pub enum ActivationFunction {
     /// The sigmoid activation function
     Sigmoid,
     /// The ReLu activation function
-    Relu
+    Relu,
 }
 
 impl From<&str> for ActivationFunction {
@@ -17,7 +17,7 @@ impl From<&str> for ActivationFunction {
         match value {
             "relu" => ActivationFunction::Relu,
             "sigmoid" => ActivationFunction::Sigmoid,
-            _ => panic!("Wrong activation input")
+            _ => panic!("Wrong activation input"),
         }
     }
 }
@@ -60,29 +60,29 @@ pub struct Config {
 
 impl Config {
     /// Create a config object from a vector
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics if the number of variables aren't the same length as the number of fields in Config
     pub fn from_vec(variables: &Vec<f32>, activation: &str) -> Self {
         assert!(variables.len() == 12);
-        
+
         Self {
             mult_disjoint: variables[0],
             mult_excess: variables[1],
             mult_weight_diff: variables[2],
-            
+
             weight_shift_strength: variables[3],
             weight_random_strength: variables[4],
-            
+
             prob_mutate_link: variables[5],
             prob_mutate_node: variables[6],
             prob_mutate_weight_shift: variables[7],
             prob_mutate_weight_random: variables[8],
             prob_mutate_toggle_link: variables[9],
-            
+
             species_threshold: variables[10],
-            
+
             kill_percentage: variables[11],
 
             activation: activation.into(),
@@ -90,13 +90,13 @@ impl Config {
     }
 
     /// Create a config from a filename
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Panics if it finds an unrecongized pattern in the config file
     pub fn from_file(filename: &str) -> Self {
         let mut config = Config::init_zero();
-        
+
         let content = fs::read_to_string(filename).expect("Error opening file");
 
         for line in content.lines() {
@@ -104,24 +104,98 @@ impl Config {
 
             while let Some(name) = split.next() {
                 match name.to_lowercase().as_str() {
-                    "mult_disjoint" => config.mult_disjoint = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "mult_excess" => config.mult_excess = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "mult_weight_diff" => config.mult_weight_diff = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    
-                    "weight_shift_strength" => config.weight_shift_strength = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "weight_random_strength" => config.weight_random_strength = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    
-                    "prob_mutate_link" => config.prob_mutate_link = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "prob_mutate_node" => config.prob_mutate_node = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "prob_mutate_weight_shift" => config.prob_mutate_weight_shift = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "prob_mutate_weight_random" => config.prob_mutate_weight_random = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "prob_mutate_toggle_link" => config.prob_mutate_toggle_link = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    
-                    "species_threshold" => config.species_threshold = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "kill_percentage" => config.kill_percentage = split.next().expect("No number after parameter").parse().expect("No valid float supplied"),
-                    "activation" => config.activation = split.next().expect("No string after parameter").into(),
-                    "" => { },
-                    _ => panic!("No recognized pattern")
+                    "mult_disjoint" => {
+                        config.mult_disjoint = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "mult_excess" => {
+                        config.mult_excess = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "mult_weight_diff" => {
+                        config.mult_weight_diff = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+
+                    "weight_shift_strength" => {
+                        config.weight_shift_strength = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "weight_random_strength" => {
+                        config.weight_random_strength = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+
+                    "prob_mutate_link" => {
+                        config.prob_mutate_link = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "prob_mutate_node" => {
+                        config.prob_mutate_node = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "prob_mutate_weight_shift" => {
+                        config.prob_mutate_weight_shift = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "prob_mutate_weight_random" => {
+                        config.prob_mutate_weight_random = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "prob_mutate_toggle_link" => {
+                        config.prob_mutate_toggle_link = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+
+                    "species_threshold" => {
+                        config.species_threshold = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "kill_percentage" => {
+                        config.kill_percentage = split
+                            .next()
+                            .expect("No number after parameter")
+                            .parse()
+                            .expect("No valid float supplied");
+                    }
+                    "activation" => {
+                        config.activation = split.next().expect("No string after parameter").into();
+                    }
+                    "" => (),
+                    _ => panic!("No recognized pattern"),
                 }
             }
         }
@@ -135,21 +209,21 @@ impl Config {
             mult_disjoint: 0.0,
             mult_excess: 0.0,
             mult_weight_diff: 0.0,
-            
+
             weight_shift_strength: 0.0,
             weight_random_strength: 0.0,
-            
+
             prob_mutate_link: 0.0,
             prob_mutate_node: 0.0,
             prob_mutate_weight_shift: 0.0,
             prob_mutate_weight_random: 0.0,
             prob_mutate_toggle_link: 0.0,
-            
+
             species_threshold: 0.0,
-            
+
             kill_percentage: 0.0,
 
-            activation: ActivationFunction::Relu
+            activation: ActivationFunction::Relu,
         }
     }
 

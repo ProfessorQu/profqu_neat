@@ -1,6 +1,6 @@
-use std::{fmt::Debug, rc::Rc, cell::RefCell};
+use std::{cell::RefCell, fmt::Debug, rc::Rc};
 
-use crate::{genome::Genome, calculations::Calculator, Neat};
+use crate::{calculations::Calculator, genome::Genome, Neat};
 
 /// The client that controls the genome and the fitness
 #[derive(Clone)]
@@ -11,26 +11,22 @@ pub struct Client {
     /// The fitness of this client
     pub fitness: f32,
     /// A boolean to determine whether this client is a part of a species or not
-    pub has_species: bool
+    pub has_species: bool,
 }
 
 impl Client {
     /// Create a new client
-    /// 
+    ///
     /// Not meant to be called directly
     pub fn new(genome: Genome) -> Rc<RefCell<Self>> {
-        Rc::new(
-            RefCell::new(
-                Self {
-                    genome,
-                    calculator: None,
-                    fitness: 0.0,
-                    has_species: false
-                }
-            )
-        )
+        Rc::new(RefCell::new(Self {
+            genome,
+            calculator: None,
+            fitness: 0.0,
+            has_species: false,
+        }))
     }
-    
+
     #[doc(hidden)]
     /// Generate a calculator for this genome
     pub fn generate_calculator(&mut self) {
@@ -38,15 +34,15 @@ impl Client {
     }
 
     /// Calculate the outputs
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::Neat;
-    /// 
+    ///
     /// Neat::test_config();
     /// let mut neat = Neat::new(3, 3, 5);
-    /// 
+    ///
     /// for mut client in neat.iter_clients() {
     ///     let result = client.calculate(&vec![5.0, 1.0, 2.0]);
     ///     client.fitness = result[0] + result[1] * result[2];
@@ -57,9 +53,11 @@ impl Client {
             self.generate_calculator();
         }
 
-        self.calculator.as_mut()
+        self.calculator
+            .as_mut()
             .expect("Failed to generate calculator")
-            .calculate(inputs).expect("Failed to calculate")
+            .calculate(inputs)
+            .expect("Failed to calculate")
     }
 
     #[doc(hidden)]
@@ -76,6 +74,10 @@ impl Client {
 
 impl Debug for Client {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Client {{ fitness: {:?}, has_species: {:?} }}", self.fitness, self.has_species)
+        write!(
+            f,
+            "Client {{ fitness: {:?}, has_species: {:?} }}",
+            self.fitness, self.has_species
+        )
     }
 }

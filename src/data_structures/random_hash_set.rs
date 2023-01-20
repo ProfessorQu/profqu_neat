@@ -1,30 +1,36 @@
+use core::fmt::Debug;
+use rand::seq::SliceRandom;
 use std::collections::HashSet;
 use std::fmt;
 use std::hash::Hash;
-use rand::seq::SliceRandom;
-use core::fmt::Debug;
 
 #[cfg(test)]
-#[path ="random_hash_set_test.rs"]
+#[path = "random_hash_set_test.rs"]
 mod random_hash_set_test;
 
 /// A hashset with some data that can get a random item
 #[derive(Clone, PartialEq, Eq)]
-pub struct RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
+pub struct RandomHashSet<T>
+where
+    T: Eq + Hash + Clone + Copy + Debug,
+{
     set: HashSet<T>,
     /// The vector with non-repeating elements from the RandomHashSet
     pub data: Vec<T>,
 }
 
-impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
+impl<T> RandomHashSet<T>
+where
+    T: Eq + Hash + Clone + Copy + Debug,
+{
     /// Create a new hash set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set: RandomHashSet<NodeGene> = RandomHashSet::new();
     /// ```
     pub fn new() -> Self {
@@ -35,18 +41,18 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Test if the set contains a value
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set: RandomHashSet<NodeGene> = RandomHashSet::new();
     /// let node1 = NodeGene::new(0);
-    /// 
+    ///
     /// set.add(node1);
-    /// 
+    ///
     /// assert!(set.contains(&node1));
     /// ```
     pub fn contains(&self, value: &T) -> bool {
@@ -54,23 +60,23 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get a value at an index
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
-    /// 
+    ///
     /// let node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// assert_eq!(set.get(0), Some(&node1));
-    /// 
+    ///
     /// let node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// assert_eq!(set.get(0), Some(&node1));
     /// assert_eq!(set.get(1), Some(&node2));
     /// ```
@@ -79,23 +85,23 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get a random element from the set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// let element = set.random_element();
-    /// 
+    ///
     /// assert!(
     ///     element == Some(&mut node1)
     ///     || element == Some(&mut node2)
@@ -106,43 +112,43 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Get the length of this hash set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
     /// assert_eq!(set.len(), 0);
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// assert_eq!(set.len(), 1);
-    /// 
+    ///
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// assert_eq!(set.len(), 2);
     /// ```
     pub fn len(&self) -> usize {
         self.set.len()
     }
     /// Get the length of this hash set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::new();
     /// assert!(set.is_empty());
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// assert!(!set.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
@@ -150,18 +156,18 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Add a new element to the set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::new();
     /// let node1 = NodeGene::new(42);
-    /// 
+    ///
     /// set.add(node1);
-    /// 
+    ///
     /// assert!(set.contains(&node1));
     /// ```
     pub fn add(&mut self, value: T) {
@@ -172,28 +178,28 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Clear the entire set
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
     /// assert_eq!(set.len(), 0);
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// assert_eq!(set.len(), 1);
-    /// 
+    ///
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// assert_eq!(set.len(), 2);
-    /// 
+    ///
     /// set.clear();
-    /// 
+    ///
     /// assert_eq!(set.len(), 0);
     /// ```
     pub fn clear(&mut self) {
@@ -202,27 +208,27 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
     }
 
     /// Remove an item at a certain index
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
     /// assert_eq!(set.len(), 0);
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// assert!(set.contains(&node1));
     /// assert!(set.contains(&node2));
-    /// 
+    ///
     /// set.remove_index(0);
-    /// 
+    ///
     /// assert!(!set.contains(&node1));
     /// assert!(set.contains(&node2));
     /// ```
@@ -232,33 +238,33 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
                 self.set.remove(result);
                 self.data.remove(index);
                 true
-            },
-            None => false
+            }
+            None => false,
         }
     }
 
     /// Remove an item with a certain value
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```rust
     /// use profqu_neat::genome::NodeGene;
     /// use profqu_neat::data_structures::RandomHashSet;
-    /// 
+    ///
     /// let mut set = RandomHashSet::<NodeGene>::new();
     /// assert_eq!(set.len(), 0);
-    /// 
+    ///
     /// let mut node1 = NodeGene::new(0);
     /// set.add(node1);
-    /// 
+    ///
     /// let mut node2 = NodeGene::new(1);
     /// set.add(node2);
-    /// 
+    ///
     /// assert!(set.contains(&node1));
     /// assert!(set.contains(&node2));
-    /// 
+    ///
     /// set.remove_value(&node2);
-    /// 
+    ///
     /// assert!(set.contains(&node1));
     /// assert!(!set.contains(&node2));
     /// ```
@@ -266,26 +272,31 @@ impl<T> RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
         if self.set.remove(value) {
             self.data.remove(
                 self.data
-                .iter()
-                .position(|v| v == value)
-                .expect("Failed to find value in self.data")
+                    .iter()
+                    .position(|v| v == value)
+                    .expect("Failed to find value in self.data"),
             );
-            
+
             true
-        }
-        else {
+        } else {
             false
         }
     }
 }
 
-impl<T> Default for RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
+impl<T> Default for RandomHashSet<T>
+where
+    T: Eq + Hash + Clone + Copy + Debug,
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> fmt::Debug for RandomHashSet<T> where T: Eq + Hash + Clone + Copy + Debug {
+impl<T> fmt::Debug for RandomHashSet<T>
+where
+    T: Eq + Hash + Clone + Copy + Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.data)
     }

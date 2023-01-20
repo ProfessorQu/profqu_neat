@@ -1,16 +1,16 @@
-use crate::genome::{NodeGene, ConnectionGene};
+use crate::genome::{ConnectionGene, NodeGene};
 
 use super::*;
 
 #[test]
 fn new() {
     let set = RandomHashSet::<NodeGene>::new();
-    
+
     assert_eq!(set.data.len(), 0);
     assert_eq!(set.set.len(), 0);
 
     let set = RandomHashSet::<ConnectionGene>::new();
-    
+
     assert_eq!(set.data.len(), 0);
     assert_eq!(set.set.len(), 0);
 }
@@ -44,7 +44,7 @@ fn add_remove() {
 
     // ----- Remove by index -----
     set.remove_index(0);
-    
+
     assert_eq!(set.data.len(), 1);
     assert_eq!(set.set.len(), 1);
     assert_eq!(set.len(), set.data.len());
@@ -83,7 +83,7 @@ fn get() {
     set.add(node1);
 
     assert_eq!(set.get(0), Some(&node1));
-    
+
     // ----- Add second node -----
     let node2 = NodeGene::new(1);
     set.add(node2);
@@ -99,7 +99,7 @@ fn random_element() {
     // ----- Add first node -----
     let node1 = NodeGene::new(3);
     set.add(node1);
-    
+
     // ----- Add second node -----
     let node2 = NodeGene::new(1);
     set.add(node2);
@@ -111,7 +111,7 @@ fn random_element() {
     // Use ^ (exclusive or) to test that only one has the same innovation number
     assert!(
         (element.innovation_number == node1.innovation_number)
-        ^ (element.innovation_number == node2.innovation_number)
-        ^ (element.innovation_number == node3.innovation_number)
+            ^ (element.innovation_number == node2.innovation_number)
+            ^ (element.innovation_number == node3.innovation_number)
     );
 }

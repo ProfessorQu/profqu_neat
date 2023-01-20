@@ -1,4 +1,4 @@
-use std::{fmt::Debug, rc::Rc, cell::RefCell};
+use std::{cell::RefCell, fmt::Debug, rc::Rc};
 
 use rand::seq::SliceRandom;
 
@@ -12,7 +12,7 @@ pub struct Species {
     clients: Vec<Rc<RefCell<Client>>>,
     representative: Rc<RefCell<Client>>,
     /// The average fitness of this species
-    pub average_fitness: f32
+    pub average_fitness: f32,
 }
 
 impl Species {
@@ -27,18 +27,23 @@ impl Species {
 
     /// Get a random element out of this species' clients
     fn get_random_element(&self) -> Rc<RefCell<Client>> {
-        Rc::clone(self.clients.choose(&mut rand::thread_rng()).expect("No clients in this species"))
+        Rc::clone(
+            self.clients
+                .choose(&mut rand::thread_rng())
+                .expect("No clients in this species"),
+        )
     }
 
     /// Put a new client in this species if possible
     pub fn put(&mut self, client: Rc<RefCell<Client>>) -> bool {
-        if client.borrow().distance(&self.representative.borrow()) < Config::global().species_threshold {
+        if client.borrow().distance(&self.representative.borrow())
+            < Config::global().species_threshold
+        {
             client.borrow_mut().has_species = true;
             self.clients.push(client);
 
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -80,12 +85,8 @@ impl Species {
     /// Kill 50% of this species
     pub fn kill(&mut self, percentage: f32) {
         // Sort so that the lowest fitness is at index 0
-        self.clients.sort_by(
-            |a, b|
-            a.borrow().fitness.total_cmp(
-                &b.borrow().fitness
-            )
-        );
+        self.clients
+            .sort_by(|a, b| a.borrow().fitness.total_cmp(&b.borrow().fitness));
 
         let kill_num = (percentage * self.clients.len() as f32) as usize;
         self.clients.drain(0..kill_num);
@@ -98,8 +99,7 @@ impl Species {
 
         if client1.borrow().fitness > client2.borrow().fitness {
             Genome::crossover(neat, &client1.borrow().genome, &client2.borrow().genome)
-        }
-        else {
+        } else {
             Genome::crossover(neat, &client2.borrow().genome, &client1.borrow().genome)
         }
     }
@@ -117,7 +117,12 @@ impl Species {
 
 impl Debug for Species {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Species {{ len: {:?}, fitness: {:?} }}", self.len(), self.average_fitness)
+        write!(
+            f,
+            "Species {{ len: {:?}, fitness: {:?} }}",
+            self.len(),
+            self.average_fitness
+        )
     }
 }
 
@@ -131,11 +136,11 @@ mod tests {
         let mut neat = Neat::new(3, 3, 100);
 
         let mut genome = neat.empty_genome();
-        
+
         for _ in 0..100 {
             genome.mutate(&mut neat);
         }
-        
+
         let representative = Client::new(genome);
 
         let species = Species::new(representative);
@@ -160,14 +165,14 @@ mod tests {
         let representative = Client::new(genome1);
 
         let mut species = Species::new(representative);
-        
+
         assert_eq!(species.len(), 1);
         assert!(!species.is_empty());
 
         let new = Client::new(genome2);
 
         assert!(!species.put(Rc::clone(&new)));
-        
+
         assert_eq!(species.len(), 1);
 
         species.force_put(new);
@@ -200,7 +205,7 @@ mod tests {
             }
 
             let client = Client::new(genome);
-            
+
             species.force_put(client);
         }
 

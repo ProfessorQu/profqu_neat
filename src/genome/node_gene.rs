@@ -24,7 +24,11 @@ impl NodeGene {
 
 impl Debug for NodeGene {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Node({:?}, x: {:?}, y: {:?})", self.innovation_number, self.x, self.y)
+        write!(
+            f,
+            "Node({:?}, x: {:?}, y: {:?})",
+            self.innovation_number, self.x, self.y
+        )
     }
 }
 
@@ -53,10 +57,10 @@ mod tests {
     #[test]
     fn test_hash() {
         let innov: u32 = rand::thread_rng().gen_range(0..100);
-        
+
         let from = NodeGene::new(innov);
         let to = NodeGene::new(innov);
-        
+
         let mut state_from = DefaultHasher::new();
 
         from.hash(&mut state_from);

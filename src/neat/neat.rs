@@ -1,12 +1,16 @@
-use std::{collections::HashMap, rc::Rc, cell::{RefCell, RefMut}};
 use rand::seq::SliceRandom;
+use std::{
+    cell::{RefCell, RefMut},
+    collections::HashMap,
+    rc::Rc,
+};
 
-use crate::genome::{ConnectionGene, NodeGene, Genome};
+use crate::genome::{ConnectionGene, Genome, NodeGene};
 
-use super::{Client, Species, Config, config::CONFIG};
+use super::{config::CONFIG, Client, Config, Species};
 
 #[cfg(test)]
-#[path ="neat_test.rs"]
+#[path = "neat_test.rs"]
 mod neat_test;
 
 /// The maximum number of nodes in a network
@@ -14,17 +18,17 @@ pub const MAX_NODES: u64 = 2u64.pow(20);
 
 #[derive(Clone)]
 /// The struct that controls the entire library
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```rust
 /// use profqu_neat::Neat;
-/// 
+///
 /// Neat::test_config();
 /// let mut neat = Neat::new(10, 1, 1000);
-/// 
+///
 /// let input: Vec<f32> = vec![rand::random(); 10];
-/// 
+///
 /// for _iteration in 0..200 {
 ///     for mut client in neat.iter_clients() {
 ///         let fitness = client.calculate(&input)[0];
@@ -32,12 +36,12 @@ pub const MAX_NODES: u64 = 2u64.pow(20);
 ///     }
 ///     neat.evolve();
 /// }
-/// 
+///
 /// let best = neat.best_client().expect("Failed to get client");
-/// 
+///
 /// neat.print_species();
 /// println!("Best: {best:?}");
-/// 
+///
 /// assert!(best.fitness > 0.8);
 /// ```
 pub struct Neat {
@@ -47,14 +51,14 @@ pub struct Neat {
     species: Vec<Species>,
     input_size: u32,
     output_size: u32,
-    population_size: u32
+    population_size: u32,
 }
 
 impl Neat {
     /// Create a new neat struct
     /// ```rust
     /// use profqu_neat::Neat;
-    /// 
+    ///
     /// Neat::test_config();
     /// let neat = Neat::new(3, 3, 15);
     /// ```
@@ -66,7 +70,7 @@ impl Neat {
             species: Vec::new(),
             input_size,
             output_size,
-            population_size
+            population_size,
         };
 
         neat.reset(input_size, output_size, population_size);
@@ -76,15 +80,15 @@ impl Neat {
     /// Reset this neat struct with new values
     /// ```rust
     /// use profqu_neat::Neat;
-    /// 
+    ///
     /// Neat::test_config();
     /// let mut neat = Neat::new(3, 3, 15);
-    /// 
+    ///
     /// let genome = neat.empty_genome();
     /// assert_eq!(genome.nodes.len(), 7);
-    /// 
+    ///
     /// neat.reset(3, 5, 4);
-    /// 
+    ///
     /// let genome = neat.empty_genome();
     /// assert_eq!(genome.nodes.len(), 9);
     /// ```
@@ -148,7 +152,9 @@ impl Neat {
         let mut genome = Genome::new();
 
         for index in 0..self.input_size as usize + 1 + self.output_size as usize {
-            genome.nodes.add(self.get_node(index + 1).expect("Failed to get a node"));
+            genome
+                .nodes
+                .add(self.get_node(index + 1).expect("Failed to get a node"));
         }
 
         genome
@@ -164,7 +170,7 @@ impl Neat {
 
         self.all_nodes.push(node);
         let len = self.all_nodes.len();
-        
+
         self.all_nodes[len - 1]
     }
 
@@ -174,8 +180,7 @@ impl Neat {
         let len = self.all_nodes.len();
         if index <= len {
             Some(self.all_nodes[index - 1])
-        }
-        else {
+        } else {
             None
         }
     }
@@ -187,10 +192,10 @@ impl Neat {
 
         if let Some(found) = self.all_connections.get(&connection_gene.hash_code()) {
             connection_gene.innovation_number = found.innovation_number;
-        }
-        else {
+        } else {
             connection_gene.innovation_number = self.all_connections.len() as u32 + 1;
-            self.all_connections.insert(connection_gene.hash_code(), connection_gene);
+            self.all_connections
+                .insert(connection_gene.hash_code(), connection_gene);
         }
 
         connection_gene
@@ -199,8 +204,10 @@ impl Neat {
     #[doc(hidden)]
     /// Set a replace index from a connection
     pub fn set_replace_index(&mut self, connection: &ConnectionGene, replace_index: usize) {
-        self.all_connections.get_mut(&connection.hash_code())
-            .expect("Failed to find connection gene").replace_index = replace_index;
+        self.all_connections
+            .get_mut(&connection.hash_code())
+            .expect("Failed to find connection gene")
+            .replace_index = replace_index;
     }
 
     #[doc(hidden)]
@@ -208,8 +215,7 @@ impl Neat {
     pub fn get_replace_index(&self, connection: &ConnectionGene) -> usize {
         if let Some(connection) = self.all_connections.get(&connection.hash_code()) {
             connection.replace_index
-        }
-        else {
+        } else {
             0
         }
     }
@@ -235,7 +241,9 @@ impl Neat {
         }
 
         for client in &self.clients {
-            if client.borrow().has_species { continue }
+            if client.borrow().has_species {
+                continue;
+            }
 
             let mut found = false;
             for species in &mut self.species {
@@ -301,13 +309,15 @@ impl Neat {
 
     /// Iterate over all the clients in this struct to set their fitness
     pub fn iter_clients(&mut self) -> Vec<RefMut<Client>> {
-        self.clients.iter().map(|client| client.borrow_mut()).collect()
+        self.clients
+            .iter()
+            .map(|client| client.borrow_mut())
+            .collect()
     }
 
     /// Set the fitness of all clients with a vector
     pub fn set_fitness(&mut self, fitnesses: &Vec<f32>) {
-        for (index, client) in self.clients.clone().into_iter().enumerate()
-        {
+        for (index, client) in self.clients.clone().into_iter().enumerate() {
             client.borrow_mut().fitness = fitnesses[index];
         }
     }
@@ -350,8 +360,7 @@ mod tests {
 
         let input: Vec<f32> = vec![rand::random(); 10];
 
-        let fitness_before = neat.clients[0].borrow_mut()
-            .calculate(&input)[0];
+        let fitness_before = neat.clients[0].borrow_mut().calculate(&input)[0];
 
         for _iteration in 0..200 {
             for mut client in neat.iter_clients() {
